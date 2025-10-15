@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: agents-marketplace
+    env: python
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python start_production.py
+    envVars:
+      - key: DATA_SOURCE
+        value: csv
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main
+    rootDir: /

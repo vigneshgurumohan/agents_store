@@ -1,0 +1,36 @@
+serial_id,agent_id,by_capability_id,by_capability
+map_0001,agent_001,capa_001,Conversational AI & Advisory
+map_0002,agent_001,capa_002,Data & Analytics
+map_0003,agent_001,capa_003,Document Intelligence
+map_0004,agent_002,capa_002,Data & Analytics
+map_0005,agent_003,capa_003,Document Intelligence
+map_0006,agent_004,capa_001,Conversational AI & Advisory
+map_0007,agent_004,capa_002,Data & Analytics
+map_0008,agent_004,capa_003,Document Intelligence
+map_0009,agent_005,capa_001,Conversational AI & Advisory
+map_0010,agent_006,capa_001,Conversational AI & Advisory
+map_0011,agent_007,capa_003,Document Intelligence
+map_0012,agent_008,capa_001,Conversational AI & Advisory
+map_0013,agent_009,capa_003,Document Intelligence
+map_0014,agent_010,capa_003,Document Intelligence
+map_0015,agent_011,capa_006,Voice & Meetings
+map_0016,agent_011,capa_003,Document Intelligence
+map_0017,agent_012,capa_002,Data & Analytics
+map_0018,agent_013,capa_003,Document Intelligence
+map_0019,agent_014,capa_001,Conversational AI & Advisory
+map_0020,agent_015,capa_001,Conversational AI & Advisory
+map_0021,agent_016,capa_002,Data & Analytics
+map_0022,agent_017,capa_002,Data & Analytics
+map_0023,agent_018,capa_002,Data & Analytics
+map_0024,agent_018,capa_004,Knowledge & Repository
+map_0025,agent_018,capa_003,Document Intelligence
+map_0026,agent_019,capa_004,Knowledge & Repository
+map_0027,agent_020,capa_006,Voice & Meetings
+map_0028,agent_021,capa_002,Data & Analytics
+map_0029,agent_022,capa_001,Conversational AI & Advisory
+map_0030,agent_023,capa_001,Conversational AI & Advisory
+map_0031,agent_024,capa_003,Document Intelligence
+map_0032,agent_025,capa_003,Document Intelligence
+map_0033,agent_026,capa_004,Knowledge & Repository
+map_0034,agent_027,capa_001,Conversational AI & Advisory
+map_0035,agent_028,capa_001,Conversational AI & Advisory

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .agent-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .agent-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .agent-card p {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .agent-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .agent-type {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .view-link {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .view-link:hover {
+            background: #5a6fd8;
+        }
+        
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stats h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Agents Marketplace</h1>
+            <p>Discover AI-powered solutions for your business needs</p>
+        </div>
+        
+        <div class="stats">
+            <h2 id="total-agents">Loading...</h2>
+            <p>AI agents available for deployment</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            🔄 Loading agents...
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            ❌ Error loading agents. Please try again later.
+        </div>
+        
+        <div id="agents-container" style="display: none;">
+            <div class="agents-grid" id="agents-grid">
+                <!-- Agents will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadAgents() {
+            try {
+                const response = await fetch('/api/agents');
+                const data = await response.json();
+                
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('agents-container').style.display = 'block';
+                
+                // Update stats
+                document.getElementById('total-agents').textContent = `${data.total} Agents Available`;
+                
+                // Populate agents grid
+                populateAgentsGrid(data.agents);
+                
+            } catch (error) {
+                console.error('Error loading agents:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        function populateAgentsGrid(agents) {
+            const grid = document.getElementById('agents-grid');
+            
+            if (agents.length === 0) {
+                grid.innerHTML = '<p class="na">No agents found</p>';
+                return;
+            }
+            
+            grid.innerHTML = agents.map(agent => {
+                // Create URL-friendly name for routing
+                const urlName = agent.agent_name.toLowerCase().replace(/\s+/g, '-');
+                
+                return `
+                    <div class="agent-card" onclick="viewAgent('${urlName}')">
+                        <h3>${agent.agent_name || 'Unknown Agent'}</h3>
+                        <p><strong>Type:</strong> ${agent.asset_type || 'na'}</p>
+                        <p><strong>Persona:</strong> ${agent.by_persona || 'na'}</p>
+                        <p><strong>Value:</strong> ${agent.by_value || 'na'}</p>
+                        <p>${truncateText(agent.description || 'No description available', 120)}</p>
+                        <div class="agent-meta">
+                            <span class="agent-type">${agent.asset_type || 'Unknown'}</span>
+                            <a href="/agent/${urlName}" class="view-link" onclick="event.stopPropagation()">View Details</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        function viewAgent(agentName) {
+            window.location.href = `/agent/${agentName}`;
+        }
+        
+        // Load agents when page loads
+        window.addEventListener('load', loadAgents);
+    </script>
+</body>
+</html>
