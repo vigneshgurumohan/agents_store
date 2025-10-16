@@ -15,6 +15,7 @@ DATA_DIR = BASE_DIR / "data"
 # CSV file paths
 CSV_PATHS = {
     "agents": DATA_DIR / "agents.csv",
+    "auth": DATA_DIR / "auth.csv",
     "capabilities_mapping": DATA_DIR / "capabilities_mapping.csv",
     "demo_assets": DATA_DIR / "demo_assets.csv", 
     "deployments": DATA_DIR / "deployments.csv",

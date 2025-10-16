@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reseller Profile - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .tab.active {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+            background-color: white;
+        }
+        
+        .tab-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .info-card h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .info-card p {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .info-card strong {
+            color: #333;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #ff6b6b;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .edit-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .edit-btn:hover {
+            background: #ee5a24;
+        }
+        
+        .approval-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .approval-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .approval-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .na {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .whitelisted-domain {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .whitelisted-domain h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .whitelisted-domain p {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                position: static;
+                margin-bottom: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/agents">Marketplace</a>
+                <a href="/reseller/login">Logout</a>
+            </div>
+            <h1 id="reseller-name">Loading...</h1>
+            <p id="reseller-status">Please wait while we load your profile...</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            🔄 Loading reseller profile...
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            ❌ Error loading profile. Please try again later.
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">Overview</button>
+                <button class="tab" onclick="showTab('edit')">Edit Profile</button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-panel active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="approval-status">-</div>
+                            <div class="stat-label">Account Status</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="whitelisted-domain-status">-</div>
+                            <div class="stat-label">Whitelisted Domain</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>Company Information</h3>
+                            <p><strong>Reseller ID:</strong> <span id="reseller-id">-</span></p>
+                            <p><strong>Company Name:</strong> <span id="company-name">-</span></p>
+                            <p><strong>Email:</strong> <span id="company-email">-</span></p>
+                            <p><strong>Domain:</strong> <span id="company-domain">-</span></p>
+                            <p><strong>Mobile:</strong> <span id="company-mobile">-</span></p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3>Address</h3>
+                            <p id="company-address">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="whitelisted-domain">
+                        <h4>🌐 Whitelisted Domain</h4>
+                        <p id="whitelisted-domain-value">-</p>
+                    </div>
+                </div>
+                
+                <!-- Edit Profile Tab -->
+                <div id="edit" class="tab-panel">
+                    <h3>Edit Profile</h3>
+                    <div id="edit-form">
+                        <!-- Edit form will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let profileData = null;
+        const resellerId = "{{reseller_id}}";
+        
+        async function loadProfileData() {
+            try {
+                const response = await fetch(`/api/reseller/profile/${resellerId}`);
+                profileData = await response.json();
+                
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // Populate the profile
+                populateProfile();
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        function populateProfile() {
+            if (!profileData) return;
+            
+            const reseller = profileData.reseller;
+            const stats = profileData.statistics;
+            
+            // Update header
+            document.getElementById('reseller-name').textContent = reseller.reseller_name || 'Unknown Reseller';
+            document.getElementById('reseller-status').textContent = stats.is_reseller_approved ? 
+                '✅ Account Approved' : '⏳ Pending Admin Approval';
+            
+            // Update stats
+            document.getElementById('approval-status').textContent = stats.is_reseller_approved ? '✅' : '⏳';
+            document.getElementById('whitelisted-domain-status').textContent = stats.whitelisted_domain === 'na' ? '❌' : '✅';
+            
+            // Update company info
+            document.getElementById('reseller-id').textContent = reseller.reseller_id || 'na';
+            document.getElementById('company-name').textContent = reseller.reseller_name || 'na';
+            document.getElementById('company-email').textContent = reseller.reseller_email_no || 'na';
+            document.getElementById('company-domain').textContent = reseller.reseller_domain || 'na';
+            document.getElementById('company-mobile').textContent = reseller.reseller_mob_no || 'na';
+            document.getElementById('company-address').textContent = reseller.reseller_address || 'na';
+            document.getElementById('whitelisted-domain-value').textContent = reseller.whitelisted_domain || 'na';
+            
+            // Populate edit form
+            populateEditForm();
+        }
+        
+        function populateEditForm() {
+            const container = document.getElementById('edit-form');
+            const reseller = profileData.reseller;
+            
+            container.innerHTML = `
+                <form id="editProfileForm" style="max-width: 600px;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Company Name *</label>
+                        <input type="text" id="edit_reseller_name" value="${reseller.reseller_name || ''}" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email Address *</label>
+                        <input type="email" id="edit_reseller_email" value="${reseller.reseller_email_no || ''}" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Company Address</label>
+                        <textarea id="edit_reseller_address" rows="3" 
+                                  style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">${reseller.reseller_address || ''}</textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Website Domain</label>
+                            <input type="text" id="edit_reseller_domain" value="${reseller.reseller_domain || ''}" 
+                                   style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mobile Number</label>
+                            <input type="tel" id="edit_reseller_mob_no" value="${reseller.reseller_mob_no || ''}" 
+                                   style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Whitelisted Domain *</label>
+                        <input type="text" id="edit_whitelisted_domain" value="${reseller.whitelisted_domain || ''}" required 
+                               style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                        <small style="color: #666; font-size: 0.8rem; margin-top: 5px; display: block;">
+                            This is the domain that will be whitelisted for your reseller operations.
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="edit-btn" style="margin-top: 20px;">
+                        Save Changes
+                    </button>
+                </form>
+            `;
+            
+            // Add form submission handler
+            document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData();
+                formData.append('reseller_name', document.getElementById('edit_reseller_name').value);
+                formData.append('reseller_email', document.getElementById('edit_reseller_email').value);
+                formData.append('reseller_address', document.getElementById('edit_reseller_address').value);
+                formData.append('reseller_domain', document.getElementById('edit_reseller_domain').value);
+                formData.append('reseller_mob_no', document.getElementById('edit_reseller_mob_no').value);
+                formData.append('whitelisted_domain', document.getElementById('edit_whitelisted_domain').value);
+                
+                try {
+                    const response = await fetch(`/api/reseller/profile/${resellerId}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        alert('Profile updated successfully!');
+                        // Reload profile data
+                        loadProfileData();
+                    } else {
+                        alert('Error updating profile: ' + (data.detail || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Update error:', error);
+                    alert('Network error. Please try again.');
+                }
+            });
+        }
+        
+        function showTab(tabName) {
+            // Hide all tab panels
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected panel
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Load data when page loads
+        window.addEventListener('load', loadProfileData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+auth_id,user_id,email,password,role,is_active,created_at
+auth_001,isv_001,babu@crayondata.com,password123,isv,yes,2024-01-01
+auth_002,isv_002,enquiry@mozark.ai,mozark123,isv,yes,2024-01-01
+auth_003,admin_001,admin@marketplace.com,admin123,admin,yes,2024-01-01
+auth_004,reseller_001,contact@redington.com,redington123,reseller,yes,2024-01-01
+auth_005,isv_003,test@testcompany.com,testpassword123,isv,yes,2024-01-15
+auth_006,isv_004,alskfj@gmail.com,aslkfj,isv,yes,2025-10-16
+auth_007,reseller_002,gv2995@gmail.com,password,reseller,yes,2025-10-16

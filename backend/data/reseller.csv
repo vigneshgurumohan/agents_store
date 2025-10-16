@@ -1,2 +1,3 @@
-reseller_id,reseller_name,reseller_address,reseller_domain,reseller_mob_no,reseller_email_no,admin_approved
-reseller_001,Redington Limited,"Redington Limited, Block3, Plathin, Redington Tower, Inner Ring Road, Saraswathy Nagar West, 4th Street, Puzhuthivakkam, Chennai TN 600091",,,,yes
+reseller_id,reseller_name,reseller_address,reseller_domain,reseller_mob_no,reseller_email_no,admin_approved,whitelisted_domain
+reseller_001,Redington Limited,"Redington Limited, Block3, Plathin, Redington Tower, Inner Ring Road, Saraswathy Nagar West, 4th Street, Puzhuthivakkam, Chennai TN 600091",,,,yes,redington.tngrm.ai
+reseller_002,Crayon Data India Private Limited,28dasfsdaf,fadsf,61468414439,gv2995@gmail.com,yes,asdf.com

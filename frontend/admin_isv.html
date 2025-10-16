@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - ISV Management - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #dc3545;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .isvs-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .isv-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #28a745;
+        }
+        
+        .isv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .isv-info h3 {
+            color: #28a745;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .isv-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .isv-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .approval-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .approval-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .approval-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .isv-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .detail-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .detail-item span {
+            color: #666;
+        }
+        
+        .na {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h2 {
+            color: #dc3545;
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #dc3545;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                position: static;
+                margin-bottom: 20px;
+            }
+            
+            .isv-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .isv-actions {
+                width: 100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/agents">Marketplace</a>
+                <a href="/isv/login">Logout</a>
+            </div>
+            <h1>🛡️ Admin Panel</h1>
+            <p>ISV Management Dashboard</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            🔄 Loading ISV data...
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            ❌ Error loading ISV data. Please try again later.
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-isvs">-</div>
+                    <div class="stat-label">Total ISVs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="approved-isvs">-</div>
+                    <div class="stat-label">Approved ISVs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pending-isvs">-</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-agents">-</div>
+                    <div class="stat-label">Total Agents</div>
+                </div>
+            </div>
+            
+            <div class="isvs-grid" id="isvs-list">
+                <!-- ISVs will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit ISV Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit ISV</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="edit_isv_id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_isv_name">Company Name *</label>
+                        <input type="text" id="edit_isv_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_isv_email">Email Address *</label>
+                        <input type="email" id="edit_isv_email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_isv_address">Company Address</label>
+                    <textarea id="edit_isv_address" rows="3"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_isv_domain">Website Domain</label>
+                        <input type="text" id="edit_isv_domain">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_isv_mob_no">Mobile Number</label>
+                        <input type="tel" id="edit_isv_mob_no">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_admin_approved">Approval Status</label>
+                    <select id="edit_admin_approved">
+                        <option value="no">Pending</option>
+                        <option value="yes">Approved</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isvsData = [];
+        
+        async function loadISVsData() {
+            try {
+                const response = await fetch('/api/admin/isvs');
+                const data = await response.json();
+                
+                isvsData = data.isvs;
+                
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // Populate the dashboard
+                populateStats(data);
+                populateISVs(data.isvs);
+                
+            } catch (error) {
+                console.error('Error loading ISVs:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        function populateStats(data) {
+            const isvs = data.isvs;
+            const totalISVs = isvs.length;
+            const approvedISVs = isvs.filter(isv => isv.admin_approved === 'yes').length;
+            const pendingISVs = totalISVs - approvedISVs;
+            const totalAgents = isvs.reduce((sum, isv) => sum + (isv.agent_count || 0), 0);
+            
+            document.getElementById('total-isvs').textContent = totalISVs;
+            document.getElementById('approved-isvs').textContent = approvedISVs;
+            document.getElementById('pending-isvs').textContent = pendingISVs;
+            document.getElementById('total-agents').textContent = totalAgents;
+        }
+        
+        function populateISVs(isvs) {
+            const container = document.getElementById('isvs-list');
+            
+            if (isvs.length === 0) {
+                container.innerHTML = '<p class="na">No ISVs found.</p>';
+                return;
+            }
+            
+            container.innerHTML = isvs.map(isv => `
+                <div class="isv-card">
+                    <div class="isv-header">
+                        <div class="isv-info">
+                            <h3>${isv.isv_name || 'Unknown ISV'}</h3>
+                            <p><strong>ISV ID:</strong> ${isv.isv_id}</p>
+                            <p><strong>Email:</strong> ${isv.isv_email_no || 'na'}</p>
+                            <span class="approval-badge ${isv.admin_approved === 'yes' ? 'approved' : 'pending'}">
+                                ${isv.admin_approved === 'yes' ? '✅ Approved' : '⏳ Pending'}
+                            </span>
+                        </div>
+                        
+                        <div class="isv-actions">
+                            <button class="btn btn-primary" onclick="viewISVProfile('${isv.isv_id}')">View Profile</button>
+                            <button class="btn btn-success" onclick="editISV('${isv.isv_id}')">Edit</button>
+                            <button class="btn ${isv.admin_approved === 'yes' ? 'btn-warning' : 'btn-success'}" 
+                                    onclick="toggleApproval('${isv.isv_id}', '${isv.admin_approved}')">
+                                ${isv.admin_approved === 'yes' ? 'Revoke Approval' : 'Approve'}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="isv-details">
+                        <div class="detail-item">
+                            <strong>Address</strong>
+                            <span>${isv.isv_address || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Domain</strong>
+                            <span>${isv.isv_domain || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Mobile</strong>
+                            <span>${isv.isv_mob_no || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Agents</strong>
+                            <span>${isv.approved_agent_count || 0} approved / ${isv.agent_count || 0} total</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function viewISVProfile(isvId) {
+            window.open(`/isv/profile/${isvId}`, '_blank');
+        }
+        
+        function editISV(isvId) {
+            const isv = isvsData.find(i => i.isv_id === isvId);
+            if (!isv) return;
+            
+            // Populate form
+            document.getElementById('edit_isv_id').value = isv.isv_id;
+            document.getElementById('edit_isv_name').value = isv.isv_name || '';
+            document.getElementById('edit_isv_email').value = isv.isv_email_no || '';
+            document.getElementById('edit_isv_address').value = isv.isv_address || '';
+            document.getElementById('edit_isv_domain').value = isv.isv_domain || '';
+            document.getElementById('edit_isv_mob_no').value = isv.isv_mob_no || '';
+            document.getElementById('edit_admin_approved').value = isv.admin_approved || 'no';
+            
+            // Show modal
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        async function toggleApproval(isvId, currentStatus) {
+            const newStatus = currentStatus === 'yes' ? 'no' : 'yes';
+            const action = newStatus === 'yes' ? 'approve' : 'revoke approval for';
+            
+            if (confirm(`Are you sure you want to ${action} this ISV?`)) {
+                try {
+                    const formData = new FormData();
+                    const isv = isvsData.find(i => i.isv_id === isvId);
+                    
+                    formData.append('isv_name', isv.isv_name);
+                    formData.append('isv_email', isv.isv_email_no);
+                    formData.append('isv_address', isv.isv_address || '');
+                    formData.append('isv_domain', isv.isv_domain || '');
+                    formData.append('isv_mob_no', isv.isv_mob_no || '');
+                    formData.append('admin_approved', newStatus);
+                    
+                    const response = await fetch(`/api/admin/isvs/${isvId}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        alert(`ISV ${action} successfully!`);
+                        loadISVsData(); // Reload data
+                    } else {
+                        alert('Error updating ISV: ' + (data.detail || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Toggle approval error:', error);
+                    alert('Network error. Please try again.');
+                }
+            }
+        }
+        
+        // Form submission handler
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const isvId = document.getElementById('edit_isv_id').value;
+            const formData = new FormData();
+            
+            formData.append('isv_name', document.getElementById('edit_isv_name').value);
+            formData.append('isv_email', document.getElementById('edit_isv_email').value);
+            formData.append('isv_address', document.getElementById('edit_isv_address').value);
+            formData.append('isv_domain', document.getElementById('edit_isv_domain').value);
+            formData.append('isv_mob_no', document.getElementById('edit_isv_mob_no').value);
+            formData.append('admin_approved', document.getElementById('edit_admin_approved').value);
+            
+            try {
+                const response = await fetch(`/api/admin/isvs/${isvId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('ISV updated successfully!');
+                    closeEditModal();
+                    loadISVsData(); // Reload data
+                } else {
+                    alert('Error updating ISV: ' + (data.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                alert('Network error. Please try again.');
+            }
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+        
+        // Load data when page loads
+        window.addEventListener('load', loadISVsData);
+    </script>
+</body>
+</html>

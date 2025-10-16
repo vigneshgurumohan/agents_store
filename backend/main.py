@@ -1,11 +1,13 @@
 """
 FastAPI application for Agents Marketplace
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from typing import Dict, List, Optional
 import pandas as pd
+import uuid
+from datetime import datetime
 from data_source import data_source
 from config import API_CONFIG
 
@@ -28,6 +30,417 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return data_source.health_check()
+
+# ============================================================================
+# AUTHENTICATION ENDPOINTS
+# ============================================================================
+
+@app.post("/api/auth/login")
+async def login(email: str = Form(...), password: str = Form(...)):
+    """ISV login endpoint"""
+    try:
+        user = data_source.authenticate_user(email, password)
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        return {
+            "success": True,
+            "user": {
+                "auth_id": user["auth_id"],
+                "user_id": user["user_id"],
+                "email": user["email"],
+                "role": user["role"]
+            },
+            "redirect": f"/isv/profile/{user['user_id']}" if user["role"] == "isv" else f"/reseller/profile/{user['user_id']}" if user["role"] == "reseller" else "/admin/isv"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
+
+@app.post("/api/auth/signup")
+async def signup(
+    # Common fields
+    email: str = Form(...),
+    password: str = Form(...),
+    role: str = Form(...),
+    # ISV specific fields
+    isv_name: str = Form(""),
+    isv_address: str = Form(""),
+    isv_domain: str = Form(""),
+    isv_mob_no: str = Form(""),
+    # Reseller specific fields
+    reseller_name: str = Form(""),
+    reseller_address: str = Form(""),
+    reseller_domain: str = Form(""),
+    reseller_mob_no: str = Form(""),
+    whitelisted_domain: str = Form("")
+):
+    """Registration endpoint for ISV and Reseller"""
+    try:
+        # Check if email already exists
+        existing_user = data_source.get_user_by_email(email)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Validate role
+        if role not in ["isv", "reseller"]:
+            raise HTTPException(status_code=400, detail="Invalid role. Must be 'isv' or 'reseller'")
+        
+        # Generate new IDs following the existing pattern
+        auth_id = data_source.get_next_auth_id()
+        
+        if role == "isv":
+            # ISV registration
+            if not isv_name:
+                raise HTTPException(status_code=400, detail="Company name is required for ISV registration")
+            
+            user_id = data_source.get_next_isv_id()
+            
+            # Create ISV record
+            isv_data = {
+                "isv_id": user_id,
+                "isv_name": isv_name,
+                "isv_address": isv_address,
+                "isv_domain": isv_domain,
+                "isv_mob_no": isv_mob_no,
+                "isv_email_no": email,
+                "admin_approved": "no"
+            }
+            
+            # Save ISV data
+            data_saved = data_source.save_isv_data(isv_data)
+            redirect_url = "/isv/login"
+            
+        elif role == "reseller":
+            # Reseller registration
+            if not reseller_name:
+                raise HTTPException(status_code=400, detail="Company name is required for reseller registration")
+            
+            user_id = data_source.get_next_reseller_id()
+            
+            # Create reseller record
+            reseller_data = {
+                "reseller_id": user_id,
+                "reseller_name": reseller_name,
+                "reseller_address": reseller_address,
+                "reseller_domain": reseller_domain,
+                "reseller_mob_no": reseller_mob_no,
+                "reseller_email_no": email,
+                "whitelisted_domain": whitelisted_domain,
+                "admin_approved": "no"
+            }
+            
+            # Save reseller data
+            data_saved = data_source.save_reseller_data(reseller_data)
+            redirect_url = "/reseller/login"
+        
+        # Create auth record
+        auth_data = {
+            "auth_id": auth_id,
+            "user_id": user_id,
+            "email": email,
+            "password": password,
+            "role": role,
+            "is_active": "yes",
+            "created_at": datetime.now().strftime("%Y-%m-%d")
+        }
+        
+        # Save auth data
+        auth_saved = data_source.save_auth_data(auth_data)
+        
+        if not (data_saved and auth_saved):
+            raise HTTPException(status_code=500, detail="Failed to save registration data")
+        
+        return {
+            "success": True,
+            "message": f"{role.upper()} registration successful! Please wait for admin approval.",
+            "user_id": user_id,
+            "role": role,
+            "redirect": redirect_url
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Signup error: {str(e)}")
+
+# ============================================================================
+# ISV ENDPOINTS
+# ============================================================================
+
+@app.get("/api/isv/profile/{isv_id}")
+async def get_isv_profile(isv_id: str):
+    """Get ISV profile with agents and statistics"""
+    try:
+        # Get ISV data
+        isvs_df = data_source.get_isvs()
+        isv = isvs_df[isvs_df['isv_id'] == isv_id]
+        
+        if isv.empty:
+            raise HTTPException(status_code=404, detail="ISV not found")
+        
+        isv_data = isv.iloc[0].to_dict()
+        
+        # Replace NaN values
+        for key, value in isv_data.items():
+            if pd.isna(value):
+                isv_data[key] = "na"
+        
+        # Get agents for this ISV
+        agents_df = data_source.get_agents_by_isv(isv_id)
+        agents = agents_df.to_dict('records') if not agents_df.empty else []
+        
+        # Replace NaN values in agents
+        for agent in agents:
+            for key, value in agent.items():
+                if pd.isna(value):
+                    agent[key] = "na"
+        
+        # Calculate statistics
+        stats = {
+            "total_agents": len(agents),
+            "approved_agents": len([a for a in agents if a.get('admin_approved') == 'yes']),
+            "total_capabilities": len(set([cap for agent in agents for cap in str(agent.get('by_capability', '')).split(',') if cap.strip()])),
+            "isv_approved": isv_data.get('admin_approved', 'no') == 'yes'
+        }
+        
+        return {
+            "isv": isv_data,
+            "agents": agents,
+            "statistics": stats
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching ISV profile: {str(e)}")
+
+@app.put("/api/isv/profile/{isv_id}")
+async def update_isv_profile(
+    isv_id: str,
+    isv_name: str = Form(...),
+    isv_address: str = Form(""),
+    isv_domain: str = Form(""),
+    isv_mob_no: str = Form(""),
+    isv_email: str = Form(...)
+):
+    """Update ISV profile"""
+    try:
+        # Prepare update data
+        update_data = {
+            "isv_name": isv_name,
+            "isv_address": isv_address,
+            "isv_domain": isv_domain,
+            "isv_mob_no": isv_mob_no,
+            "isv_email_no": isv_email
+        }
+        
+        # Update the CSV file
+        success = data_source.update_isv_data(isv_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update profile")
+        
+        return {
+            "success": True,
+            "message": "Profile updated successfully",
+            "isv_id": isv_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating profile: {str(e)}")
+
+# ============================================================================
+# ADMIN ENDPOINTS
+# ============================================================================
+
+@app.get("/api/admin/isvs")
+async def get_all_isvs():
+    """Admin: Get all ISVs with statistics"""
+    try:
+        isvs_df = data_source.get_isvs()
+        isvs = isvs_df.to_dict('records')
+        
+        # Replace NaN values
+        for isv in isvs:
+            for key, value in isv.items():
+                if pd.isna(value):
+                    isv[key] = "na"
+        
+        # Add statistics for each ISV
+        for isv in isvs:
+            agents_df = data_source.get_agents_by_isv(isv['isv_id'])
+            isv['agent_count'] = len(agents_df)
+            isv['approved_agent_count'] = len(agents_df[agents_df['admin_approved'] == 'yes'])
+        
+        return {"isvs": isvs, "total": len(isvs)}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching ISVs: {str(e)}")
+
+@app.put("/api/admin/isvs/{isv_id}")
+async def admin_update_isv(
+    isv_id: str,
+    isv_name: str = Form(...),
+    isv_address: str = Form(""),
+    isv_domain: str = Form(""),
+    isv_mob_no: str = Form(""),
+    isv_email: str = Form(...),
+    admin_approved: str = Form("no")
+):
+    """Admin: Update any ISV"""
+    try:
+        # Prepare update data
+        update_data = {
+            "isv_name": isv_name,
+            "isv_address": isv_address,
+            "isv_domain": isv_domain,
+            "isv_mob_no": isv_mob_no,
+            "isv_email_no": isv_email,
+            "admin_approved": admin_approved
+        }
+        
+        # Update the CSV file
+        success = data_source.update_isv_data(isv_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update ISV")
+        
+        return {
+            "success": True,
+            "message": "ISV updated successfully",
+            "isv_id": isv_id,
+            "admin_approved": admin_approved
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating ISV: {str(e)}")
+
+# ============================================================================
+# RESELLER ENDPOINTS
+# ============================================================================
+
+@app.get("/api/reseller/profile/{reseller_id}")
+async def get_reseller_profile(reseller_id: str):
+    """Get reseller profile with statistics"""
+    try:
+        # Get reseller data
+        reseller = data_source.get_reseller_by_id(reseller_id)
+        
+        if not reseller:
+            raise HTTPException(status_code=404, detail="Reseller not found")
+        
+        # Replace NaN values
+        for key, value in reseller.items():
+            if pd.isna(value):
+                reseller[key] = "na"
+        
+        # Calculate statistics (resellers don't have agents, so basic stats)
+        stats = {
+            "is_reseller_approved": reseller.get('admin_approved', 'no') == 'yes',
+            "whitelisted_domain": reseller.get('whitelisted_domain', 'na')
+        }
+        
+        return {
+            "reseller": reseller,
+            "statistics": stats
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching reseller profile: {str(e)}")
+
+@app.put("/api/reseller/profile/{reseller_id}")
+async def update_reseller_profile(
+    reseller_id: str,
+    reseller_name: str = Form(...),
+    reseller_address: str = Form(""),
+    reseller_domain: str = Form(""),
+    reseller_mob_no: str = Form(""),
+    reseller_email: str = Form(...),
+    whitelisted_domain: str = Form("")
+):
+    """Update reseller profile"""
+    try:
+        # Prepare update data
+        update_data = {
+            "reseller_name": reseller_name,
+            "reseller_address": reseller_address,
+            "reseller_domain": reseller_domain,
+            "reseller_mob_no": reseller_mob_no,
+            "reseller_email_no": reseller_email,
+            "whitelisted_domain": whitelisted_domain
+        }
+        
+        # Update the CSV file
+        success = data_source.update_reseller_data(reseller_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update profile")
+        
+        return {
+            "success": True,
+            "message": "Profile updated successfully",
+            "reseller_id": reseller_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating profile: {str(e)}")
+
+# ============================================================================
+# ADMIN RESELLER ENDPOINTS
+# ============================================================================
+
+@app.get("/api/admin/resellers")
+async def get_all_resellers():
+    """Admin: Get all resellers"""
+    try:
+        resellers_df = data_source.get_resellers()
+        resellers = resellers_df.to_dict('records')
+        
+        # Replace NaN values
+        for reseller in resellers:
+            for key, value in reseller.items():
+                if pd.isna(value):
+                    reseller[key] = "na"
+        
+        return {"resellers": resellers, "total": len(resellers)}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching resellers: {str(e)}")
+
+@app.put("/api/admin/resellers/{reseller_id}")
+async def admin_update_reseller(
+    reseller_id: str,
+    reseller_name: str = Form(...),
+    reseller_address: str = Form(""),
+    reseller_domain: str = Form(""),
+    reseller_mob_no: str = Form(""),
+    reseller_email: str = Form(...),
+    whitelisted_domain: str = Form(""),
+    admin_approved: str = Form("no")
+):
+    """Admin: Update any reseller"""
+    try:
+        # Prepare update data
+        update_data = {
+            "reseller_name": reseller_name,
+            "reseller_address": reseller_address,
+            "reseller_domain": reseller_domain,
+            "reseller_mob_no": reseller_mob_no,
+            "reseller_email_no": reseller_email,
+            "whitelisted_domain": whitelisted_domain,
+            "admin_approved": admin_approved
+        }
+        
+        # Update the CSV file
+        success = data_source.update_reseller_data(reseller_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update reseller")
+        
+        return {
+            "success": True,
+            "message": "Reseller updated successfully",
+            "reseller_id": reseller_id,
+            "admin_approved": admin_approved
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating reseller: {str(e)}")
 
 @app.get("/api/agents")
 async def get_all_agents():
@@ -175,6 +588,118 @@ async def agent_page(agent_name: str):
         raise HTTPException(status_code=404, detail="Agent page template not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading agent page: {str(e)}")
+
+# ============================================================================
+# ISV FRONTEND PAGES
+# ============================================================================
+
+@app.get("/isv/login", response_class=HTMLResponse)
+async def isv_login_page():
+    """Serve the ISV login page"""
+    try:
+        with open("../frontend/isv_login.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="ISV login page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading ISV login page: {str(e)}")
+
+@app.get("/isv/signup", response_class=HTMLResponse)
+async def isv_signup_page():
+    """Serve the ISV signup page"""
+    try:
+        with open("../frontend/isv_signup.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="ISV signup page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading ISV signup page: {str(e)}")
+
+@app.get("/isv/profile/{isv_id}", response_class=HTMLResponse)
+async def isv_profile_page(isv_id: str):
+    """Serve the ISV profile page"""
+    try:
+        with open("../frontend/isv_profile.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        
+        # Replace placeholder with actual ISV ID
+        html_content = html_content.replace("{{isv_id}}", isv_id)
+        
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="ISV profile page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading ISV profile page: {str(e)}")
+
+# ============================================================================
+# ADMIN FRONTEND PAGES
+# ============================================================================
+
+@app.get("/admin/isv", response_class=HTMLResponse)
+async def admin_isv_page():
+    """Serve the admin ISV management page"""
+    try:
+        with open("../frontend/admin_isv.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin ISV page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin ISV page: {str(e)}")
+
+# ============================================================================
+# RESELLER HTML PAGES
+# ============================================================================
+
+@app.get("/reseller/login", response_class=HTMLResponse)
+async def reseller_login_page():
+    """Reseller login page"""
+    try:
+        with open("../frontend/reseller_login.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Reseller login page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading reseller login page: {str(e)}")
+
+@app.get("/reseller/signup", response_class=HTMLResponse)
+async def reseller_signup_page():
+    """Reseller signup page"""
+    try:
+        with open("../frontend/reseller_signup.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Reseller signup page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading reseller signup page: {str(e)}")
+
+@app.get("/reseller/profile/{reseller_id}", response_class=HTMLResponse)
+async def reseller_profile_page(reseller_id: str):
+    """Reseller profile page"""
+    try:
+        with open("../frontend/reseller_profile.html", "r", encoding="utf-8") as f:
+            html_content = f.read().replace("{{reseller_id}}", reseller_id)
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Reseller profile page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading reseller profile page: {str(e)}")
+
+@app.get("/admin/reseller", response_class=HTMLResponse)
+async def admin_reseller_page():
+    """Admin reseller management page"""
+    try:
+        with open("../frontend/admin_reseller.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin reseller page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin reseller page: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

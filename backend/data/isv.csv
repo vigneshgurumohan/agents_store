@@ -1,3 +1,5 @@
 isv_id,isv_name,isv_address,isv_domain,isv_mob_no,isv_email_no,admin_approved
-isv_001,Crayon Data India Pvt Ltd,"Awfis Space Solutions, 7th Floor, RAR Technopolis, 4/293, OMR, Perungudi, Chennai, TN600096",,,babu@crayondata.com,yes
-isv_002,Mozark AI,"120 Robinson Road, #15-01 – 068913 - Singapore (SG)",,,enquiry@mozark.ai  ,yes
+isv_001,Crayon Data India Pvt Ltd,"Awfis Space Solutions, 7th Floor, RAR Technopolis, 4/293, OMR, Perungudi, Chennai, TN600096",na,na,babu@crayondata.com,yes
+isv_002,Mozark AI,"120 Robinson Road, #15-01 ï¿½ 068913 - Singapore (SG)",,,enquiry@mozark.ai  ,yes
+isv_003,Test ISV Company,"123 Test Street, Test City",testcompany.com,1234567890.0,test@testcompany.com,no
+isv_004,vignesh,aslkdfj,aslkdfj,alksjefg,alskfj@gmail.com,no

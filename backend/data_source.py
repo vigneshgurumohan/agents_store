@@ -116,6 +116,10 @@ class DataSource:
         """Get capabilities mapping table"""
         return self.get_table_data("capabilities_mapping")
     
+    def get_auth(self) -> pd.DataFrame:
+        """Get authentication table"""
+        return self.get_table_data("auth")
+    
     def get_agent_by_id(self, agent_id: str) -> Optional[Dict]:
         """Get specific agent by ID"""
         agents_df = self.get_agents()
@@ -140,6 +144,198 @@ class DataSource:
         """Get capabilities for specific agent"""
         mapping_df = self.get_capabilities_mapping()
         return mapping_df[mapping_df['agent_id'] == agent_id]
+    
+    def authenticate_user(self, email: str, password: str) -> Optional[Dict]:
+        """Authenticate user with email and password"""
+        auth_df = self.get_auth()
+        user = auth_df[(auth_df['email'] == email) & (auth_df['password'] == password) & (auth_df['is_active'] == 'yes')]
+        
+        if user.empty:
+            return None
+        
+        return user.iloc[0].to_dict()
+    
+    def get_user_by_email(self, email: str) -> Optional[Dict]:
+        """Get user by email"""
+        auth_df = self.get_auth()
+        user = auth_df[auth_df['email'] == email]
+        
+        if user.empty:
+            return None
+        
+        return user.iloc[0].to_dict()
+    
+    def get_agents_by_isv(self, isv_id: str) -> pd.DataFrame:
+        """Get all agents for a specific ISV"""
+        agents_df = self.get_agents()
+        return agents_df[agents_df['isv_id'] == isv_id]
+    
+    def save_isv_data(self, isv_data: Dict) -> bool:
+        """Save new ISV data to CSV file"""
+        try:
+            isv_df = self.get_isvs()
+            
+            # Convert to DataFrame and append
+            new_row = pd.DataFrame([isv_data])
+            updated_df = pd.concat([isv_df, new_row], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["isv"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved new ISV: {isv_data['isv_id']}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving ISV data: {e}")
+            return False
+    
+    def save_auth_data(self, auth_data: Dict) -> bool:
+        """Save new auth data to CSV file"""
+        try:
+            auth_df = self.get_auth()
+            
+            # Convert to DataFrame and append
+            new_row = pd.DataFrame([auth_data])
+            updated_df = pd.concat([auth_df, new_row], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["auth"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved new auth record: {auth_data['auth_id']}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving auth data: {e}")
+            return False
+    
+    def get_next_isv_id(self) -> str:
+        """Generate next sequential ISV ID"""
+        try:
+            isv_df = self.get_isvs()
+            if isv_df.empty:
+                return "isv_001"
+            
+            # Extract numeric part and find max
+            existing_ids = isv_df['isv_id'].str.extract(r'isv_(\d+)')[0].astype(int)
+            next_num = existing_ids.max() + 1
+            
+            return f"isv_{next_num:03d}"
+        except Exception as e:
+            logger.error(f"Error generating ISV ID: {e}")
+            return f"isv_{len(isv_df) + 1:03d}"
+    
+    def get_next_auth_id(self) -> str:
+        """Generate next sequential Auth ID"""
+        try:
+            auth_df = self.get_auth()
+            if auth_df.empty:
+                return "auth_001"
+            
+            # Extract numeric part and find max
+            existing_ids = auth_df['auth_id'].str.extract(r'auth_(\d+)')[0].astype(int)
+            next_num = existing_ids.max() + 1
+            
+            return f"auth_{next_num:03d}"
+        except Exception as e:
+            logger.error(f"Error generating Auth ID: {e}")
+            return f"auth_{len(auth_df) + 1:03d}"
+    
+    def update_isv_data(self, isv_id: str, updated_data: Dict) -> bool:
+        """Update existing ISV data in CSV file"""
+        try:
+            isv_df = self.get_isvs()
+            
+            # Find the row to update
+            mask = isv_df['isv_id'] == isv_id
+            if not mask.any():
+                logger.error(f"ISV not found: {isv_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in isv_df.columns:
+                    isv_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["isv"]
+            isv_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated ISV: {isv_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating ISV data: {e}")
+            return False
+    
+    def get_reseller_by_id(self, reseller_id: str) -> Optional[Dict]:
+        """Get specific reseller by ID"""
+        resellers_df = self.get_resellers()
+        reseller = resellers_df[resellers_df['reseller_id'] == reseller_id]
+        
+        if reseller.empty:
+            return None
+        
+        return reseller.iloc[0].to_dict()
+    
+    def save_reseller_data(self, reseller_data: Dict) -> bool:
+        """Save new reseller data to CSV file"""
+        try:
+            resellers_df = self.get_resellers()
+            
+            # Convert to DataFrame and append
+            new_row = pd.DataFrame([reseller_data])
+            updated_df = pd.concat([resellers_df, new_row], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["reseller"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved new reseller: {reseller_data['reseller_id']}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving reseller data: {e}")
+            return False
+    
+    def update_reseller_data(self, reseller_id: str, updated_data: Dict) -> bool:
+        """Update existing reseller data in CSV file"""
+        try:
+            resellers_df = self.get_resellers()
+            
+            # Find the row to update
+            mask = resellers_df['reseller_id'] == reseller_id
+            if not mask.any():
+                logger.error(f"Reseller not found: {reseller_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in resellers_df.columns:
+                    resellers_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["reseller"]
+            resellers_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated reseller: {reseller_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating reseller data: {e}")
+            return False
+    
+    def get_next_reseller_id(self) -> str:
+        """Generate next sequential reseller ID"""
+        try:
+            resellers_df = self.get_resellers()
+            if resellers_df.empty:
+                return "reseller_001"
+            
+            # Extract numeric part and find max
+            existing_ids = resellers_df['reseller_id'].str.extract(r'reseller_(\d+)')[0].astype(int)
+            next_num = existing_ids.max() + 1
+            
+            return f"reseller_{next_num:03d}"
+        except Exception as e:
+            logger.error(f"Error generating reseller ID: {e}")
+            return f"reseller_{len(resellers_df) + 1:03d}"
     
     def get_docs_by_agent(self, agent_id: str) -> pd.DataFrame:
         """Get documentation for specific agent"""
