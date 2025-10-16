@@ -756,16 +756,107 @@ async def admin_update_agent_approval(
 
 @app.get("/api/agents")
 async def get_all_agents():
-    """Get all agents with basic info"""
+    """Get all agents with basic info including by_capability, service_provider, and demo_preview"""
     try:
         agents_df = data_source.get_agents()
+        capabilities_mapping_df = data_source.get_capabilities_mapping()
+        deployments_df = data_source.get_deployments()
+        demo_assets_df = data_source.get_demo_assets()
+        
+        # Get unique capabilities and service providers for each agent
+        agent_capabilities = {}
+        agent_service_providers = {}
+        agent_demo_previews = {}
+        
+        # First, map agent_id to capabilities through capabilities_mapping
+        if not capabilities_mapping_df.empty:
+            for _, mapping in capabilities_mapping_df.iterrows():
+                agent_id = mapping.get('agent_id', '')
+                by_capability = mapping.get('by_capability', '')
+                by_capability_id = mapping.get('by_capability_id', '')
+                
+                if agent_id and by_capability:
+                    if agent_id not in agent_capabilities:
+                        agent_capabilities[agent_id] = set()
+                    agent_capabilities[agent_id].add(by_capability)
+        
+        # Then, map capabilities to service providers through deployments
+        if not deployments_df.empty:
+            capability_service_providers = {}
+            for _, deployment in deployments_df.iterrows():
+                by_capability_id = deployment.get('by_capability_id', '')
+                by_capability = deployment.get('by_capability', '')
+                service_provider = deployment.get('service_provider', '')
+                
+                if by_capability_id and service_provider:
+                    if by_capability_id not in capability_service_providers:
+                        capability_service_providers[by_capability_id] = set()
+                    capability_service_providers[by_capability_id].add(service_provider)
+        
+        # Get demo previews from demo_assets table
+        if not demo_assets_df.empty:
+            for _, demo_asset in demo_assets_df.iterrows():
+                agent_id = str(demo_asset.get('agent_id', ''))
+                demo_link = str(demo_asset.get('demo_link', ''))
+                demo_asset_name = str(demo_asset.get('demo_asset_name', ''))
+                
+                if agent_id and agent_id != 'nan' and demo_link and demo_link != 'nan':
+                    if agent_id not in agent_demo_previews:
+                        agent_demo_previews[agent_id] = set()
+                    # Use demo_link as the preview, or demo_asset_name if available
+                    preview_text = demo_link if demo_link != 'nan' else demo_asset_name
+                    if preview_text and preview_text != 'nan':
+                        agent_demo_previews[agent_id].add(preview_text)
+        
+        # Map capabilities to service providers for each agent
+        for agent_id, capabilities in agent_capabilities.items():
+            for capability in capabilities:
+                # Find capability_id for this capability
+                capability_mapping = capabilities_mapping_df[
+                    (capabilities_mapping_df['agent_id'] == agent_id) & 
+                    (capabilities_mapping_df['by_capability'] == capability)
+                ]
+                
+                if not capability_mapping.empty:
+                    capability_id = capability_mapping.iloc[0].get('by_capability_id', '')
+                    
+                    # Get service providers for this capability
+                    deployment_mapping = deployments_df[deployments_df['by_capability_id'] == capability_id]
+                    if not deployment_mapping.empty:
+                        if agent_id not in agent_service_providers:
+                            agent_service_providers[agent_id] = set()
+                        
+                        for _, deployment in deployment_mapping.iterrows():
+                            service_provider = deployment.get('service_provider', '')
+                            if service_provider:
+                                agent_service_providers[agent_id].add(service_provider)
+        
         agents_list = agents_df.to_dict('records')
         
-        # Replace NaN values with "na"
+        # Add by_capability, service_provider, and demo_preview fields to each agent
         for agent in agents_list:
+            agent_id = agent.get('agent_id', '')
+            
+            # Replace NaN values with "na" and remove demo_preview from original data
             for key, value in agent.items():
                 if pd.isna(value):
                     agent[key] = "na"
+            
+            # Remove the original demo_preview field from agents table
+            if 'demo_preview' in agent:
+                del agent['demo_preview']
+            
+            # Add by_capability (comma-separated list)
+            capabilities = agent_capabilities.get(agent_id, set())
+            agent['by_capability'] = ', '.join(sorted(capabilities)) if capabilities else "na"
+            
+            # Add service_provider (comma-separated list)
+            providers = agent_service_providers.get(agent_id, set())
+            agent['service_provider'] = ', '.join(sorted(providers)) if providers else "na"
+            
+            # Add demo_preview from demo_assets (comma-separated list)
+            demo_previews = agent_demo_previews.get(agent_id, set())
+            agent['demo_preview'] = ', '.join(sorted(demo_previews)) if demo_previews else "na"
         
         return {"agents": agents_list, "total": len(agents_list)}
     except Exception as e:
@@ -788,6 +879,37 @@ async def get_agent_details(agent_id: str):
         # Get capabilities for this agent
         capabilities_df = data_source.get_capabilities_by_agent(agent_id)
         capabilities = capabilities_df.to_dict('records') if not capabilities_df.empty else []
+        
+        # Add by_capability, service_provider, and demo_preview fields to agent
+        agent_capabilities = set()
+        agent_service_providers = set()
+        agent_demo_previews = set()
+        
+        if capabilities:
+            for cap in capabilities:
+                capability_name = cap.get('by_capability', '')
+                capability_id = cap.get('by_capability_id', '')
+                
+                if capability_name:
+                    agent_capabilities.add(capability_name)
+                
+                # Get service providers for this capability
+                if capability_id:
+                    deployments = data_source.get_deployments_by_capability(capability_id)
+                    if not deployments.empty:
+                        for _, deployment in deployments.iterrows():
+                            service_provider = deployment.get('service_provider', '')
+                            if service_provider:
+                                agent_service_providers.add(service_provider)
+        
+        
+        # Remove the original demo_preview field from agents table
+        if 'demo_preview' in agent:
+            del agent['demo_preview']
+        
+        # Add the new fields to agent (demo_preview will be added after demo_assets are processed)
+        agent['by_capability'] = ', '.join(sorted(agent_capabilities)) if agent_capabilities else "na"
+        agent['service_provider'] = ', '.join(sorted(agent_service_providers)) if agent_service_providers else "na"
         
         # Get all deployments for this agent's capabilities
         all_deployments = []
@@ -816,6 +938,20 @@ async def get_agent_details(agent_id: str):
             for key, value in asset.items():
                 if pd.isna(value):
                     asset[key] = "na"
+        
+        # Get demo previews from demo_assets for this agent
+        if demo_assets:
+            for demo_asset in demo_assets:
+                demo_link = str(demo_asset.get('demo_link', ''))
+                demo_asset_name = str(demo_asset.get('demo_asset_name', ''))
+                
+                if demo_link and demo_link != 'nan':
+                    agent_demo_previews.add(demo_link)
+                elif demo_asset_name and demo_asset_name != 'nan':
+                    agent_demo_previews.add(demo_asset_name)
+        
+        # Add demo_preview field to agent
+        agent['demo_preview'] = ', '.join(sorted(agent_demo_previews)) if agent_demo_previews else "na"
         
         # Get documentation for this specific agent
         docs_df = data_source.get_docs_by_agent(agent_id)
@@ -871,6 +1007,63 @@ async def get_all_capabilities():
         return {"capabilities": capabilities_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching capabilities: {str(e)}")
+
+@app.get("/api/values")
+async def get_unique_values():
+    """Get all unique values from categorical fields across all tables"""
+    try:
+        values = {}
+        
+        # Agents table categorical fields
+        agents_df = data_source.get_agents()
+        if not agents_df.empty:
+            values["agents"] = {
+                "by_persona": sorted([str(v) for v in agents_df['by_persona'].dropna().unique() if str(v) != 'nan']),
+                "asset_type": sorted([str(v) for v in agents_df['asset_type'].dropna().unique() if str(v) != 'nan']),
+                "by_value": sorted([str(v) for v in agents_df['by_value'].dropna().unique() if str(v) != 'nan'])
+            }
+        
+        # Capabilities mapping categorical fields
+        capabilities_df = data_source.get_capabilities_mapping()
+        if not capabilities_df.empty:
+            values["capabilities"] = {
+                "by_capability": sorted([str(v) for v in capabilities_df['by_capability'].dropna().unique() if str(v) != 'nan'])
+            }
+        
+        # Deployments table categorical fields
+        deployments_df = data_source.get_deployments()
+        if not deployments_df.empty:
+            values["deployments"] = {
+                "service_provider": sorted([str(v) for v in deployments_df['service_provider'].dropna().unique() if str(v) != 'nan']),
+                "service_name": sorted([str(v) for v in deployments_df['service_name'].dropna().unique() if str(v) != 'nan']),
+                "deployment": sorted([str(v) for v in deployments_df['deployment'].dropna().unique() if str(v) != 'nan'])
+            }
+
+        # Client table categorical fields
+        client_df = data_source.get_clients()
+        if not client_df.empty:
+            # For client table, we might want to extract company names or other categorical data
+            values["client"] = {
+                "companies": sorted([str(v) for v in client_df['client_company'].dropna().unique() if str(v) != 'nan'])
+            }
+        
+        # Auth table categorical fields
+        auth_df = data_source.get_auth()
+        if not auth_df.empty:
+            values["auth"] = {
+                "role": sorted([str(v) for v in auth_df['role'].dropna().unique() if str(v) != 'nan'])
+            }
+        
+        # Agent requirements table categorical fields
+        agent_requirements_df = data_source.get_agent_requirements()
+        if not agent_requirements_df.empty:
+            values["agent_requirements"] = {
+                "applicable_industry": sorted([str(v) for v in agent_requirements_df['applicable_industry'].dropna().unique() if str(v) != 'nan'])
+            }
+        
+        return {"values": values}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching unique values: {str(e)}")
 
 @app.get("/agents", response_class=HTMLResponse)
 async def agents_listing():
