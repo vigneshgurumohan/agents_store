@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Explorer - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .chat-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+        
+        .chat-sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .chat-main {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message.assistant {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.assistant .message-content {
+            background: #f1f3f4;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+        
+        .message.assistant .message-avatar {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+            background: white;
+        }
+        
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            min-width: 50px;
+            height: 50px;
+        }
+        
+        .send-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .suggested-queries {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .query-btn {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .query-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .filtered-agents {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .filtered-agents h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        
+        .agent-link {
+            display: block;
+            background: white;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .agent-link:hover {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-btn:hover {
+            background: #ff5252;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: #f1f3f4;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .typing-indicator.show {
+            display: flex;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+        
+        .requirements-display {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .requirements-display h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .requirements-display .requirement-item {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .requirements-display .requirement-label {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                position: static;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🤖 AI Agent Explorer</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/agents">Marketplace</a>
+                <a href="/isv/login">ISV Login</a>
+                <a href="/admin/login">Admin Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <div class="sidebar-section">
+                <h3 id="suggestedQueriesTitle">💡 Suggested Queries</h3>
+                <div class="suggested-queries" id="suggestedQueries">
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need help with financial analysis and reporting')">
+                        💰 Financial Analysis
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('What agents can help with data analytics?')">
+                        📊 Data Analytics
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('Tell me about customer support agents')">
+                        🎧 Customer Support
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need help with content creation')">
+                        ✍️ Content Creation
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('Show me all available agents')">
+                        🔍 Browse All Agents
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>🎯 Filtered Agents</h3>
+                <div id="filteredAgents" class="filtered-agents">
+                    <p>Start a conversation to see relevant agents!</p>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <button class="clear-btn" onclick="clearConversation()">
+                    🗑️ Clear Chat
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-main">
+            <div class="chat-header">
+                <h2 id="chatTitle">Discover Your Perfect AI Agent</h2>
+                <p id="chatSubtitle">Ask me anything about our available agents or describe your needs!</p>
+                <div class="mode-selector">
+                    <button id="exploreMode" class="mode-btn active" onclick="switchMode('explore')">
+                        🔍 Explore Agents
+                    </button>
+                    <button id="createMode" class="mode-btn" onclick="switchMode('create')">
+                        🏗️ Create Agent
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        👋 Hello! I'm your AI assistant here to help you discover the perfect agent for your needs. 
+                        <br><br>
+                        You can ask me about:
+                        • Specific agents by name
+                        • What agents can help with particular problems
+                        • Agent capabilities and features
+                        • Recommendations based on your role or industry
+                        <br><br>
+                        What would you like to explore today?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar">🤖</div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span>AI is thinking...</span>
+            </div>
+            
+            <div class="loading" id="loading">
+                <p>🤖 Processing your request...</p>
+            </div>
+            
+            <div class="chat-input-container">
+                <form id="chatForm" class="chat-input-form">
+                    <input type="hidden" id="sessionId" value="">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask me about agents or describe what you need help with..."
+                        rows="1"
+                    ></textarea>
+                    <button type="submit" class="send-btn" id="sendBtn">
+                        ➤
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = generateSessionId();
+        let currentMode = 'explore';
+        document.getElementById('sessionId').value = sessionId;
+        
+        function generateSessionId() {
+            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.getElementById('exploreMode').classList.toggle('active', mode === 'explore');
+            document.getElementById('createMode').classList.toggle('active', mode === 'create');
+            
+            // Update titles and content
+            if (mode === 'create') {
+                document.getElementById('chatTitle').textContent = 'Create Your Custom AI Agent';
+                document.getElementById('chatSubtitle').textContent = 'Let\'s discover what you need and build it together!';
+                
+                // Update suggested queries for create mode
+                document.getElementById('suggestedQueriesTitle').textContent = '🚀 Start Building';
+                document.getElementById('suggestedQueries').innerHTML = `
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need an AI agent to help with customer support and handle inquiries automatically')">
+                        🎧 Customer Support Agent
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I want to build an agent that can analyze sales data and provide insights')">
+                        📊 Analytics Agent
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need help creating content for marketing campaigns')">
+                        ✍️ Content Creation Agent
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I want an agent that can automate our HR processes')">
+                        👥 HR Automation Agent
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need something to help with financial reporting and analysis')">
+                        💰 Financial Agent
+                    </button>
+                `;
+                
+                // Clear messages and show create mode welcome
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="message assistant">
+                        <div class="message-avatar">🏗️</div>
+                        <div class="message-content">
+                            👋 Hello! I'm your AI Agent Creation Specialist!
+                            <br><br>
+                            I'll help you discover and define the perfect custom AI agent for your needs. Let's start by understanding what you want to build.
+                            <br><br>
+                            <strong>Tell me:</strong> What challenge or problem are you trying to solve? What would you like your AI agent to help with?
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('chatTitle').textContent = 'Discover Your Perfect AI Agent';
+                document.getElementById('chatSubtitle').textContent = 'Ask me anything about our available agents or describe your needs!';
+                
+                // Update suggested queries for explore mode
+                document.getElementById('suggestedQueriesTitle').textContent = '💡 Suggested Queries';
+                document.getElementById('suggestedQueries').innerHTML = `
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need help with financial analysis and reporting')">
+                        💰 Financial Analysis
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('What agents can help with data analytics?')">
+                        📊 Data Analytics
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('Tell me about customer support agents')">
+                        🎧 Customer Support
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('I need help with content creation')">
+                        ✍️ Content Creation
+                    </button>
+                    <button class="query-btn" onclick="sendSuggestedQuery('Show me all available agents')">
+                        🔍 Browse All Agents
+                    </button>
+                `;
+                
+                // Clear messages and show explore mode welcome
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="message assistant">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            👋 Hello! I'm your AI assistant here to help you discover the perfect agent for your needs. 
+                            <br><br>
+                            You can ask me about:
+                            • Specific agents by name
+                            • What agents can help with particular problems
+                            • Agent capabilities and features
+                            • Recommendations based on your role or industry
+                            <br><br>
+                            What would you like to explore today?
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Clear filtered agents
+            document.getElementById('filteredAgents').innerHTML = '<p>Start a conversation to see relevant agents!</p>';
+            
+            // Generate new session ID for the new mode
+            sessionId = generateSessionId();
+            document.getElementById('sessionId').value = sessionId;
+        }
+        
+        function sendSuggestedQuery(query) {
+            document.getElementById('chatInput').value = query;
+            document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+        
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const avatar = isUser ? '👤' : '🤖';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            document.getElementById('typingIndicator').classList.add('show');
+        }
+        
+        function hideTyping() {
+            document.getElementById('typingIndicator').classList.remove('show');
+        }
+        
+        function updateFilteredAgents(agentIds) {
+            const filteredAgentsDiv = document.getElementById('filteredAgents');
+            
+            if (!agentIds || agentIds.length === 0) {
+                filteredAgentsDiv.innerHTML = '<p>No specific agents mentioned in this response.</p>';
+                return;
+            }
+            
+            filteredAgentsDiv.innerHTML = `
+                <h4>🎯 Relevant Agents (${agentIds.length})</h4>
+                ${agentIds.map(agentId => 
+                    `<a href="/agent/${agentId}" class="agent-link" target="_blank">View ${agentId}</a>`
+                ).join('')}
+            `;
+        }
+        
+        async function sendMessage(query) {
+            if (!query.trim()) return;
+            
+            // Add user message
+            addMessage(query, true);
+            
+            // Show typing indicator
+            showTyping();
+            
+            // Disable input
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('query', query);
+                formData.append('session_id', sessionId);
+                formData.append('mode', currentMode);
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const chatData = data.data;
+                    
+                    // Hide typing and add AI response
+                    hideTyping();
+                    addMessage(chatData.response);
+                    
+                    // Handle mode-specific responses
+                    if (currentMode === 'explore') {
+                        // Update filtered agents for explore mode
+                        updateFilteredAgents(chatData.filtered_agents);
+                    } else if (currentMode === 'create') {
+                        // Handle agent creation mode
+                        handleCreateModeResponse(chatData);
+                    }
+                    
+                    // Update session ID if provided
+                    if (chatData.session_id) {
+                        sessionId = chatData.session_id;
+                        document.getElementById('sessionId').value = sessionId;
+                    }
+                } else {
+                    hideTyping();
+                    addMessage('Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                hideTyping();
+                addMessage('Sorry, I\'m having trouble connecting. Please try again.');
+            } finally {
+                // Re-enable input
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.value = '';
+                input.focus();
+            }
+        }
+        
+        function handleCreateModeResponse(chatData) {
+            // Update filtered agents section to show requirements progress
+            const filteredAgentsDiv = document.getElementById('filteredAgents');
+            
+            if (chatData.lets_build) {
+                // Show completed requirements
+                const gatheredInfo = chatData.gathered_info || {};
+                filteredAgentsDiv.innerHTML = `
+                    <div class="requirements-display">
+                        <h4>✅ Agent Requirements Complete!</h4>
+                        ${Object.entries(gatheredInfo).map(([key, value]) => 
+                            value ? `<div class="requirement-item">
+                                <span class="requirement-label">${key.replace(/_/g, ' ').toUpperCase()}:</span> ${value}
+                            </div>` : ''
+                        ).join('')}
+                        ${chatData.requirements_saved ? '<p style="color: #4caf50; font-weight: 600;">📋 Requirements saved successfully!</p>' : ''}
+                    </div>
+                `;
+            } else {
+                // Show progress
+                const questionCount = chatData.question_count || 0;
+                filteredAgentsDiv.innerHTML = `
+                    <div class="requirements-display">
+                        <h4>🏗️ Agent Creation Progress</h4>
+                        <p><strong>Questions Asked:</strong> ${questionCount}/3</p>
+                        <p><strong>Status:</strong> Gathering requirements...</p>
+                        ${Object.entries(chatData.gathered_info || {}).map(([key, value]) => 
+                            value ? `<div class="requirement-item">
+                                <span class="requirement-label">${key.replace(/_/g, ' ').toUpperCase()}:</span> ${value}
+                            </div>` : ''
+                        ).join('')}
+                    </div>
+                `;
+            }
+        }
+        
+        async function clearConversation() {
+            try {
+                const formData = new FormData();
+                formData.append('session_id', sessionId);
+                formData.append('mode', currentMode);
+                
+                const response = await fetch('/api/chat/clear', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    // Clear chat messages based on current mode
+                    if (currentMode === 'create') {
+                        document.getElementById('chatMessages').innerHTML = `
+                            <div class="message assistant">
+                                <div class="message-avatar">🏗️</div>
+                                <div class="message-content">
+                                    👋 Hello! I'm your AI Agent Creation Specialist!
+                                    <br><br>
+                                    I'll help you discover and define the perfect custom AI agent for your needs. Let's start by understanding what you want to build.
+                                    <br><br>
+                                    <strong>Tell me:</strong> What challenge or problem are you trying to solve? What would you like your AI agent to help with?
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('chatMessages').innerHTML = `
+                            <div class="message assistant">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    👋 Hello! I'm your AI assistant here to help you discover the perfect agent for your needs. 
+                                    <br><br>
+                                    You can ask me about:
+                                    • Specific agents by name
+                                    • What agents can help with particular problems
+                                    • Agent capabilities and features
+                                    • Recommendations based on your role or industry
+                                    <br><br>
+                                    What would you like to explore today?
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Clear filtered agents
+                    document.getElementById('filteredAgents').innerHTML = '<p>Start a conversation to see relevant agents!</p>';
+                    
+                    // Generate new session
+                    sessionId = generateSessionId();
+                    document.getElementById('sessionId').value = sessionId;
+                }
+            } catch (error) {
+                console.error('Clear chat error:', error);
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('chatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const query = input.value.trim();
+            if (query) {
+                sendMessage(query);
+            }
+        });
+        
+        // Auto-resize textarea
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        
+        // Enter key handling (Shift+Enter for new line, Enter to send)
+        document.getElementById('chatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

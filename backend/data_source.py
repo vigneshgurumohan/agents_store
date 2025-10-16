@@ -518,5 +518,87 @@ class DataSource:
                 "error": str(e)
             }
 
+    def get_agent_requirements(self) -> pd.DataFrame:
+        """Get all agent requirements"""
+        return self.get_table_data("agent_requirements")
+    
+    def get_next_requirement_id(self) -> str:
+        """Generate next sequential requirement ID"""
+        try:
+            requirements_df = self.get_agent_requirements()
+            if requirements_df.empty:
+                return "req_001"
+            
+            # Extract numeric part and find max
+            existing_ids = requirements_df['requirement_id'].str.extract(r'req_(\d+)')[0].astype(int)
+            next_num = existing_ids.max() + 1
+            
+            return f"req_{next_num:03d}"
+        except Exception as e:
+            logger.error(f"Error generating requirement ID: {e}")
+            return f"req_{len(requirements_df) + 1:03d}"
+    
+    def save_agent_requirements_data(self, requirements_data: Dict) -> bool:
+        """Save new agent requirements data to CSV file"""
+        try:
+            requirements_df = self.get_agent_requirements()
+            
+            # Add requirement ID and timestamps
+            requirements_data['requirement_id'] = self.get_next_requirement_id()
+            requirements_data['created_at'] = datetime.now().isoformat()
+            requirements_data['updated_at'] = datetime.now().isoformat()
+            requirements_data['status'] = 'discovered'
+            
+            # Convert to DataFrame and append
+            new_requirement_df = pd.DataFrame([requirements_data])
+            
+            if requirements_df.empty:
+                # First requirement
+                new_requirement_df.to_csv(self.csv_paths["agent_requirements"], index=False)
+            else:
+                # Append to existing
+                combined_df = pd.concat([requirements_df, new_requirement_df], ignore_index=True)
+                combined_df.to_csv(self.csv_paths["agent_requirements"], index=False)
+            
+            logger.info(f"Agent requirements saved with ID: {requirements_data['requirement_id']}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving agent requirements: {str(e)}")
+            return False
+    
+    def update_agent_requirements_data(self, requirement_id: str, updated_data: Dict) -> bool:
+        """Update existing agent requirements data"""
+        try:
+            requirements_df = self.get_agent_requirements()
+            
+            if requirements_df.empty:
+                logger.warning("No agent requirements found to update")
+                return False
+            
+            # Find and update the requirement
+            mask = requirements_df['requirement_id'] == requirement_id
+            if not mask.any():
+                logger.warning(f"Agent requirement {requirement_id} not found")
+                return False
+            
+            # Update the data
+            for key, value in updated_data.items():
+                if key in requirements_df.columns:
+                    requirements_df.loc[mask, key] = value
+            
+            # Update timestamp
+            requirements_df.loc[mask, 'updated_at'] = datetime.now().isoformat()
+            
+            # Save back to CSV
+            requirements_df.to_csv(self.csv_paths["agent_requirements"], index=False)
+            
+            logger.info(f"Agent requirements {requirement_id} updated successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating agent requirements: {str(e)}")
+            return False
+
 # Global data source instance
 data_source = DataSource()

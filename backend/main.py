@@ -4,12 +4,45 @@ FastAPI application for Agents Marketplace
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
+from pydantic import BaseModel
 from typing import Dict, List, Optional
 import pandas as pd
 import uuid
+import logging
 from datetime import datetime
+
+# Configure logging
+logger = logging.getLogger(__name__)
 from data_source import data_source
 from config import API_CONFIG
+from unified_chat import unified_chat_agent
+
+# Request models for API documentation
+class ChatRequest(BaseModel):
+    query: str
+    session_id: Optional[str] = None
+    mode: str = "explore"
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "I wanna build an agent for HR so that they can filter through applications easily",
+                "session_id": "chat_1234567890_abc123",
+                "mode": "create"
+            }
+        }
+
+class ClearChatRequest(BaseModel):
+    session_id: str
+    mode: Optional[str] = "explore"
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "session_id": "chat_1234567890_abc123",
+                "mode": "create"
+            }
+        }
 
 # Create FastAPI app
 app = FastAPI(
@@ -789,6 +822,54 @@ async def agent_page(agent_name: str):
 # ISV FRONTEND PAGES
 # ============================================================================
 
+# Unified Chat API endpoint
+@app.post("/api/chat")
+async def unified_chat(chat_request: ChatRequest):
+    """Unified chat endpoint that handles both explore and create modes"""
+    try:
+        user_query = chat_request.query.strip()
+        session_id = chat_request.session_id or ""
+        mode = chat_request.mode
+        
+        if not user_query:
+            raise HTTPException(status_code=400, detail="Query is required")
+        
+        # Use unified chat agent
+        response = unified_chat_agent.chat(user_query, mode, session_id)
+        
+        return {
+            "success": True,
+            "data": response,
+            "mode": mode
+        }
+        
+    except Exception as e:
+        logger.error(f"Unified chat API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
+
+@app.post("/api/chat/clear")
+async def clear_chat_session(clear_request: ClearChatRequest):
+    """Clear conversation history for a session"""
+    try:
+        session_id = clear_request.session_id
+        mode = clear_request.mode
+        
+        if not session_id:
+            raise HTTPException(status_code=400, detail="Session ID is required")
+        
+        # Clear conversation using unified chat agent
+        result = unified_chat_agent.clear_conversation(session_id)
+        
+        return {
+            "success": True,
+            "data": result,
+            "mode": mode
+        }
+        
+    except Exception as e:
+        logger.error(f"Clear chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Clear chat error: {str(e)}")
+
 @app.get("/isv/login", response_class=HTMLResponse)
 async def isv_login_page():
     """Serve the ISV login page"""
@@ -936,6 +1017,18 @@ async def admin_login_page():
         raise HTTPException(status_code=404, detail="Admin login page not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading admin login page: {str(e)}")
+
+@app.get("/chat", response_class=HTMLResponse)
+async def simple_chat_page():
+    """Simple AI Agent Chat page"""
+    try:
+        with open("../frontend/simple_chat.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Chat page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading chat page: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

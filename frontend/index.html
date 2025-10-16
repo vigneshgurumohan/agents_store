@@ -41,6 +41,44 @@
         .header p {
             font-size: 1.2rem;
             opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .header-btn.primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .header-btn.primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
         }
         
         .loading {
@@ -156,6 +194,17 @@
         <div class="header">
             <h1>🤖 Agents Marketplace</h1>
             <p>Discover AI-powered solutions for your business needs</p>
+            <div class="header-actions">
+                <a href="/chat" class="header-btn primary">
+                    💬 AI Chat
+                </a>
+                <a href="/isv/login" class="header-btn">
+                    🏢 ISV Login
+                </a>
+                <a href="/admin/login" class="header-btn">
+                    🛡️ Admin Login
+                </a>
+            </div>
         </div>
         
         <div class="stats">
