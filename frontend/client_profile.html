@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Profile - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .profile-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .edit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .edit-form {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .save-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .save-btn:hover, .cancel-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                position: static;
+                margin-top: 20px;
+            }
+            
+            .nav-links a {
+                display: inline-block;
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/">🏠 Home</a>
+                <a href="/client/login">🔐 Logout</a>
+            </div>
+            <h1>🏢 Client Dashboard</h1>
+            <p>Manage your client profile and preferences</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="profile-card">
+            <div class="profile-header">
+                <h2 class="profile-title">Profile Information</h2>
+                <button class="edit-btn" id="editBtn" onclick="toggleEdit()">✏️ Edit Profile</button>
+            </div>
+            
+            <div class="loading" id="loadingMessage">Loading profile...</div>
+            
+            <div class="profile-grid" id="profileGrid" style="display: none;">
+                <div class="info-section">
+                    <h3>📋 Personal Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Client ID:</span>
+                        <span class="info-value" id="clientId">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value" id="clientName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Company:</span>
+                        <span class="info-value" id="clientCompany">-</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>📞 Contact Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" id="clientEmail">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mobile:</span>
+                        <span class="info-value" id="clientMobile">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="edit-form" id="editForm">
+                <h3>Edit Profile Information</h3>
+                <form id="updateForm">
+                    <div class="form-group">
+                        <label for="editName">Full Name:</label>
+                        <input type="text" id="editName" name="client_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editCompany">Company:</label>
+                        <input type="text" id="editCompany" name="client_company" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editEmail">Email:</label>
+                        <input type="email" id="editEmail" name="client_email_no" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editMobile">Mobile:</label>
+                        <input type="tel" id="editMobile" name="client_mob_no" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="save-btn">💾 Save Changes</button>
+                        <button type="button" class="cancel-btn" onclick="toggleEdit()">❌ Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const clientId = '{{client_id}}';
+        
+        // Load profile data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfile();
+        });
+        
+        async function loadProfile() {
+            try {
+                const response = await fetch(`/api/client/profile/${clientId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const client = data.client;
+                    document.getElementById('clientId').textContent = client.client_id;
+                    document.getElementById('clientName').textContent = client.client_name;
+                    document.getElementById('clientCompany').textContent = client.client_company;
+                    document.getElementById('clientEmail').textContent = client.client_email_no;
+                    document.getElementById('clientMobile').textContent = client.client_mob_no;
+                    
+                    // Hide loading and show profile
+                    document.getElementById('loadingMessage').style.display = 'none';
+                    document.getElementById('profileGrid').style.display = 'grid';
+                } else {
+                    showError('Failed to load profile data');
+                    document.getElementById('loadingMessage').textContent = 'Failed to load profile';
+                }
+            } catch (error) {
+                showError('Network error while loading profile');
+                document.getElementById('loadingMessage').textContent = 'Network error';
+            }
+        }
+        
+        function toggleEdit() {
+            const editForm = document.getElementById('editForm');
+            const editBtn = document.getElementById('editBtn');
+            const profileGrid = document.getElementById('profileGrid');
+            
+            if (editForm.style.display === 'none' || editForm.style.display === '') {
+                // Show edit form
+                editForm.style.display = 'block';
+                profileGrid.style.display = 'none';
+                editBtn.textContent = '❌ Cancel Edit';
+                
+                // Populate form with current values
+                document.getElementById('editName').value = document.getElementById('clientName').textContent;
+                document.getElementById('editCompany').value = document.getElementById('clientCompany').textContent;
+                document.getElementById('editEmail').value = document.getElementById('clientEmail').textContent;
+                document.getElementById('editMobile').value = document.getElementById('clientMobile').textContent;
+            } else {
+                // Hide edit form
+                editForm.style.display = 'none';
+                profileGrid.style.display = 'grid';
+                editBtn.textContent = '✏️ Edit Profile';
+            }
+        }
+        
+        document.getElementById('updateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('client_name', document.getElementById('editName').value);
+            formData.append('client_company', document.getElementById('editCompany').value);
+            formData.append('client_email_no', document.getElementById('editEmail').value);
+            formData.append('client_mob_no', document.getElementById('editMobile').value);
+            
+            try {
+                const response = await fetch(`/api/client/profile/${clientId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Profile updated successfully!');
+                    toggleEdit();
+                    loadProfile(); // Reload profile data
+                } else {
+                    showError(data.detail || 'Failed to update profile');
+                }
+            } catch (error) {
+                showError('Network error while updating profile');
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

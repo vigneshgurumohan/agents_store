@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Registration - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .signup-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .signup-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .signup-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Home</a>
+    
+    <div class="signup-container">
+        <div class="header">
+            <h1>🏢 Client Registration</h1>
+            <p>Create your client account (No admin approval required)</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <form id="signupForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="clientName">Full Name *</label>
+                    <input type="text" id="clientName" name="client_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clientCompany">Company *</label>
+                    <input type="text" id="clientCompany" name="client_company" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mobile">Mobile Number *</label>
+                    <input type="tel" id="mobile" name="client_mob_no" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password *</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            
+            <input type="hidden" name="role" value="client">
+            
+            <button type="submit" class="signup-btn" id="signupBtn">Create Account</button>
+        </form>
+        
+        <div class="links">
+            <a href="/client/login">Already have an account? Login</a>
+            <a href="/">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const signupBtn = document.getElementById('signupBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Disable button
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'Creating Account...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', document.getElementById('email').value);
+                formData.append('password', password);
+                formData.append('role', 'client');
+                formData.append('client_name', document.getElementById('clientName').value);
+                formData.append('client_company', document.getElementById('clientCompany').value);
+                formData.append('client_mob_no', document.getElementById('mobile').value);
+                
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    successMessage.textContent = 'Registration successful! Redirecting to login...';
+                    successMessage.style.display = 'block';
+                    
+                    // Redirect to login page
+                    setTimeout(() => {
+                        window.location.href = '/client/login';
+                    }, 2000);
+                } else {
+                    errorMessage.textContent = data.detail || 'Registration failed';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

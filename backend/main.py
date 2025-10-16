@@ -64,6 +64,16 @@ async def health_check():
     """Health check endpoint"""
     return data_source.health_check()
 
+@app.get("/config")
+async def get_config():
+    """Get application configuration"""
+    return {
+        "app_name": "Agents Marketplace",
+        "version": "1.0.0",
+        "status": "running",
+        "features": ["agents", "chat", "isv", "reseller", "client", "admin"]
+    }
+
 # ============================================================================
 # AUTHENTICATION ENDPOINTS
 # ============================================================================
@@ -84,7 +94,7 @@ async def login(email: str = Form(...), password: str = Form(...)):
                 "email": user["email"],
                 "role": user["role"]
             },
-            "redirect": f"/isv/profile/{user['user_id']}" if user["role"] == "isv" else f"/reseller/profile/{user['user_id']}" if user["role"] == "reseller" else "/admin/isv"
+            "redirect": f"/isv/profile/{user['user_id']}" if user["role"] == "isv" else f"/reseller/profile/{user['user_id']}" if user["role"] == "reseller" else f"/client/profile/{user['user_id']}" if user["role"] == "client" else "/admin/isv"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
@@ -105,9 +115,13 @@ async def signup(
     reseller_address: str = Form(""),
     reseller_domain: str = Form(""),
     reseller_mob_no: str = Form(""),
-    whitelisted_domain: str = Form("")
+    whitelisted_domain: str = Form(""),
+    # Client specific fields
+    client_name: str = Form(""),
+    client_company: str = Form(""),
+    client_mob_no: str = Form("")
 ):
-    """Registration endpoint for ISV and Reseller"""
+    """Registration endpoint for ISV, Reseller, and Client"""
     try:
         # Check if email already exists
         existing_user = data_source.get_user_by_email(email)
@@ -115,8 +129,8 @@ async def signup(
             raise HTTPException(status_code=400, detail="Email already registered")
         
         # Validate role
-        if role not in ["isv", "reseller"]:
-            raise HTTPException(status_code=400, detail="Invalid role. Must be 'isv' or 'reseller'")
+        if role not in ["isv", "reseller", "client"]:
+            raise HTTPException(status_code=400, detail="Invalid role. Must be 'isv', 'reseller', or 'client'")
         
         # Generate new IDs following the existing pattern
         auth_id = data_source.get_next_auth_id()
@@ -166,6 +180,23 @@ async def signup(
             data_saved = data_source.save_reseller_data(reseller_data)
             redirect_url = "/reseller/login"
         
+        elif role == "client":
+            # Generate client ID
+            user_id = data_source.get_next_client_id()
+            
+            # Create client record (no admin approval needed)
+            client_data = {
+                "client_id": user_id,
+                "client_name": client_name,
+                "client_company": client_company,
+                "client_mob_no": client_mob_no,
+                "client_email_no": email
+            }
+            
+            # Save client data
+            data_saved = data_source.save_client_data(client_data)
+            redirect_url = "/client/login"
+        
         # Create auth record
         auth_data = {
             "auth_id": auth_id,
@@ -192,6 +223,58 @@ async def signup(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Signup error: {str(e)}")
+
+# ============================================================================
+# CLIENT APIs
+# ============================================================================
+
+@app.get("/api/client/profile/{client_id}")
+async def get_client_profile(client_id: str):
+    """Get client profile"""
+    try:
+        clients_df = data_source.get_clients()
+        client = clients_df[clients_df['client_id'] == client_id]
+        
+        if client.empty:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        client_data = client.iloc[0].to_dict()
+        
+        return {
+            "success": True,
+            "client": client_data
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching client profile: {str(e)}")
+
+@app.put("/api/client/profile/{client_id}")
+async def update_client_profile(
+    client_id: str,
+    client_name: str = Form(...),
+    client_company: str = Form(...),
+    client_mob_no: str = Form(...),
+    client_email_no: str = Form(...)
+):
+    """Update client profile"""
+    try:
+        updated_data = {
+            "client_name": client_name,
+            "client_company": client_company,
+            "client_mob_no": client_mob_no,
+            "client_email_no": client_email_no
+        }
+        
+        success = data_source.update_client_data(client_id, updated_data)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        return {
+            "success": True,
+            "message": "Client profile updated successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating client profile: {str(e)}")
 
 # ============================================================================
 # ISV ENDPOINTS
@@ -1029,6 +1112,46 @@ async def simple_chat_page():
         raise HTTPException(status_code=404, detail="Chat page not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading chat page: {str(e)}")
+
+# ============================================================================
+# CLIENT HTML PAGES
+# ============================================================================
+
+@app.get("/client/login", response_class=HTMLResponse)
+async def client_login_page():
+    """Client login page"""
+    try:
+        with open("../frontend/client_login.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Client login page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading client login page: {str(e)}")
+
+@app.get("/client/signup", response_class=HTMLResponse)
+async def client_signup_page():
+    """Client signup page"""
+    try:
+        with open("../frontend/client_signup.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Client signup page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading client signup page: {str(e)}")
+
+@app.get("/client/profile/{client_id}", response_class=HTMLResponse)
+async def client_profile_page(client_id: str):
+    """Client profile page"""
+    try:
+        with open("../frontend/client_profile.html", "r", encoding="utf-8") as f:
+            html_content = f.read().replace("{{client_id}}", client_id)
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Client profile page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading client profile page: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

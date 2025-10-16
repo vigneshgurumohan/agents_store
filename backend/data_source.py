@@ -7,6 +7,7 @@ import psycopg2
 from typing import Dict, List, Optional, Union
 from pathlib import Path
 import logging
+from datetime import datetime
 from config import CSV_PATHS, DATABASE_CONFIG
 
 # Setup logging
@@ -598,6 +599,84 @@ class DataSource:
             
         except Exception as e:
             logger.error(f"Error updating agent requirements: {str(e)}")
+            return False
+    
+    # Client methods
+    def get_clients(self) -> pd.DataFrame:
+        """Get all clients"""
+        return self.get_table_data("client")
+    
+    def get_next_client_id(self) -> str:
+        """Generate next sequential client ID"""
+        try:
+            clients_df = self.get_clients()
+            if clients_df.empty:
+                return "client_001"
+            
+            # Extract numeric part from client IDs
+            client_ids = clients_df['client_id'].tolist()
+            max_num = 0
+            
+            for client_id in client_ids:
+                if client_id.startswith('client_'):
+                    try:
+                        num = int(client_id.split('_')[1])
+                        max_num = max(max_num, num)
+                    except (ValueError, IndexError):
+                        continue
+            
+            next_num = max_num + 1
+            return f"client_{next_num:03d}"
+            
+        except Exception as e:
+            logger.error(f"Error generating next client ID: {str(e)}")
+            return "client_001"
+    
+    def save_client_data(self, client_data: Dict) -> bool:
+        """Save new client data to CSV file"""
+        try:
+            clients_df = self.get_clients()
+            
+            # Create new row
+            new_row = pd.DataFrame([client_data])
+            
+            # Append to existing data
+            updated_df = pd.concat([clients_df, new_row], ignore_index=True)
+            
+            # Save to CSV
+            updated_df.to_csv(self.csv_paths["client"], index=False)
+            
+            logger.info(f"Client data saved with ID: {client_data.get('client_id')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving client data: {str(e)}")
+            return False
+    
+    def update_client_data(self, client_id: str, updated_data: Dict) -> bool:
+        """Update existing client data"""
+        try:
+            clients_df = self.get_clients()
+            
+            # Find and update the client
+            mask = clients_df['client_id'] == client_id
+            if not mask.any():
+                logger.warning(f"Client {client_id} not found")
+                return False
+            
+            # Update the data
+            for key, value in updated_data.items():
+                if key in clients_df.columns:
+                    clients_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            clients_df.to_csv(self.csv_paths["client"], index=False)
+            
+            logger.info(f"Client {client_id} updated successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating client data: {str(e)}")
             return False
 
 # Global data source instance

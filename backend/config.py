@@ -24,6 +24,7 @@ CSV_PATHS = {
     "docs": DATA_DIR / "docs.csv",
     "isv": DATA_DIR / "isv.csv",
     "reseller": DATA_DIR / "reseller.csv",
+    "client": DATA_DIR / "client.csv",
     "agent_requirements": DATA_DIR / "agent_requirements.csv"
 }
 

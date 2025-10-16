@@ -1,1 +1,3 @@
-requirement_id,session_id,agent_name,applicable_persona,applicable_industry,problem_statement,user_journeys,wow_factor,expected_output,status,created_at,updated_at
+agent_name,problem_statement,user_journeys,wow_factor,expected_output,applicable_industry,session_id,requirement_id,created_at,updated_at,status
+HR Candidate Filter,filtering through large volumes of job applications,"Review applications, identify top candidates",Automated resume processing and intelligent candidate matching,Ranked list of best-fit candidates,General,effb67fc-25f9-4d6a-b7f6-6895a8755492,req_001,2025-10-16T20:12:45.635436,2025-10-16T20:12:45.635436,discovered
+,,,,,General,6c6294a9-e49b-4638-b550-646ce617d5d5,req_002,2025-10-16T20:51:07.400720,2025-10-16T20:51:07.400720,discovered

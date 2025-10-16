@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Login - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Home</a>
+    
+    <div class="login-container">
+        <div class="header">
+            <h1>🏢 Client Login</h1>
+            <p>Access your client account</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">Login</button>
+        </form>
+        
+        <div class="links">
+            <a href="/client/signup">Create Account</a>
+            <a href="/">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('password', password);
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    successMessage.textContent = 'Login successful! Redirecting...';
+                    successMessage.style.display = 'block';
+                    
+                    // Redirect to profile page
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = data.detail || 'Login failed';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+    </script>
+</body>
+</html>

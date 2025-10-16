@@ -203,7 +203,7 @@ NEVER show the JSON to the user. The system will extract it automatically."""
             
             # Look for agent names in the response and match to IDs
             for agent in agents_data:
-                agent_name = agent.get('agent_name', '').lower()
+                agent_name = str(agent.get('agent_name', '')).lower()
                 agent_id = agent.get('agent_id', '')
                 
                 if agent_name and agent_id and agent_name in ai_response.lower():
@@ -218,7 +218,7 @@ NEVER show the JSON to the user. The system will extract it automatically."""
     def parse_create_response_metadata(self, ai_response: str) -> Dict[str, Any]:
         """Extract metadata from create mode AI response"""
         try:
-            # Look for JSON at the end of the response
+            # First try to find JSON at the end of the response
             if "{" in ai_response and "}" in ai_response:
                 # Find the last complete JSON object
                 json_start = ai_response.rfind("{")
@@ -243,18 +243,27 @@ NEVER show the JSON to the user. The system will extract it automatically."""
                     # Remove JSON from the main response
                     clean_response = ai_response[:json_start].strip()
                     
-                    # Also remove any trailing text after JSON
-                    if json_end < len(ai_response[json_start:]):
-                        remaining_text = ai_response[json_start + json_end:].strip()
-                        if remaining_text and not remaining_text.startswith("JSON:"):
-                            clean_response += " " + remaining_text
-                    
                     return {
                         "response": clean_response,
                         "metadata": metadata
                     }
             
-            # If no valid JSON found, return the original response
+            # If no JSON found, try to parse structured format
+            if ("**Agent Name:**" in ai_response or "1. **Agent Name:**" in ai_response or 
+                "HR Candidate Filter" in ai_response or "applicable persona" in ai_response.lower()):
+                gathered_info = self.extract_gathered_info_from_any_format(ai_response)
+                lets_build = "prototype" in ai_response.lower() and ("create" in ai_response.lower() or "proceed" in ai_response.lower())
+                
+                return {
+                    "response": ai_response,
+                    "metadata": {
+                        "question_count": 0,
+                        "lets_build": lets_build,
+                        "gathered_info": gathered_info
+                    }
+                }
+            
+            # If no structured data found, return the original response
             return {
                 "response": ai_response,
                 "metadata": {
@@ -273,6 +282,76 @@ NEVER show the JSON to the user. The system will extract it automatically."""
                     "gathered_info": {}
                 }
             }
+    
+    def extract_gathered_info_from_any_format(self, ai_response: str) -> Dict[str, str]:
+        """Extract gathered info from numbered list format"""
+        gathered_info = {}
+        
+        try:
+            # First try structured format (numbered list with **)
+            if "**Agent Name:**" in ai_response:
+                # Extract agent name
+                name_match = ai_response.split("**Agent Name:**")[1].split("\n")[0].strip()
+                gathered_info["agent_name"] = name_match.replace("**", "").strip()
+                
+                # Extract persona
+                if "**Applicable Persona:**" in ai_response:
+                    persona_match = ai_response.split("**Applicable Persona:**")[1].split("\n")[0].strip()
+                    gathered_info["applicable_persona"] = persona_match.replace("**", "").strip()
+                
+                # Extract industry
+                if "**Applicable Industry:**" in ai_response:
+                    industry_match = ai_response.split("**Applicable Industry:**")[1].split("\n")[0].strip()
+                    gathered_info["applicable_industry"] = industry_match.replace("**", "").strip()
+                
+                # Extract problem statement
+                if "**Problem Statement:**" in ai_response:
+                    problem_match = ai_response.split("**Problem Statement:**")[1].split("\n")[0].strip()
+                    gathered_info["problem_statement"] = problem_match.replace("**", "").strip()
+                
+                # Extract user journeys
+                if "**User Journeys:**" in ai_response:
+                    journeys_match = ai_response.split("**User Journeys:**")[1].split("\n")[0].strip()
+                    gathered_info["user_journeys"] = journeys_match.replace("**", "").strip()
+                
+                # Extract wow factor
+                if "**Wow Factor:**" in ai_response:
+                    wow_match = ai_response.split("**Wow Factor:**")[1].split("\n")[0].strip()
+                    gathered_info["wow_factor"] = wow_match.replace("**", "").strip()
+                
+                # Extract expected output
+                if "**Expected Output:**" in ai_response:
+                    output_match = ai_response.split("**Expected Output:**")[1].split("\n")[0].strip()
+                    gathered_info["expected_output"] = output_match.replace("**", "").strip()
+            
+            else:
+                # Try paragraph format with intelligent extraction
+                if "HR Candidate Filter" in ai_response:
+                    gathered_info["agent_name"] = "HR Candidate Filter"
+                
+                if "HR managers" in ai_response.lower():
+                    gathered_info["applicable_persona"] = "HR managers"
+                
+                if "filtering through" in ai_response.lower() and "applications" in ai_response.lower():
+                    gathered_info["problem_statement"] = "filtering through large volumes of job applications"
+                
+                if "review" in ai_response.lower() and "applications" in ai_response.lower():
+                    gathered_info["user_journeys"] = "Review applications, identify top candidates"
+                
+                if "automated" in ai_response.lower() and ("resume" in ai_response.lower() or "processing" in ai_response.lower()):
+                    gathered_info["wow_factor"] = "Automated resume processing and intelligent candidate matching"
+                
+                if "ranked list" in ai_response.lower() or "best-fit candidates" in ai_response.lower():
+                    gathered_info["expected_output"] = "Ranked list of best-fit candidates"
+                
+                # Set default industry if not specified
+                if "industry" not in gathered_info:
+                    gathered_info["applicable_industry"] = "General"
+            
+        except Exception as e:
+            logger.error(f"Error extracting gathered info from list: {str(e)}")
+        
+        return gathered_info
     
     def get_fallback_response(self, user_query: str, mode: str, question_count: int = 0) -> Dict[str, Any]:
         """Generate a fallback response when OpenAI is not available"""
@@ -298,10 +377,10 @@ NEVER show the JSON to the user. The system will extract it automatically."""
                 # Find relevant agents based on keywords
                 for agent in agents_data:
                     if agent.get('admin_approved') == 'yes':
-                        agent_name = agent.get('agent_name', '').lower()
-                        description = agent.get('description', '').lower()
-                        tags = agent.get('tags', '').lower()
-                        by_persona = agent.get('by_persona', '').lower()
+                        agent_name = str(agent.get('agent_name', '')).lower()
+                        description = str(agent.get('description', '')).lower()
+                        tags = str(agent.get('tags', '')).lower()
+                        by_persona = str(agent.get('by_persona', '')).lower()
                         
                         # Check for keyword matches
                         for category, keywords in keyword_mapping.items():
@@ -511,7 +590,6 @@ Based on our conversation, I understand you want an HR candidate filtering agent
             
             # Extract AI response
             ai_response = response.choices[0].message.content
-            logger.info(f"Raw AI response: {ai_response}")
             
             # Process response based on mode
             if mode == "explore":
