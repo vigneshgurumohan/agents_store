@@ -83,8 +83,11 @@ agents-marketplace/
 │   ├── reseller_login.html      # Reseller login page
 │   ├── reseller_signup.html     # Reseller registration page
 │   ├── reseller_profile.html    # Reseller profile page
+│   ├── admin_login.html         # Admin login page
 │   ├── admin_isv.html           # Admin ISV management
-│   └── admin_reseller.html      # Admin reseller management
+│   ├── admin_reseller.html      # Admin reseller management
+│   ├── admin_agents.html        # Admin agent management
+│   └── agent_onboard.html       # Agent onboarding page
 ├── .gitignore
 ├── env.example                  # Environment variables template
 ├── render.yaml                  # Render deployment config
@@ -162,8 +165,10 @@ API_PORT=8000
 | `/reseller/login` | Reseller login page |
 | `/reseller/signup` | Reseller registration page |
 | `/reseller/profile/{reseller_id}` | Reseller profile page |
+| `/admin/login` | Admin login page |
 | `/admin/isv` | Admin ISV management |
 | `/admin/reseller` | Admin reseller management |
+| `/admin/agents` | Admin agent management |
 
 ## 🎨 Frontend Pages
 
@@ -213,6 +218,12 @@ API_PORT=8000
 - **Edit Tab**: Update company information including whitelisted domain
 
 ### **🛡️ Admin Pages**
+#### Admin Login (`/admin/login`)
+- Dedicated admin login page
+- Role-based access control
+- Demo credentials provided
+- Redirects to admin dashboard after login
+
 #### Admin ISV Management (`/admin/isv`)
 - View all ISVs with statistics
 - Approve/reject ISV accounts
@@ -224,6 +235,12 @@ API_PORT=8000
 - Approve/reject reseller accounts
 - Edit any reseller data including whitelisted domains
 - Dashboard with key metrics
+
+#### Admin Agent Management (`/admin/agents`)
+- View all agents with approval status
+- Approve/reject agent submissions
+- Agent statistics and overview
+- Link to agent detail pages
 
 ## 🚀 Deployment
 
@@ -394,10 +411,11 @@ For support and questions:
 4. **View Status** → Check approval status
 
 ### **🛡️ Admin Workflow**
-1. **Login** → Use admin credentials → Access admin panel
+1. **Login** → `/admin/login` → Use admin credentials → Access admin panel
 2. **Manage ISVs** → `/admin/isv` → Approve/reject ISV accounts
 3. **Manage Resellers** → `/admin/reseller` → Approve/reject reseller accounts
-4. **Edit Data** → Update any user information as needed
+4. **Manage Agents** → `/admin/agents` → Approve/reject agent submissions
+5. **Edit Data** → Update any user information as needed
 
 ---
 

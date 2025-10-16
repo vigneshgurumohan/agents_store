@@ -299,6 +299,12 @@
                 <button class="tab" onclick="showTab('edit')">Edit Profile</button>
             </div>
             
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="#" class="btn" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;" id="onboardAgentBtn">
+                    🤖 Create New Agent
+                </a>
+            </div>
+            
             <div class="tab-content">
                 <!-- Overview Tab -->
                 <div id="overview" class="tab-panel active">
@@ -390,6 +396,9 @@
             document.getElementById('isv-name').textContent = isv.isv_name || 'Unknown ISV';
             document.getElementById('isv-status').textContent = stats.isv_approved ? 
                 '✅ Account Approved' : '⏳ Pending Admin Approval';
+            
+            // Update onboard agent button URL
+            document.getElementById('onboardAgentBtn').href = `/isv/profile/${isvId}/onboard-agent`;
             
             // Update stats
             document.getElementById('total-agents').textContent = stats.total_agents;

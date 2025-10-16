@@ -342,6 +342,143 @@ class DataSource:
         docs_df = self.get_docs()
         return docs_df[docs_df['agent_id'] == agent_id]
     
+    def get_next_agent_id(self) -> str:
+        """Generate next sequential agent ID"""
+        try:
+            agents_df = self.get_agents()
+            if agents_df.empty:
+                return "agent_001"
+            
+            # Extract numeric part and find max
+            existing_ids = agents_df['agent_id'].str.extract(r'agent_(\d+)')[0].astype(int)
+            next_num = existing_ids.max() + 1
+            
+            return f"agent_{next_num:03d}"
+        except Exception as e:
+            logger.error(f"Error generating agent ID: {e}")
+            return f"agent_{len(agents_df) + 1:03d}"
+    
+    def save_agent_data(self, agent_data: Dict) -> bool:
+        """Save new agent data to CSV file"""
+        try:
+            agents_df = self.get_agents()
+            
+            # Convert to DataFrame and append
+            new_row = pd.DataFrame([agent_data])
+            updated_df = pd.concat([agents_df, new_row], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["agents"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved new agent: {agent_data['agent_id']}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving agent data: {e}")
+            return False
+    
+    def save_capabilities_mapping_data(self, capabilities_data: List[Dict]) -> bool:
+        """Save capabilities mapping data to CSV file"""
+        try:
+            capabilities_df = self.get_capabilities_mapping()
+            
+            # Convert to DataFrame and append
+            new_rows = pd.DataFrame(capabilities_data)
+            updated_df = pd.concat([capabilities_df, new_rows], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["capabilities_mapping"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved {len(capabilities_data)} capability mappings")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving capabilities mapping data: {e}")
+            return False
+    
+    def save_demo_assets_data(self, demo_assets_data: List[Dict]) -> bool:
+        """Save demo assets data to CSV file"""
+        try:
+            demo_assets_df = self.get_demo_assets()
+            
+            # Convert to DataFrame and append
+            new_rows = pd.DataFrame(demo_assets_data)
+            updated_df = pd.concat([demo_assets_df, new_rows], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["demo_assets"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved {len(demo_assets_data)} demo assets")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving demo assets data: {e}")
+            return False
+    
+    def save_docs_data(self, docs_data: Dict) -> bool:
+        """Save documentation data to CSV file"""
+        try:
+            docs_df = self.get_docs()
+            
+            # Convert to DataFrame and append
+            new_row = pd.DataFrame([docs_data])
+            updated_df = pd.concat([docs_df, new_row], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["docs"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved documentation for agent: {docs_data['agent_id']}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving docs data: {e}")
+            return False
+    
+    def save_deployments_data(self, deployments_data: List[Dict]) -> bool:
+        """Save deployments data to CSV file"""
+        try:
+            deployments_df = self.get_deployments()
+            
+            # Convert to DataFrame and append
+            new_rows = pd.DataFrame(deployments_data)
+            updated_df = pd.concat([deployments_df, new_rows], ignore_index=True)
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["deployments"]
+            updated_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Saved {len(deployments_data)} deployments")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving deployments data: {e}")
+            return False
+    
+    def update_agent_data(self, agent_id: str, updated_data: Dict) -> bool:
+        """Update existing agent data in CSV file"""
+        try:
+            agents_df = self.get_agents()
+            
+            # Find the row to update
+            mask = agents_df['agent_id'] == agent_id
+            if not mask.any():
+                logger.error(f"Agent not found: {agent_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in agents_df.columns:
+                    agents_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["agents"]
+            agents_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated agent: {agent_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating agent data: {e}")
+            return False
+    
     def health_check(self) -> Dict:
         """Check health of data source"""
         try:

@@ -442,6 +442,202 @@ async def admin_update_reseller(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating reseller: {str(e)}")
 
+# ============================================================================
+# AGENT ONBOARDING ENDPOINTS
+# ============================================================================
+
+@app.post("/api/agent/onboard")
+async def onboard_agent(
+    # Agent details
+    agent_name: str = Form(""),
+    asset_type: str = Form(""),
+    by_persona: str = Form(""),
+    by_value: str = Form(""),
+    description: str = Form(""),
+    features: str = Form(""),
+    roi: str = Form(""),
+    tags: str = Form(""),
+    demo_link: str = Form(""),
+    isv_id: str = Form(...),
+    
+    # Capabilities (comma-separated)
+    capabilities: str = Form(""),
+    
+    # Demo assets (JSON string)
+    demo_assets: str = Form(""),
+    
+    # Documentation
+    sdk_details: str = Form(""),
+    swagger_details: str = Form(""),
+    sample_input: str = Form(""),
+    sample_output: str = Form(""),
+    security_details: str = Form(""),
+    related_files: str = Form(""),
+    
+    # Deployments (JSON string)
+    deployments: str = Form("")
+):
+    """ISV: Create new agent with all related data"""
+    try:
+        # Generate new agent ID
+        agent_id = data_source.get_next_agent_id()
+        
+        # Create agent data
+        agent_data = {
+            "agent_id": agent_id,
+            "agent_name": agent_name,
+            "asset_type": asset_type,
+            "by_persona": by_persona,
+            "by_value": by_value,
+            "description": description,
+            "features": features,
+            "roi": roi,
+            "tags": tags,
+            "demo_link": demo_link,
+            "isv_id": isv_id,
+            "admin_approved": "no"  # Requires admin approval
+        }
+        
+        # Save agent data
+        agent_saved = data_source.save_agent_data(agent_data)
+        
+        if not agent_saved:
+            raise HTTPException(status_code=500, detail="Failed to save agent data")
+        
+        # Process capabilities
+        if capabilities:
+            capabilities_list = [cap.strip() for cap in capabilities.split(",") if cap.strip()]
+            capabilities_data = []
+            
+            for capability in capabilities_list:
+                capabilities_data.append({
+                    "agent_id": agent_id,
+                    "by_capability_id": f"cap_{len(capabilities_data) + 1:03d}",  # Generate capability ID
+                    "by_capability": capability
+                })
+            
+            if capabilities_data:
+                data_source.save_capabilities_mapping_data(capabilities_data)
+        
+        # Process demo assets
+        if demo_assets:
+            try:
+                import json
+                demo_assets_list = json.loads(demo_assets) if demo_assets else []
+                demo_assets_data = []
+                
+                for i, asset in enumerate(demo_assets_list):
+                    demo_assets_data.append({
+                        "demo_asset_id": f"demo_{agent_id}_{i + 1:03d}",
+                        "agent_id": agent_id,
+                        "demo_asset_type": asset.get("demo_asset_type", ""),
+                        "demo_asset_name": asset.get("demo_asset_name", ""),
+                        "demo_link": asset.get("demo_link", "")
+                    })
+                
+                if demo_assets_data:
+                    data_source.save_demo_assets_data(demo_assets_data)
+            except json.JSONDecodeError:
+                pass  # Skip if invalid JSON
+        
+        # Save documentation
+        docs_data = {
+            "doc_id": f"doc_{agent_id}",
+            "agent_id": agent_id,
+            "sdk_details": sdk_details,
+            "swagger_details": swagger_details,
+            "sample_input": sample_input,
+            "sample_output": sample_output,
+            "security_details": security_details,
+            "related_files": related_files
+        }
+        
+        data_source.save_docs_data(docs_data)
+        
+        # Process deployments
+        if deployments:
+            try:
+                import json
+                deployments_list = json.loads(deployments) if deployments else []
+                deployments_data = []
+                
+                for i, deployment in enumerate(deployments_list):
+                    deployments_data.append({
+                        "deployment_id": f"deploy_{agent_id}_{i + 1:03d}",
+                        "service_provider": deployment.get("service_provider", ""),
+                        "service_name": deployment.get("service_name", ""),
+                        "deployment": deployment.get("deployment", ""),
+                        "cloud_region": deployment.get("cloud_region", ""),
+                        "by_capability": deployment.get("by_capability", "")
+                    })
+                
+                if deployments_data:
+                    data_source.save_deployments_data(deployments_data)
+            except json.JSONDecodeError:
+                pass  # Skip if invalid JSON
+        
+        return {
+            "success": True,
+            "message": "Agent created successfully! Pending admin approval.",
+            "agent_id": agent_id,
+            "agent_name": agent_name,
+            "redirect": f"/agent/{agent_name.lower().replace(' ', '-')}"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating agent: {str(e)}")
+
+# ============================================================================
+# ADMIN AGENT ENDPOINTS
+# ============================================================================
+
+@app.get("/api/admin/agents")
+async def get_all_agents_admin():
+    """Admin: Get all agents with approval status"""
+    try:
+        agents_df = data_source.get_agents()
+        agents_list = agents_df.to_dict('records')
+        
+        # Replace NaN values and add approval status
+        for agent in agents_list:
+            for key, value in agent.items():
+                if pd.isna(value):
+                    agent[key] = "na"
+            
+            # Add approval status
+            agent['is_approved'] = agent.get('admin_approved', 'no') == 'yes'
+        
+        return {"agents": agents_list, "total": len(agents_list)}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching agents: {str(e)}")
+
+@app.put("/api/admin/agents/{agent_id}")
+async def admin_update_agent_approval(
+    agent_id: str,
+    admin_approved: str = Form("no")
+):
+    """Admin: Update agent approval status"""
+    try:
+        # Update the agent's approval status in the CSV file
+        update_data = {
+            "admin_approved": admin_approved
+        }
+        
+        success = data_source.update_agent_data(agent_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update agent approval status")
+        
+        return {
+            "success": True,
+            "message": f"Agent {'approved' if admin_approved == 'yes' else 'rejected'} successfully",
+            "agent_id": agent_id,
+            "admin_approved": admin_approved
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating agent approval: {str(e)}")
+
 @app.get("/api/agents")
 async def get_all_agents():
     """Get all agents with basic info"""
@@ -700,6 +896,46 @@ async def admin_reseller_page():
         raise HTTPException(status_code=404, detail="Admin reseller page not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading admin reseller page: {str(e)}")
+
+# ============================================================================
+# AGENT ONBOARDING HTML PAGES
+# ============================================================================
+
+@app.get("/isv/profile/{isv_id}/onboard-agent", response_class=HTMLResponse)
+async def agent_onboard_page(isv_id: str):
+    """Agent onboarding page for ISV"""
+    try:
+        with open("../frontend/agent_onboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read().replace("{{isv_id}}", isv_id)
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Agent onboard page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading agent onboard page: {str(e)}")
+
+@app.get("/admin/agents", response_class=HTMLResponse)
+async def admin_agents_page():
+    """Admin agent management page"""
+    try:
+        with open("../frontend/admin_agents.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin agents page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin agents page: {str(e)}")
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page():
+    """Admin login page"""
+    try:
+        with open("../frontend/admin_login.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin login page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin login page: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

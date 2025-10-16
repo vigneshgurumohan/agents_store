@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Onboarding - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .progress-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .progress-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+        
+        .progress-step.active:not(:last-child)::after {
+            background: #28a745;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .progress-step.active .step-circle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .progress-step.completed .step-circle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .tab.active {
+            color: #28a745;
+            border-bottom-color: #28a745;
+            background-color: white;
+        }
+        
+        .tab-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            display: none;
+        }
+        
+        .dynamic-list {
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .list-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #f0f0f0;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .add-btn:hover {
+            background: #1e7e34;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .preview-section h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                position: static;
+                margin-bottom: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+            }
+            
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .list-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/agents">Marketplace</a>
+                <a href="/isv/profile/{{isv_id}}">Back to Profile</a>
+            </div>
+            <h1>🤖 Agent Onboarding</h1>
+            <p>Create your new AI agent for the marketplace</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-steps">
+                <div class="progress-step active" id="step-1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Agent Details</div>
+                </div>
+                <div class="progress-step" id="step-2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Capabilities</div>
+                </div>
+                <div class="progress-step" id="step-3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Demo Assets</div>
+                </div>
+                <div class="progress-step" id="step-4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Documentation</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+        <div id="loading" class="loading">Creating your agent...</div>
+        
+        <form id="onboardForm">
+            <input type="hidden" id="isv_id" value="{{isv_id}}">
+            
+            <div class="tabs">
+                <button type="button" class="tab active" onclick="showTab('agent-details')">Agent Details</button>
+                <button type="button" class="tab" onclick="showTab('capabilities')">Capabilities</button>
+                <button type="button" class="tab" onclick="showTab('demo-assets')">Demo Assets</button>
+                <button type="button" class="tab" onclick="showTab('documentation')">Documentation</button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Agent Details Tab -->
+                <div id="agent-details" class="tab-panel active">
+                    <h3>🤖 Agent Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="agent_name">Agent Name</label>
+                        <input type="text" id="agent_name" name="agent_name" placeholder="Enter agent name">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="asset_type">Asset Type</label>
+                            <input type="text" id="asset_type" name="asset_type" placeholder="e.g., AI Assistant, Analytics Tool">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="by_persona">Target Persona</label>
+                            <input type="text" id="by_persona" name="by_persona" placeholder="e.g., Data Scientists, Developers">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="by_value">Value Proposition</label>
+                        <input type="text" id="by_value" name="by_value" placeholder="Brief value proposition">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Detailed description of your agent"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="features">Key Features</label>
+                        <textarea id="features" name="features" rows="3" placeholder="List key features separated by commas"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="roi">ROI Information</label>
+                            <input type="text" id="roi" name="roi" placeholder="Expected ROI or benefits">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tags">Tags</label>
+                            <input type="text" id="tags" name="tags" placeholder="Tags separated by commas">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="demo_link">Demo Link</label>
+                        <input type="url" id="demo_link" name="demo_link" placeholder="https://your-demo-link.com">
+                    </div>
+                </div>
+                
+                <!-- Capabilities Tab -->
+                <div id="capabilities" class="tab-panel">
+                    <h3>🎯 Capabilities</h3>
+                    
+                    <div class="form-group">
+                        <label for="capabilities_input">Agent Capabilities</label>
+                        <textarea id="capabilities_input" name="capabilities" rows="4" placeholder="Enter capabilities separated by commas (e.g., Conversational AI, Data Analytics, Document Processing)"></textarea>
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            Separate multiple capabilities with commas
+                        </small>
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h3>Capabilities Preview</h3>
+                        <div id="capabilities-preview"></div>
+                    </div>
+                </div>
+                
+                <!-- Demo Assets Tab -->
+                <div id="demo-assets" class="tab-panel">
+                    <h3>🎬 Demo Assets</h3>
+                    
+                    <button type="button" class="add-btn" onclick="addDemoAsset()">+ Add Demo Asset</button>
+                    
+                    <div class="dynamic-list" id="demo-assets-list">
+                        <!-- Demo assets will be added here -->
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h3>Demo Assets Preview</h3>
+                        <div id="demo-assets-preview"></div>
+                    </div>
+                </div>
+                
+                <!-- Documentation Tab -->
+                <div id="documentation" class="tab-panel">
+                    <h3>📚 Documentation & Deployments</h3>
+                    
+                    <h4>Documentation</h4>
+                    <div class="form-group">
+                        <label for="sdk_details">SDK Details</label>
+                        <textarea id="sdk_details" name="sdk_details" rows="3" placeholder="SDK installation and usage instructions"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="swagger_details">API Documentation (Swagger)</label>
+                        <input type="url" id="swagger_details" name="swagger_details" placeholder="https://your-swagger-docs.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sample_input">Sample Input</label>
+                            <textarea id="sample_input" name="sample_input" rows="3" placeholder="Example input data"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sample_output">Sample Output</label>
+                            <textarea id="sample_output" name="sample_output" rows="3" placeholder="Example output data"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="security_details">Security Details</label>
+                        <textarea id="security_details" name="security_details" rows="3" placeholder="Security considerations and best practices"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="related_files">Related Files</label>
+                        <input type="text" id="related_files" name="related_files" placeholder="Links to related files, documentation, etc.">
+                    </div>
+                    
+                    <h4 style="margin-top: 30px;">Deployment Options</h4>
+                    <button type="button" class="add-btn" onclick="addDeployment()">+ Add Deployment Option</button>
+                    
+                    <div class="dynamic-list" id="deployments-list">
+                        <!-- Deployments will be added here -->
+                    </div>
+                    
+                    <div class="preview-section">
+                        <h3>Documentation Preview</h3>
+                        <div id="documentation-preview"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">← Back</button>
+                <button type="button" class="btn btn-primary" onclick="goNext()">Next →</button>
+                <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Create Agent</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentTab = 1;
+        const totalTabs = 4;
+        let demoAssets = [];
+        let deployments = [];
+        
+        // Initialize demo assets and deployments
+        function initDynamicLists() {
+            addDemoAsset();
+            addDeployment();
+        }
+        
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tab panels
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected panel
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Update progress
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            for (let i = 1; i <= totalTabs; i++) {
+                const step = document.getElementById(`step-${i}`);
+                if (i < currentTab) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (i === currentTab) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            }
+        }
+        
+        function goNext() {
+            if (currentTab < totalTabs) {
+                currentTab++;
+                const tabNames = ['agent-details', 'capabilities', 'demo-assets', 'documentation'];
+                showTab(tabNames[currentTab - 1]);
+                
+                // Update buttons
+                if (currentTab === totalTabs) {
+                    document.querySelector('.btn-primary').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'inline-block';
+                }
+            }
+        }
+        
+        function goBack() {
+            if (currentTab > 1) {
+                currentTab--;
+                const tabNames = ['agent-details', 'capabilities', 'demo-assets', 'documentation'];
+                showTab(tabNames[currentTab - 1]);
+                
+                // Update buttons
+                document.querySelector('.btn-primary').style.display = 'inline-block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+        
+        // Demo Assets Management
+        function addDemoAsset() {
+            const list = document.getElementById('demo-assets-list');
+            const index = demoAssets.length;
+            
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.innerHTML = `
+                <div>
+                    <label>Asset Type</label>
+                    <input type="text" placeholder="e.g., Video, Image, Demo Link" onchange="updateDemoAsset(${index}, 'demo_asset_type', this.value)">
+                </div>
+                <div>
+                    <label>Asset Name</label>
+                    <input type="text" placeholder="Asset name" onchange="updateDemoAsset(${index}, 'demo_asset_name', this.value)">
+                </div>
+                <div>
+                    <label>Link</label>
+                    <input type="url" placeholder="https://..." onchange="updateDemoAsset(${index}, 'demo_link', this.value)">
+                </div>
+                <button type="button" class="remove-btn" onclick="removeDemoAsset(${index})">Remove</button>
+            `;
+            
+            list.appendChild(item);
+            demoAssets.push({
+                demo_asset_type: '',
+                demo_asset_name: '',
+                demo_link: ''
+            });
+            
+            updateDemoAssetsPreview();
+        }
+        
+        function updateDemoAsset(index, field, value) {
+            if (demoAssets[index]) {
+                demoAssets[index][field] = value;
+                updateDemoAssetsPreview();
+            }
+        }
+        
+        function removeDemoAsset(index) {
+            demoAssets.splice(index, 1);
+            const list = document.getElementById('demo-assets-list');
+            list.innerHTML = '';
+            
+            demoAssets.forEach((_, i) => {
+                addDemoAsset();
+                const inputs = list.children[i].querySelectorAll('input');
+                inputs[0].value = demoAssets[i].demo_asset_type;
+                inputs[1].value = demoAssets[i].demo_asset_name;
+                inputs[2].value = demoAssets[i].demo_link;
+            });
+            
+            updateDemoAssetsPreview();
+        }
+        
+        function updateDemoAssetsPreview() {
+            const preview = document.getElementById('demo-assets-preview');
+            preview.innerHTML = demoAssets.filter(asset => 
+                asset.demo_asset_type || asset.demo_asset_name || asset.demo_link
+            ).map(asset => `
+                <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                    <strong>${asset.demo_asset_name || 'Unnamed Asset'}</strong> 
+                    (${asset.demo_asset_type || 'No Type'})
+                    ${asset.demo_link ? `<br><a href="${asset.demo_link}" target="_blank">View Asset</a>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Deployments Management
+        function addDeployment() {
+            const list = document.getElementById('deployments-list');
+            const index = deployments.length;
+            
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.innerHTML = `
+                <div>
+                    <label>Service Provider</label>
+                    <input type="text" placeholder="e.g., AWS, Azure, Google Cloud" onchange="updateDeployment(${index}, 'service_provider', this.value)">
+                </div>
+                <div>
+                    <label>Service Name</label>
+                    <input type="text" placeholder="Service name" onchange="updateDeployment(${index}, 'service_name', this.value)">
+                </div>
+                <div>
+                    <label>Deployment Type</label>
+                    <input type="text" placeholder="e.g., Docker, Kubernetes" onchange="updateDeployment(${index}, 'deployment', this.value)">
+                </div>
+                <div>
+                    <label>Cloud Region</label>
+                    <input type="text" placeholder="e.g., us-east-1, eu-west-1" onchange="updateDeployment(${index}, 'cloud_region', this.value)">
+                </div>
+                <div>
+                    <label>Capability</label>
+                    <input type="text" placeholder="Related capability" onchange="updateDeployment(${index}, 'by_capability', this.value)">
+                </div>
+                <button type="button" class="remove-btn" onclick="removeDeployment(${index})">Remove</button>
+            `;
+            
+            list.appendChild(item);
+            deployments.push({
+                service_provider: '',
+                service_name: '',
+                deployment: '',
+                cloud_region: '',
+                by_capability: ''
+            });
+            
+            updateDocumentationPreview();
+        }
+        
+        function updateDeployment(index, field, value) {
+            if (deployments[index]) {
+                deployments[index][field] = value;
+                updateDocumentationPreview();
+            }
+        }
+        
+        function removeDeployment(index) {
+            deployments.splice(index, 1);
+            const list = document.getElementById('deployments-list');
+            list.innerHTML = '';
+            
+            deployments.forEach((_, i) => {
+                addDeployment();
+                const inputs = list.children[i].querySelectorAll('input');
+                inputs[0].value = deployments[i].service_provider;
+                inputs[1].value = deployments[i].service_name;
+                inputs[2].value = deployments[i].deployment;
+                inputs[3].value = deployments[i].cloud_region;
+                inputs[4].value = deployments[i].by_capability;
+            });
+            
+            updateDocumentationPreview();
+        }
+        
+        // Capabilities Preview
+        function updateCapabilitiesPreview() {
+            const input = document.getElementById('capabilities_input').value;
+            const preview = document.getElementById('capabilities-preview');
+            
+            if (input.trim()) {
+                const capabilities = input.split(',').map(cap => cap.trim()).filter(cap => cap);
+                preview.innerHTML = capabilities.map(cap => `
+                    <span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 15px; margin: 5px; display: inline-block;">
+                        ${cap}
+                    </span>
+                `).join('');
+            } else {
+                preview.innerHTML = '<p style="color: #666;">No capabilities added yet</p>';
+            }
+        }
+        
+        function updateDocumentationPreview() {
+            const preview = document.getElementById('documentation-preview');
+            
+            const deploymentsPreview = deployments.filter(deploy => 
+                deploy.service_provider || deploy.service_name || deploy.deployment
+            ).map(deploy => `
+                <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                    <strong>${deploy.service_name || 'Unnamed Service'}</strong> on ${deploy.service_provider || 'Unknown Provider'}
+                    ${deploy.deployment ? `<br>Deployment: ${deploy.deployment}` : ''}
+                    ${deploy.cloud_region ? `<br>Region: ${deploy.cloud_region}` : ''}
+                </div>
+            `).join('');
+            
+            preview.innerHTML = deploymentsPreview || '<p style="color: #666;">No deployments added yet</p>';
+        }
+        
+        // Form submission
+        document.getElementById('onboardForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const loadingDiv = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Clear previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Show loading
+            loadingDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            try {
+                // Collect form data
+                formData.append('agent_name', document.getElementById('agent_name').value);
+                formData.append('asset_type', document.getElementById('asset_type').value);
+                formData.append('by_persona', document.getElementById('by_persona').value);
+                formData.append('by_value', document.getElementById('by_value').value);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('features', document.getElementById('features').value);
+                formData.append('roi', document.getElementById('roi').value);
+                formData.append('tags', document.getElementById('tags').value);
+                formData.append('demo_link', document.getElementById('demo_link').value);
+                formData.append('isv_id', document.getElementById('isv_id').value);
+                
+                formData.append('capabilities', document.getElementById('capabilities_input').value);
+                formData.append('demo_assets', JSON.stringify(demoAssets.filter(asset => 
+                    asset.demo_asset_type || asset.demo_asset_name || asset.demo_link
+                )));
+                formData.append('deployments', JSON.stringify(deployments.filter(deploy => 
+                    deploy.service_provider || deploy.service_name || deploy.deployment
+                )));
+                
+                formData.append('sdk_details', document.getElementById('sdk_details').value);
+                formData.append('swagger_details', document.getElementById('swagger_details').value);
+                formData.append('sample_input', document.getElementById('sample_input').value);
+                formData.append('sample_output', document.getElementById('sample_output').value);
+                formData.append('security_details', document.getElementById('security_details').value);
+                formData.append('related_files', document.getElementById('related_files').value);
+                
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    successDiv.innerHTML = `
+                        <h4>✅ Agent Created Successfully!</h4>
+                        <p>${data.message}</p>
+                        <p><strong>Agent ID:</strong> ${data.agent_id}</p>
+                        <p><strong>Agent Name:</strong> ${data.agent_name}</p>
+                        <p><a href="${data.redirect}" style="color: #155724; text-decoration: underline;">View Your Agent</a></p>
+                    `;
+                    successDiv.style.display = 'block';
+                    
+                    // Clear form after successful submission
+                    setTimeout(() => {
+                        window.location.href = `/isv/profile/${document.getElementById('isv_id').value}`;
+                    }, 3000);
+                } else {
+                    errorDiv.textContent = data.detail || 'Agent creation failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Agent creation error:', error);
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Event listeners
+        document.getElementById('capabilities_input').addEventListener('input', updateCapabilitiesPreview);
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            initDynamicLists();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

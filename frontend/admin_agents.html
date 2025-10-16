@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Agent Management - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid #6f42c1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6f42c1;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .agents-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .agent-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #6f42c1;
+        }
+        
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .agent-info h3 {
+            color: #6f42c1;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .agent-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .agent-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .approval-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .approval-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .approval-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .agent-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .detail-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .detail-item span {
+            color: #666;
+        }
+        
+        .na {
+            color: #999;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                position: static;
+                margin-bottom: 20px;
+            }
+            
+            .agent-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .agent-actions {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/agents">Marketplace</a>
+                <a href="/admin/isv">ISV Management</a>
+                <a href="/admin/reseller">Reseller Management</a>
+                <a href="/admin/login">Logout</a>
+            </div>
+            <h1>🛡️ Admin Panel</h1>
+            <p>Agent Management Dashboard</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            🔄 Loading agent data...
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            ❌ Error loading agent data. Please try again later.
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-agents">-</div>
+                    <div class="stat-label">Total Agents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="approved-agents">-</div>
+                    <div class="stat-label">Approved Agents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pending-agents">-</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-isvs">-</div>
+                    <div class="stat-label">ISV Partners</div>
+                </div>
+            </div>
+            
+            <div class="agents-grid" id="agents-list">
+                <!-- Agents will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let agentsData = [];
+        
+        async function loadAgentsData() {
+            try {
+                const response = await fetch('/api/admin/agents');
+                const data = await response.json();
+                
+                agentsData = data.agents;
+                
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // Populate the dashboard
+                populateStats(data);
+                populateAgents(data.agents);
+                
+            } catch (error) {
+                console.error('Error loading agents:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        function populateStats(data) {
+            const agents = data.agents;
+            const totalAgents = agents.length;
+            const approvedAgents = agents.filter(agent => agent.is_approved).length;
+            const pendingAgents = totalAgents - approvedAgents;
+            
+            // Count unique ISVs
+            const uniqueISVs = new Set(agents.map(agent => agent.isv_id)).size;
+            
+            document.getElementById('total-agents').textContent = totalAgents;
+            document.getElementById('approved-agents').textContent = approvedAgents;
+            document.getElementById('pending-agents').textContent = pendingAgents;
+            document.getElementById('total-isvs').textContent = uniqueISVs;
+        }
+        
+        function populateAgents(agents) {
+            const container = document.getElementById('agents-list');
+            
+            if (agents.length === 0) {
+                container.innerHTML = '<p class="na">No agents found.</p>';
+                return;
+            }
+            
+            container.innerHTML = agents.map(agent => `
+                <div class="agent-card">
+                    <div class="agent-header">
+                        <div class="agent-info">
+                            <h3>${agent.agent_name || 'Unknown Agent'}</h3>
+                            <p><strong>Agent ID:</strong> ${agent.agent_id}</p>
+                            <p><strong>ISV ID:</strong> ${agent.isv_id}</p>
+                            <p><strong>Asset Type:</strong> ${agent.asset_type || 'na'}</p>
+                            <span class="approval-badge ${agent.is_approved ? 'approved' : 'pending'}">
+                                ${agent.is_approved ? '✅ Approved' : '⏳ Pending'}
+                            </span>
+                        </div>
+                        
+                        <div class="agent-actions">
+                            <button class="btn btn-primary" onclick="viewAgent('${agent.agent_name}')">View Details</button>
+                            <button class="btn ${agent.is_approved ? 'btn-warning' : 'btn-success'}" 
+                                    onclick="toggleApproval('${agent.agent_id}', ${agent.is_approved})">
+                                ${agent.is_approved ? 'Revoke Approval' : 'Approve'}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-details">
+                        <div class="detail-item">
+                            <strong>Persona</strong>
+                            <span>${agent.by_persona || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Value Proposition</strong>
+                            <span>${agent.by_value || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>ROI</strong>
+                            <span>${agent.roi || 'na'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <strong>Demo Link</strong>
+                            <span>${agent.demo_link ? `<a href="${agent.demo_link}" target="_blank">View Demo</a>` : 'na'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item" style="margin-top: 15px;">
+                        <strong>Description</strong>
+                        <span>${agent.description ? agent.description.substring(0, 200) + (agent.description.length > 200 ? '...' : '') : 'na'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function viewAgent(agentName) {
+            const agentUrl = agentName.toLowerCase().replace(/\s+/g, '-');
+            window.open(`/agent/${agentUrl}`, '_blank');
+        }
+        
+        async function toggleApproval(agentId, currentApproval) {
+            const newApproval = !currentApproval;
+            const action = newApproval ? 'approve' : 'revoke approval for';
+            
+            if (confirm(`Are you sure you want to ${action} this agent?`)) {
+                try {
+                    const formData = new FormData();
+                    formData.append('admin_approved', newApproval ? 'yes' : 'no');
+                    
+                    const response = await fetch(`/api/admin/agents/${agentId}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        alert(`Agent ${action} successfully!`);
+                        loadAgentsData(); // Reload data
+                    } else {
+                        alert('Error updating agent: ' + (data.detail || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Toggle approval error:', error);
+                    alert('Network error. Please try again.');
+                }
+            }
+        }
+        
+        // Load data when page loads
+        window.addEventListener('load', loadAgentsData);
+    </script>
+</body>
+</html>
