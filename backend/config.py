@@ -7,7 +7,16 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY","")
+
+# Check environment variable first, fallback to hardcoded for local testing
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Log API key status for debugging
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"Config: OpenAI API Key loaded: {'Yes' if OPENAI_API_KEY else 'No'}")
+if OPENAI_API_KEY:
+    logger.info(f"Config: API Key length: {len(OPENAI_API_KEY)} characters")
+    logger.info(f"Config: API Key prefix: {OPENAI_API_KEY[:10]}..." if len(OPENAI_API_KEY) > 10 else "Config: API Key too short")
 
 
 # Base directory paths

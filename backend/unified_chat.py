@@ -25,6 +25,12 @@ class UnifiedChatAgent:
         self.api_key = OPENAI_API_KEY
         self.conversation_memory = {}  # Store conversations by session_id
         
+        # Log API key status
+        logger.info(f"OpenAI API Key Status: {'Present' if self.api_key else 'Missing'}")
+        if self.api_key:
+            logger.info(f"API Key Length: {len(self.api_key)} characters")
+            logger.info(f"API Key Prefix: {self.api_key[:10]}..." if len(self.api_key) > 10 else "API Key too short")
+        
         # Initialize OpenAI client if API key is valid
         if self.api_key and self.api_key != "your-openai-api-key-here":
             try:
@@ -33,6 +39,8 @@ class UnifiedChatAgent:
             except Exception as e:
                 logger.warning(f"Failed to initialize Unified Chat Agent OpenAI client: {str(e)}")
                 self.client = None
+        else:
+            logger.warning("No OpenAI API key provided - will use fallback responses only")
     
     def get_agents_context(self) -> str:
         """Get formatted context about all available agents for explore mode"""
@@ -356,6 +364,7 @@ NEVER show the JSON to the user. The system will extract it automatically."""
     def get_fallback_response(self, user_query: str, mode: str, question_count: int = 0) -> Dict[str, Any]:
         """Generate a fallback response when OpenAI is not available"""
         try:
+            logger.info(f"Generating fallback response for mode={mode}, query='{user_query[:50]}...', question_count={question_count}")
             if mode == "explore":
                 # Fallback for explore mode
                 agents_df = data_source.get_agents()
@@ -410,12 +419,14 @@ NEVER show the JSON to the user. The system will extract it automatically."""
                     response += "While I can't access detailed agent information right now, I can help you browse our available agents. "
                     response += "What specific area or capability would you like to explore?"
                 
-                return {
+                result = {
                     "response": response,
                     "filtered_agents": relevant_agents,
                     "timestamp": datetime.now().isoformat(),
                     "fallback_mode": True
                 }
+                logger.info(f"Explore fallback result: response_length={len(response)}, filtered_agents_count={len(relevant_agents)}")
+                return result
             
             else:  # create mode
                 # Intelligent inference-based responses for create mode fallback
@@ -436,7 +447,7 @@ Would you like me to create a prototype of this HR Candidate Filter?"""
                             "expected_output": "Ranked list of best-fit candidates"
                         }
                         
-                        return {
+                        result = {
                             "response": response,
                             "question_count": 0,
                             "lets_build": True,
@@ -445,6 +456,8 @@ Would you like me to create a prototype of this HR Candidate Filter?"""
                             "timestamp": datetime.now().isoformat(),
                             "fallback_mode": True
                         }
+                        logger.info(f"Create fallback result (HR): response_length={len(response)}, lets_build=True")
+                        return result
                     else:
                         response = """Great! Let's build your custom AI agent.
 
@@ -490,7 +503,7 @@ Based on our conversation, I understand you want an HR candidate filtering agent
                         "expected_output": "Ranked candidate shortlists with matching scores"
                     }
                 
-                return {
+                result = {
                     "response": response,
                     "question_count": question_count + 1,
                     "lets_build": False,
@@ -498,6 +511,8 @@ Based on our conversation, I understand you want an HR candidate filtering agent
                     "timestamp": datetime.now().isoformat(),
                     "fallback_mode": True
                 }
+                logger.info(f"Create fallback result (generic): response_length={len(response)}, question_count={question_count + 1}")
+                return result
             
         except Exception as e:
             logger.error(f"Error in fallback response: {str(e)}")
@@ -554,6 +569,7 @@ Based on our conversation, I understand you want an HR candidate filtering agent
                 question_count = len([msg for msg in conversation_history if msg["role"] == "assistant"])
                 result = self.get_fallback_response(user_query, mode, question_count)
                 result["session_id"] = session_id
+                logger.info(f"Fallback response generated: response_length={len(result.get('response', ''))}, mode={mode}")
                 return result
             
             # Get conversation history
@@ -581,12 +597,18 @@ Based on our conversation, I understand you want an HR candidate filtering agent
             
             # Call OpenAI API
             logger.info(f"Sending unified chat request for mode {mode}, session {session_id}")
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                max_tokens=1500,
-                temperature=0.7
-            )
+            logger.info(f"API Key being used: {'Yes' if self.api_key else 'No'}")
+            try:
+                response = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=messages,
+                    max_tokens=1500,
+                    temperature=0.7
+                )
+                logger.info(f"OpenAI API call successful for mode {mode}")
+            except Exception as api_error:
+                logger.error(f"OpenAI API call failed: {str(api_error)}")
+                raise api_error
             
             # Extract AI response
             ai_response = response.choices[0].message.content
