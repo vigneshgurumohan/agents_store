@@ -452,7 +452,6 @@ Would you like me to create a prototype of this HR Candidate Filter?"""
                             "question_count": 0,
                             "lets_build": True,
                             "gathered_info": gathered_info,
-                            "session_id": session_id,
                             "timestamp": datetime.now().isoformat(),
                             "fallback_mode": True
                         }
