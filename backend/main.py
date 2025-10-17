@@ -1251,31 +1251,82 @@ async def get_agent_details(agent_id: str):
 
 @app.get("/api/capabilities")
 async def get_all_capabilities():
-    """Get all unique capabilities with deployment details"""
+    """Get all unique capabilities with grouped deployment combinations"""
     try:
         # Get capabilities from capabilities_mapping
         mapping_df = data_source.get_capabilities_mapping()
         capabilities = mapping_df[['by_capability_id', 'by_capability']].drop_duplicates()
         capabilities_list = capabilities.to_dict('records')
         
-        # Get deployments data for additional fields
+        # Get deployments data for grouping
         deployments_df = data_source.get_deployments()
         
-        # Get unique values for each field
-        unique_by_capability = sorted(deployments_df['by_capability'].dropna().unique().tolist())
-        unique_service_provider = sorted(deployments_df['service_provider'].dropna().unique().tolist())
-        unique_service_name = sorted(deployments_df['service_name'].dropna().unique().tolist())
-        unique_deployment = sorted(deployments_df['deployment'].dropna().unique().tolist())
+        # Group deployments by service_provider and by_capability
+        grouped_deployments = {}
         
-        # Handle cloud_region (comma-separated values)
-        cloud_regions = deployments_df['cloud_region'].dropna().tolist()
-        unique_cloud_regions = set()
-        for region in cloud_regions:
-            if pd.notna(region) and region != 'na':
-                # Split by comma and clean up each region
-                regions = [r.strip() for r in str(region).split(',') if r.strip()]
-                unique_cloud_regions.update(regions)
-        unique_cloud_regions = sorted(list(unique_cloud_regions))
+        for _, deployment in deployments_df.iterrows():
+            service_provider = deployment.get('service_provider', '')
+            by_capability = deployment.get('by_capability', '')
+            service_name = deployment.get('service_name', '')
+            deployment_type = deployment.get('deployment', '')
+            cloud_region = deployment.get('cloud_region', '')
+            
+            # Skip if any key field is empty or NaN
+            if pd.isna(service_provider) or pd.isna(by_capability) or service_provider == '' or by_capability == '':
+                continue
+                
+            # Create group key
+            group_key = f"{service_provider}_{by_capability}"
+            
+            if group_key not in grouped_deployments:
+                grouped_deployments[group_key] = {
+                    "service_provider": service_provider,
+                    "by_capability": by_capability,
+                    "services": [],
+                    "deployments": set(),
+                    "cloud_regions": set()
+                }
+            
+            # Add service details
+            service_info = {
+                "service_name": service_name,
+                "deployment": deployment_type,
+                "cloud_region": cloud_region
+            }
+            
+            # Check if this service combination already exists
+            service_exists = False
+            for existing_service in grouped_deployments[group_key]["services"]:
+                if (existing_service["service_name"] == service_name and 
+                    existing_service["deployment"] == deployment_type):
+                    service_exists = True
+                    break
+            
+            if not service_exists:
+                grouped_deployments[group_key]["services"].append(service_info)
+            
+            # Add to deployments and cloud_regions sets
+            if deployment_type and deployment_type != 'na':
+                grouped_deployments[group_key]["deployments"].add(deployment_type)
+            
+            if cloud_region and cloud_region != 'na':
+                # Handle comma-separated regions
+                regions = [r.strip() for r in str(cloud_region).split(',') if r.strip()]
+                grouped_deployments[group_key]["cloud_regions"].update(regions)
+        
+        # Convert sets to sorted lists and prepare final response
+        grouped_list = []
+        for group_key, group_data in grouped_deployments.items():
+            grouped_list.append({
+                "service_provider": group_data["service_provider"],
+                "by_capability": group_data["by_capability"],
+                "services": group_data["services"],
+                "deployments": sorted(list(group_data["deployments"])),
+                "cloud_regions": sorted(list(group_data["cloud_regions"]))
+            })
+        
+        # Sort by service_provider and by_capability
+        grouped_list.sort(key=lambda x: (x["service_provider"], x["by_capability"]))
         
         # Replace NaN values in capabilities
         for cap in capabilities_list:
@@ -1285,13 +1336,7 @@ async def get_all_capabilities():
         
         return {
             "capabilities": capabilities_list,
-            "unique_values": {
-                "by_capability": unique_by_capability,
-                "service_provider": unique_service_provider,
-                "service_name": unique_service_name,
-                "deployment": unique_deployment,
-                "cloud_region": unique_cloud_regions
-            }
+            "grouped_deployments": grouped_list
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching capabilities: {str(e)}")
