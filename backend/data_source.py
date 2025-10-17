@@ -109,6 +109,18 @@ class DataSource:
         """Get all ISVs"""
         return self.get_table_data("isv")
     
+    def get_isv_by_id(self, isv_id: str) -> Dict:
+        """Get ISV by ID"""
+        try:
+            isv_df = self.get_table_data("isv")
+            isv_row = isv_df[isv_df['isv_id'] == isv_id]
+            if not isv_row.empty:
+                return isv_row.iloc[0].to_dict()
+            return {}
+        except Exception as e:
+            logger.error(f"Error getting ISV by ID {isv_id}: {str(e)}")
+            return {}
+    
     def get_resellers(self) -> pd.DataFrame:
         """Get all resellers"""
         return self.get_table_data("reseller")

@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Check environment variable first, fallback to hardcoded for local testing
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Log API key status for debugging
 import logging
@@ -61,4 +60,27 @@ API_CONFIG = {
     "description": "API for managing AI agents marketplace",
     "host": os.getenv("API_HOST", "0.0.0.0"),
     "port": int(os.getenv("API_PORT", "8000"))
+}
+
+
+# S3 Configuration
+S3_CONFIG = {
+    "bucket_name": os.getenv("S3_BUCKET_NAME", ""),
+    "region": os.getenv("S3_REGION", ""),
+    "access_key_id": os.getenv("AWS_ACCESS_KEY_ID", ""),
+    "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY", "")
+}
+
+
+# File upload settings
+FILE_UPLOAD_CONFIG = {
+    "max_file_size": 50 * 1024 * 1024,  # 50MB (increased for demo assets)
+    "allowed_extensions": [".pdf", ".doc", ".docx", ".txt", ".md", ".png", ".jpg", ".jpeg", ".gif", ".mp4", ".avi", ".mov"],
+    "upload_folders": {
+        "mou": "documents/mou/",
+        "profile_images": "images/profile/",
+        "agent_docs": "documents/agents/",
+        "demo_assets": "assets/demo/",
+        "deployments": "assets/deployments/"
+    }
 }

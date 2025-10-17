@@ -1,7 +1,7 @@
 """
 FastAPI application for Agents Marketplace
 """
-from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi import FastAPI, HTTPException, Request, Form, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,6 +11,7 @@ import pandas as pd
 import uuid
 import logging
 from datetime import datetime
+from s3_utils import s3_manager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -120,6 +121,7 @@ async def signup(
     isv_address: str = Form(""),
     isv_domain: str = Form(""),
     isv_mob_no: str = Form(""),
+    mou_file: UploadFile = File(None),
     # Reseller specific fields
     reseller_name: str = Form(""),
     reseller_address: str = Form(""),
@@ -152,6 +154,25 @@ async def signup(
             
             user_id = data_source.get_next_isv_id()
             
+            # Handle MOU file upload
+            mou_file_path = ""
+            if mou_file and mou_file.filename:
+                try:
+                    file_content = await mou_file.read()
+                    success, message, s3_url = s3_manager.upload_file(
+                        file_content, 
+                        mou_file.filename, 
+                        "mou", 
+                        user_id
+                    )
+                    if success:
+                        mou_file_path = s3_url
+                        logger.info(f"MOU file uploaded successfully for ISV {user_id}: {s3_url}")
+                    else:
+                        logger.warning(f"MOU file upload failed for ISV {user_id}: {message}")
+                except Exception as e:
+                    logger.error(f"Error uploading MOU file for ISV {user_id}: {str(e)}")
+            
             # Create ISV record
             isv_data = {
                 "isv_id": user_id,
@@ -160,6 +181,7 @@ async def signup(
                 "isv_domain": isv_domain,
                 "isv_mob_no": isv_mob_no,
                 "isv_email_no": email,
+                "mou_file_path": mou_file_path,
                 "admin_approved": "no"
             }
             
@@ -308,6 +330,16 @@ async def get_isv_profile(isv_id: str):
             if pd.isna(value):
                 isv_data[key] = "na"
         
+        # Generate signed URL for MOU file if it exists
+        if isv_data.get("mou_file_path") and isv_data["mou_file_path"] != "na":
+            try:
+                signed_url = s3_manager.generate_signed_url(isv_data["mou_file_path"])
+                isv_data["mou_file_signed_url"] = signed_url
+            except Exception as e:
+                logger.error(f"Error generating signed URL for ISV {isv_id}: {str(e)}")
+                # Keep the original URL if signing fails
+                isv_data["mou_file_signed_url"] = isv_data["mou_file_path"]
+        
         # Get agents for this ISV
         agents_df = data_source.get_agents_by_isv(isv_id)
         agents = agents_df.to_dict('records') if not agents_df.empty else []
@@ -344,18 +376,70 @@ async def update_isv_profile(
     isv_address: str = Form(""),
     isv_domain: str = Form(""),
     isv_mob_no: str = Form(""),
-    isv_email: str = Form(...)
+    isv_email: str = Form(...),
+    mou_file: UploadFile = File(None)
 ):
     """Update ISV profile"""
     try:
-        # Prepare update data
-        update_data = {
-            "isv_name": isv_name,
-            "isv_address": isv_address,
-            "isv_domain": isv_domain,
-            "isv_mob_no": isv_mob_no,
-            "isv_email_no": isv_email
-        }
+        # Handle MOU file upload if provided
+        if mou_file and mou_file.filename:
+            try:
+                # Get existing ISV data to check for old MOU file
+                existing_isv = data_source.get_isv_by_id(isv_id)
+                old_mou_path = existing_isv.get("mou_file_path", "") if existing_isv else ""
+                
+                # Upload new MOU file
+                file_content = await mou_file.read()
+                success, message, s3_url = s3_manager.upload_file(
+                    file_content, 
+                    mou_file.filename, 
+                    "mou", 
+                    isv_id
+                )
+                if success:
+                    # Delete old MOU file if it exists
+                    if old_mou_path:
+                        s3_manager.delete_file(old_mou_path)
+                    
+                    # Update with new MOU file path
+                    update_data = {
+                        "isv_name": isv_name,
+                        "isv_address": isv_address,
+                        "isv_domain": isv_domain,
+                        "isv_mob_no": isv_mob_no,
+                        "isv_email_no": isv_email,
+                        "mou_file_path": s3_url
+                    }
+                    logger.info(f"MOU file updated successfully for ISV {isv_id}: {s3_url}")
+                else:
+                    logger.warning(f"MOU file upload failed for ISV {isv_id}: {message}")
+                    # Continue with update without MOU file
+                    update_data = {
+                        "isv_name": isv_name,
+                        "isv_address": isv_address,
+                        "isv_domain": isv_domain,
+                        "isv_mob_no": isv_mob_no,
+                        "isv_email_no": isv_email
+                    }
+            except Exception as e:
+                logger.error(f"Error uploading MOU file for ISV {isv_id}: {str(e)}")
+                # Continue with update without MOU file
+                update_data = {
+                    "isv_name": isv_name,
+                    "isv_address": isv_address,
+                    "isv_domain": isv_domain,
+                    "isv_mob_no": isv_mob_no,
+                    "isv_email_no": isv_email
+                }
+        else:
+            # No MOU file provided, update other fields only
+            update_data = {
+                "isv_name": isv_name,
+                "isv_address": isv_address,
+                "isv_domain": isv_domain,
+                "isv_mob_no": isv_mob_no,
+                "isv_email_no": isv_email
+            }
         
         # Update the CSV file
         success = data_source.update_isv_data(isv_id, update_data)
@@ -601,7 +685,13 @@ async def onboard_agent(
     related_files: str = Form(""),
     
     # Deployments (JSON string)
-    deployments: str = Form("")
+    deployments: str = Form(""),
+    
+    # Demo asset files (multiple files)
+    demo_files: List[UploadFile] = File([]),
+    
+    # README file upload
+    readme_file: UploadFile = File(None)
 ):
     """ISV: Create new agent with all related data"""
     try:
@@ -635,36 +725,132 @@ async def onboard_agent(
             capabilities_list = [cap.strip() for cap in capabilities.split(",") if cap.strip()]
             capabilities_data = []
             
-            for capability in capabilities_list:
+            # Get existing capabilities to find next available ID
+            existing_capabilities_df = data_source.get_capabilities_mapping()
+            existing_capability_ids = set()
+            if not existing_capabilities_df.empty:
+                existing_capability_ids = set(existing_capabilities_df['by_capability_id'].dropna().tolist())
+            
+            # Find next available capability ID
+            next_cap_id = 1
+            while f"capa_{next_cap_id:03d}" in existing_capability_ids:
+                next_cap_id += 1
+            
+            for i, capability in enumerate(capabilities_list):
                 capabilities_data.append({
                     "agent_id": agent_id,
-                    "by_capability_id": f"cap_{len(capabilities_data) + 1:03d}",  # Generate capability ID
+                    "by_capability_id": f"capa_{next_cap_id + i:03d}",  # Generate unique capability ID
                     "by_capability": capability
                 })
-            
-            if capabilities_data:
-                data_source.save_capabilities_mapping_data(capabilities_data)
         
-        # Process demo assets
+        if capabilities_data:
+            data_source.save_capabilities_mapping_data(capabilities_data)
+        
+        # Process demo assets: handle both single links and bulk file uploads
+        demo_assets_data = []
+        
+        # Handle single demo links from form data
+        if demo_link and demo_link.strip():
+            demo_assets_data.append({
+                "demo_asset_id": f"demo_{agent_id}_001",
+                "agent_id": agent_id,
+                "demo_asset_type": "External Link",
+                "demo_asset_name": "Demo Link",
+                "demo_link": demo_link.strip()
+            })
+            logger.info(f"Added single demo link for agent {agent_id}: {demo_link}")
+        
+        # Handle bulk file uploads
+        if demo_files:
+            logger.info(f"Processing {len(demo_files)} demo files for bulk upload")
+            file_counter = len(demo_assets_data) + 1  # Start counter after single links
+            
+            for file in demo_files:
+                if file.filename:  # Only process files with names
+                    try:
+                        logger.info(f"Processing bulk file: {file.filename}")
+                        file_content = await file.read()
+                        logger.info(f"File content size: {len(file_content)} bytes")
+                        
+                        success, message, s3_url = s3_manager.upload_file(
+                            file_content, 
+                            file.filename, 
+                            "demo_assets", 
+                            agent_id
+                        )
+                        
+                        if success:
+                            demo_assets_data.append({
+                                "demo_asset_id": f"demo_{agent_id}_{file_counter:03d}",
+                                "agent_id": agent_id,
+                                "demo_asset_type": "Uploaded File",
+                                "demo_asset_name": file.filename,
+                                "demo_link": s3_url  # Save S3 URL in demo_link field
+                            })
+                            logger.info(f"Bulk file uploaded successfully for agent {agent_id}: {s3_url}")
+                            file_counter += 1
+                        else:
+                            logger.warning(f"Bulk file upload failed for agent {agent_id}: {message}")
+                            
+                    except Exception as e:
+                        logger.error(f"Error uploading bulk file {file.filename} for agent {agent_id}: {str(e)}")
+        
+        # Handle legacy demo_assets JSON (for backward compatibility)
         if demo_assets:
             try:
                 import json
                 demo_assets_list = json.loads(demo_assets) if demo_assets else []
-                demo_assets_data = []
                 
-                for i, asset in enumerate(demo_assets_list):
-                    demo_assets_data.append({
-                        "demo_asset_id": f"demo_{agent_id}_{i + 1:03d}",
-                        "agent_id": agent_id,
-                        "demo_asset_type": asset.get("demo_asset_type", ""),
-                        "demo_asset_name": asset.get("demo_asset_name", ""),
-                        "demo_link": asset.get("demo_link", "")
-                    })
-                
-                if demo_assets_data:
-                    data_source.save_demo_assets_data(demo_assets_data)
+                for asset in demo_assets_list:
+                    # Only process if it's a valid asset with a link
+                    if asset.get("demo_link") and asset["demo_link"].strip():
+                        demo_assets_data.append({
+                            "demo_asset_id": f"demo_{agent_id}_{len(demo_assets_data) + 1:03d}",
+                            "agent_id": agent_id,
+                            "demo_asset_type": asset.get("demo_asset_type", "External Link"),
+                            "demo_asset_name": asset.get("demo_asset_name", "Demo Asset"),
+                            "demo_link": asset["demo_link"].strip()
+                        })
+                        logger.info(f"Added legacy demo asset for agent {agent_id}: {asset['demo_link']}")
             except json.JSONDecodeError:
                 pass  # Skip if invalid JSON
+        
+        # Save all demo assets
+        if demo_assets_data:
+            data_source.save_demo_assets_data(demo_assets_data)
+            logger.info(f"Saved {len(demo_assets_data)} demo assets for agent {agent_id}")
+        
+        # Handle README file upload
+        readme_file_url = ""
+        if readme_file and readme_file.filename:
+            try:
+                logger.info(f"Processing README file upload: {readme_file.filename}")
+                file_content = await readme_file.read()
+                logger.info(f"README file content size: {len(file_content)} bytes")
+                
+                success, message, s3_url = s3_manager.upload_file(
+                    file_content, 
+                    readme_file.filename, 
+                    "agent_docs", 
+                    agent_id
+                )
+                
+                if success:
+                    readme_file_url = s3_url
+                    logger.info(f"README file uploaded successfully for agent {agent_id}: {s3_url}")
+                else:
+                    logger.warning(f"README file upload failed for agent {agent_id}: {message}")
+                    
+            except Exception as e:
+                logger.error(f"Error uploading README file {readme_file.filename} for agent {agent_id}: {str(e)}")
+        
+        # Combine related_files with README file URL
+        related_files_combined = related_files
+        if readme_file_url:
+            if related_files_combined:
+                related_files_combined += f", {readme_file_url}"
+            else:
+                related_files_combined = readme_file_url
         
         # Save documentation
         docs_data = {
@@ -675,7 +861,7 @@ async def onboard_agent(
             "sample_input": sample_input,
             "sample_output": sample_output,
             "security_details": security_details,
-            "related_files": related_files
+            "related_files": related_files_combined
         }
         
         data_source.save_docs_data(docs_data)
@@ -687,19 +873,54 @@ async def onboard_agent(
                 deployments_list = json.loads(deployments) if deployments else []
                 deployments_data = []
                 
+                # Get agent's existing capabilities to link deployments properly
+                agent_capabilities_df = data_source.get_capabilities_by_agent(agent_id)
+                agent_capabilities = {}
+                if not agent_capabilities_df.empty:
+                    for _, cap in agent_capabilities_df.iterrows():
+                        capability_name = cap.get('by_capability', '')
+                        capability_id = cap.get('by_capability_id', '')
+                        if capability_name and capability_id:
+                            agent_capabilities[capability_name.lower()] = capability_id
+                
+                logger.info(f"Agent {agent_id} capabilities: {agent_capabilities}")
+                
                 for i, deployment in enumerate(deployments_list):
+                    # Try to match deployment capability with agent's existing capabilities
+                    deployment_capability = deployment.get("by_capability", "").lower()
+                    matched_capability_id = agent_capabilities.get(deployment_capability, "")
+                    
+                    if not matched_capability_id:
+                        # If no exact match, try to find a similar capability
+                        for cap_name, cap_id in agent_capabilities.items():
+                            if deployment_capability in cap_name or cap_name in deployment_capability:
+                                matched_capability_id = cap_id
+                                logger.info(f"Matched '{deployment_capability}' with '{cap_name}' -> {cap_id}")
+                                break
+                    
+                    if not matched_capability_id:
+                        logger.warning(f"No matching capability found for '{deployment.get('by_capability', '')}' in agent {agent_id}")
+                        # Skip this deployment if no matching capability found
+                        continue
+                    
                     deployments_data.append({
-                        "deployment_id": f"deploy_{agent_id}_{i + 1:03d}",
+                        "by_capability_id": matched_capability_id,  # Foreign key to capabilities
+                        "service_id": f"serv_{agent_id}_{i + 1:03d}",  # Generate service ID
+                        "by_capability": deployment.get("by_capability", ""),
                         "service_provider": deployment.get("service_provider", ""),
                         "service_name": deployment.get("service_name", ""),
                         "deployment": deployment.get("deployment", ""),
-                        "cloud_region": deployment.get("cloud_region", ""),
-                        "by_capability": deployment.get("by_capability", "")
+                        "cloud_region": deployment.get("cloud_region", "")
                     })
                 
                 if deployments_data:
                     data_source.save_deployments_data(deployments_data)
-            except json.JSONDecodeError:
+                    logger.info(f"Saved {len(deployments_data)} deployments for agent {agent_id}")
+                else:
+                    logger.warning(f"No valid deployments to save for agent {agent_id}")
+                    
+            except json.JSONDecodeError as e:
+                logger.error(f"Invalid JSON in deployments data: {e}")
                 pass  # Skip if invalid JSON
         
         return {
@@ -809,14 +1030,26 @@ async def get_all_agents():
                 agent_id = str(demo_asset.get('agent_id', ''))
                 demo_link = str(demo_asset.get('demo_link', ''))
                 demo_asset_name = str(demo_asset.get('demo_asset_name', ''))
+                demo_file_path = str(demo_asset.get('demo_file_path', ''))
                 
-                if agent_id and agent_id != 'nan' and demo_link and demo_link != 'nan':
+                if agent_id and agent_id != 'nan':
                     if agent_id not in agent_demo_previews:
                         agent_demo_previews[agent_id] = set()
+                    
                     # Use demo_link as the preview, or demo_asset_name if available
-                    preview_text = demo_link if demo_link != 'nan' else demo_asset_name
+                    preview_text = demo_link if demo_link != 'nan' and demo_link else demo_asset_name
                     if preview_text and preview_text != 'nan':
                         agent_demo_previews[agent_id].add(preview_text)
+                    
+                    # Check if demo_link contains an S3 URL (file-based demo asset)
+                    if demo_link and demo_link != 'nan' and 's3.amazonaws.com' in demo_link:
+                        try:
+                            signed_url = s3_manager.generate_signed_url(demo_link)
+                            agent_demo_previews[agent_id].add(signed_url)
+                        except Exception as e:
+                            logger.error(f"Error generating signed URL for demo asset {agent_id}: {str(e)}")
+                            # Fallback to original URL
+                            agent_demo_previews[agent_id].add(demo_link)
         
         # Map capabilities to service providers for each agent
         for agent_id, capabilities in agent_capabilities.items():
@@ -967,11 +1200,27 @@ async def get_agent_details(agent_id: str):
         docs_df = data_source.get_docs_by_agent(agent_id)
         docs = docs_df.to_dict('records') if not docs_df.empty else []
         
-        # Replace NaN values in docs
+        # Replace NaN values in docs and generate signed URLs for S3 links
         for doc in docs:
             for key, value in doc.items():
                 if pd.isna(value):
                     doc[key] = "na"
+                elif key == 'related_files' and value and value != 'na':
+                    # Check if related_files contains S3 URLs and generate signed URLs
+                    related_files_list = [f.strip() for f in str(value).split(',') if f.strip()]
+                    signed_files = []
+                    for file_url in related_files_list:
+                        if 's3.amazonaws.com' in file_url:
+                            try:
+                                signed_url = s3_manager.generate_signed_url(file_url)
+                                signed_files.append(signed_url)
+                                logger.info(f"Generated signed URL for README file: {file_url}")
+                            except Exception as e:
+                                logger.error(f"Error generating signed URL for README file {file_url}: {str(e)}")
+                                signed_files.append(file_url)  # Fallback to original URL
+                        else:
+                            signed_files.append(file_url)  # Keep non-S3 URLs as-is
+                    doc[key] = ', '.join(signed_files)
         
         # Get ISV info
         isv_id = agent.get('isv_id', 'na')
@@ -1002,19 +1251,48 @@ async def get_agent_details(agent_id: str):
 
 @app.get("/api/capabilities")
 async def get_all_capabilities():
-    """Get all unique capabilities"""
+    """Get all unique capabilities with deployment details"""
     try:
+        # Get capabilities from capabilities_mapping
         mapping_df = data_source.get_capabilities_mapping()
         capabilities = mapping_df[['by_capability_id', 'by_capability']].drop_duplicates()
         capabilities_list = capabilities.to_dict('records')
         
-        # Replace NaN values
+        # Get deployments data for additional fields
+        deployments_df = data_source.get_deployments()
+        
+        # Get unique values for each field
+        unique_by_capability = sorted(deployments_df['by_capability'].dropna().unique().tolist())
+        unique_service_provider = sorted(deployments_df['service_provider'].dropna().unique().tolist())
+        unique_service_name = sorted(deployments_df['service_name'].dropna().unique().tolist())
+        unique_deployment = sorted(deployments_df['deployment'].dropna().unique().tolist())
+        
+        # Handle cloud_region (comma-separated values)
+        cloud_regions = deployments_df['cloud_region'].dropna().tolist()
+        unique_cloud_regions = set()
+        for region in cloud_regions:
+            if pd.notna(region) and region != 'na':
+                # Split by comma and clean up each region
+                regions = [r.strip() for r in str(region).split(',') if r.strip()]
+                unique_cloud_regions.update(regions)
+        unique_cloud_regions = sorted(list(unique_cloud_regions))
+        
+        # Replace NaN values in capabilities
         for cap in capabilities_list:
             for key, value in cap.items():
                 if pd.isna(value):
                     cap[key] = "na"
         
-        return {"capabilities": capabilities_list}
+        return {
+            "capabilities": capabilities_list,
+            "unique_values": {
+                "by_capability": unique_by_capability,
+                "service_provider": unique_service_provider,
+                "service_name": unique_service_name,
+                "deployment": unique_deployment,
+                "cloud_region": unique_cloud_regions
+            }
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching capabilities: {str(e)}")
 

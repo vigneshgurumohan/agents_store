@@ -1,76 +1,78 @@
-by_capability_id,service_id,by_capability,service_provider,service_name,deployment,cloud_region,deployment_id
-capa_001,serv_001,Conversational AI & Advisory,SaaS,Anthropic Claude,Cloud,"AMER, EUR",
-capa_001,serv_002,Conversational AI & Advisory,AWS,Amazon Comprehend,Cloud,"AMER, EUR, APAC",
-capa_001,serv_003,Conversational AI & Advisory,AWS,Amazon Lex,Cloud,"AMER, EUR, APAC",
-capa_001,serv_004,Conversational AI & Advisory,AWS,Amazon Polly,Cloud,"AMER, EUR, APAC",
-capa_001,serv_005,Conversational AI & Advisory,Azure,Azure AI Bot Service,Cloud,"AMER, EUR, APAC",
-capa_001,serv_006,Conversational AI & Advisory,Azure,Azure OpenAI Service,Cloud,"AMER, EUR, APAC",
-capa_001,serv_007,Conversational AI & Advisory,GCP,Dialogflow,Cloud,"AMER, EUR, APAC",
-capa_001,serv_008,Conversational AI & Advisory,SaaS,OpenAI GPT APIs,Cloud,"AMER, EUR, APAC",
-capa_001,serv_009,Conversational AI & Advisory,Open-Source,Rasa,On-Prem,On-Prem,
-capa_001,serv_010,Conversational AI & Advisory,Open-Source,Botpress,On-Prem,On-Prem,
-capa_001,serv_011,Conversational AI & Advisory,Open-Source,LangChain,On-Prem,On-Prem,
-capa_001,serv_012,Conversational AI & Advisory,Open-Source,OpenAssistant,On-Prem,On-Prem,
-capa_001,serv_013,Conversational AI & Advisory,Open-Source,GPT-4 Open-Source Variants,On-Prem,On-Prem,
-capa_002,serv_014,Data & Analytics,AWS,Amazon Athena,Cloud,"AMER, EUR, APAC",
-capa_002,serv_015,Data & Analytics,AWS,Amazon EMR,Cloud,"AMER, EUR, APAC",
-capa_002,serv_016,Data & Analytics,AWS,Amazon Redshift,Cloud,"AMER, EUR, APAC",
-capa_002,serv_017,Data & Analytics,Azure,Azure Databricks,Cloud,"AMER, EUR, APAC",
-capa_002,serv_018,Data & Analytics,Azure,Azure Synapse Analytics,Cloud,"AMER, EUR, APAC",
-capa_002,serv_019,Data & Analytics,GCP,BigQuery,Cloud,"AMER, EUR, APAC",
-capa_002,serv_020,Data & Analytics,GCP,Dataproc,Cloud,"AMER, EUR, APAC",
-capa_002,serv_021,Data & Analytics,SaaS,Databricks (non-AWS),Cloud,"AMER, EUR, APAC",
-capa_002,serv_022,Data & Analytics,SaaS,Snowflake (multi-cloud),Cloud,"AMER, EUR, APAC",
-capa_002,serv_023,Data & Analytics,Open-Source,Pandas,On-Prem,On-Prem,
-capa_002,serv_024,Data & Analytics,Open-Source,Apache Spark,On-Prem,On-Prem,
-capa_002,serv_025,Data & Analytics,Open-Source,Dask,On-Prem,On-Prem,
-capa_002,serv_026,Data & Analytics,Open-Source,Vaex,On-Prem,On-Prem,
-capa_003,serv_027,Document Intelligence,AWS,Amazon Textract,Cloud,"AMER, EUR, APAC",
-capa_003,serv_028,Document Intelligence,Azure,Azure AI Document Intelligence,Cloud,"AMER, EUR, APAC",
-capa_003,serv_029,Document Intelligence,GCP,Document AI,Cloud,"AMER, EUR, APAC",
-capa_003,serv_030,Document Intelligence,SaaS,ABBYY FlexiCapture,On-Prem,"AMER, EUR, APAC",
-capa_003,serv_031,Document Intelligence,SaaS,Rossum,On-Prem,"AMER, EUR, APAC",
-capa_003,serv_032,Document Intelligence,SaaS,DocMind AI,On-Prem,"AMER, EUR, APAC",
-capa_003,serv_033,Document Intelligence,Open-Source,Tesseract OCR,On-Prem,On-Prem,
-capa_003,serv_034,Document Intelligence,Open-Source,LayoutLMv3,On-Prem,On-Prem,
-capa_003,serv_035,Document Intelligence,Open-Source,DocQuery,On-Prem,On-Prem,
-capa_003,serv_036,Document Intelligence,Open-Source,Docling,On-Prem,On-Prem,
-capa_003,serv_037,Document Intelligence,Open-Source,DeepDoctection,On-Prem,On-Prem,
-capa_003,serv_038,Document Intelligence,Open-Source,TableFormer,On-Prem,On-Prem,
-capa_004,serv_039,Knowledge & Repository,AWS,Amazon Kendra,Cloud,"AMER, EUR, APAC",
-capa_004,serv_040,Knowledge & Repository,Azure,Azure AI Search,Cloud,"AMER, EUR, APAC",
-capa_004,serv_041,Knowledge & Repository,GCP,Vertex AI Search and Conversation,Cloud,"AMER, EUR, APAC",
-capa_004,serv_042,Knowledge & Repository,SaaS,Diffbot,Cloud,"AMER, EUR, APAC",
-capa_004,serv_043,Knowledge & Repository,SaaS,Import.io,Cloud,"AMER, EUR, APAC",
-capa_004,serv_044,Knowledge & Repository,SaaS,Pinecone,Cloud,"AMER, EUR, APAC",
-capa_004,serv_045,Knowledge & Repository,SaaS,Qdrant,On-Prem,"AMER, EUR, APAC",
-capa_004,serv_046,Knowledge & Repository,Open-Source,Grobid,On-Prem,On-Prem,
-capa_004,serv_047,Knowledge & Repository,Open-Source,Camelot,On-Prem,On-Prem,
-capa_004,serv_048,Knowledge & Repository,Open-Source,Excalibur,On-Prem,On-Prem,
-capa_004,serv_049,Knowledge & Repository,Open-Source,Haystack,On-Prem,On-Prem,
-capa_004,serv_050,Knowledge & Repository,Open-Source,Weaviate,On-Prem,On-Prem,
-capa_004,serv_051,Knowledge & Repository,Open-Source,Milvus,On-Prem,On-Prem,
-capa_004,serv_052,Knowledge & Repository,Open-Source,OpenSemanticSearch,On-Prem,On-Prem,
-capa_005,serv_053,Video Processing,AWS,Amazon Kinesis Video Streams,Cloud,"AMER, EUR, APAC",
-capa_005,serv_054,Video Processing,AWS,Amazon Rekognition Video,Cloud,"AMER, EUR, APAC",
-capa_005,serv_055,Video Processing,Azure,Azure AI Video Indexer,Cloud,"AMER, EUR, APAC",
-capa_005,serv_056,Video Processing,Azure,Azure Media Services,Cloud,"AMER, EUR, APAC",
-capa_005,serv_057,Video Processing,GCP,Cloud Video Intelligence API,Cloud,"AMER, EUR, APAC",
-capa_005,serv_058,Video Processing,GCP,Media CDN,Cloud,"AMER, EUR, APAC",
-capa_005,serv_059,Video Processing,SaaS,Deepgram Video API,Cloud,"AMER, EUR, APAC",
-capa_005,serv_060,Video Processing,SaaS,Zubtitle,Cloud,"AMER, EUR, APAC",
-capa_005,serv_061,Video Processing,Open-Source,OpenCV,On-Prem,On-Prem,
-capa_005,serv_062,Video Processing,Open-Source,Detectron2,On-Prem,On-Prem,
-capa_005,serv_063,Video Processing,Open-Source,MediaPipe,On-Prem,On-Prem,
-capa_005,serv_064,Video Processing,Open-Source,PyTorchVideo,On-Prem,On-Prem,
-capa_006,serv_065,Voice & Meetings,AWS,Amazon Chime SDK Amazon Transcribe,Cloud,"AMER, EUR, APAC",
-capa_006,serv_066,Voice & Meetings,AWS,Amazon Transcribe,Cloud,"AMER, EUR, APAC",
-capa_006,serv_067,Voice & Meetings,Azure,Azure AI Speech,Cloud,"AMER, EUR, APAC",
-capa_006,serv_068,Voice & Meetings,Azure,Azure Communication Services,Cloud,"AMER, EUR, APAC",
-capa_006,serv_069,Voice & Meetings,GCP,Cloud Speech-to-Text,Cloud,"AMER, EUR, APAC",
-capa_006,serv_070,Voice & Meetings,GCP,Google Meet,Cloud,"AMER, EUR, APAC",
-capa_006,serv_071,Voice & Meetings,SaaS,AssemblyAI,Cloud,"AMER, EUR, APAC",
-capa_006,serv_072,Voice & Meetings,SaaS,Rev.ai,Cloud,"AMER, EUR, APAC",
-capa_006,serv_073,Voice & Meetings,Open-Source,OpenAI Whisper (open-source variant),On-Prem,On-Prem,
-capa_006,serv_074,Voice & Meetings,Open-Source,Vosk,On-Prem,On-Prem,
-capa_006,serv_075,Voice & Meetings,Open-Source,Coqui STT,On-Prem,On-Prem,
+by_capability_id,service_id,by_capability,service_provider,service_name,deployment,cloud_region
+capa_001,serv_001,Conversational AI & Advisory,SaaS,Anthropic Claude,Cloud,"AMER, EUR"
+capa_001,serv_002,Conversational AI & Advisory,AWS,Amazon Comprehend,Cloud,"AMER, EUR, APAC"
+capa_001,serv_003,Conversational AI & Advisory,AWS,Amazon Lex,Cloud,"AMER, EUR, APAC"
+capa_001,serv_004,Conversational AI & Advisory,AWS,Amazon Polly,Cloud,"AMER, EUR, APAC"
+capa_001,serv_005,Conversational AI & Advisory,Azure,Azure AI Bot Service,Cloud,"AMER, EUR, APAC"
+capa_001,serv_006,Conversational AI & Advisory,Azure,Azure OpenAI Service,Cloud,"AMER, EUR, APAC"
+capa_001,serv_007,Conversational AI & Advisory,GCP,Dialogflow,Cloud,"AMER, EUR, APAC"
+capa_001,serv_008,Conversational AI & Advisory,SaaS,OpenAI GPT APIs,Cloud,"AMER, EUR, APAC"
+capa_001,serv_009,Conversational AI & Advisory,Open-Source,Rasa,On-Prem,On-Prem
+capa_001,serv_010,Conversational AI & Advisory,Open-Source,Botpress,On-Prem,On-Prem
+capa_001,serv_011,Conversational AI & Advisory,Open-Source,LangChain,On-Prem,On-Prem
+capa_001,serv_012,Conversational AI & Advisory,Open-Source,OpenAssistant,On-Prem,On-Prem
+capa_001,serv_013,Conversational AI & Advisory,Open-Source,GPT-4 Open-Source Variants,On-Prem,On-Prem
+capa_002,serv_014,Data & Analytics,AWS,Amazon Athena,Cloud,"AMER, EUR, APAC"
+capa_002,serv_015,Data & Analytics,AWS,Amazon EMR,Cloud,"AMER, EUR, APAC"
+capa_002,serv_016,Data & Analytics,AWS,Amazon Redshift,Cloud,"AMER, EUR, APAC"
+capa_002,serv_017,Data & Analytics,Azure,Azure Databricks,Cloud,"AMER, EUR, APAC"
+capa_002,serv_018,Data & Analytics,Azure,Azure Synapse Analytics,Cloud,"AMER, EUR, APAC"
+capa_002,serv_019,Data & Analytics,GCP,BigQuery,Cloud,"AMER, EUR, APAC"
+capa_002,serv_020,Data & Analytics,GCP,Dataproc,Cloud,"AMER, EUR, APAC"
+capa_002,serv_021,Data & Analytics,SaaS,Databricks (non-AWS),Cloud,"AMER, EUR, APAC"
+capa_002,serv_022,Data & Analytics,SaaS,Snowflake (multi-cloud),Cloud,"AMER, EUR, APAC"
+capa_002,serv_023,Data & Analytics,Open-Source,Pandas,On-Prem,On-Prem
+capa_002,serv_024,Data & Analytics,Open-Source,Apache Spark,On-Prem,On-Prem
+capa_002,serv_025,Data & Analytics,Open-Source,Dask,On-Prem,On-Prem
+capa_002,serv_026,Data & Analytics,Open-Source,Vaex,On-Prem,On-Prem
+capa_003,serv_027,Document Intelligence,AWS,Amazon Textract,Cloud,"AMER, EUR, APAC"
+capa_003,serv_028,Document Intelligence,Azure,Azure AI Document Intelligence,Cloud,"AMER, EUR, APAC"
+capa_003,serv_029,Document Intelligence,GCP,Document AI,Cloud,"AMER, EUR, APAC"
+capa_003,serv_030,Document Intelligence,SaaS,ABBYY FlexiCapture,On-Prem,"AMER, EUR, APAC"
+capa_003,serv_031,Document Intelligence,SaaS,Rossum,On-Prem,"AMER, EUR, APAC"
+capa_003,serv_032,Document Intelligence,SaaS,DocMind AI,On-Prem,"AMER, EUR, APAC"
+capa_003,serv_033,Document Intelligence,Open-Source,Tesseract OCR,On-Prem,On-Prem
+capa_003,serv_034,Document Intelligence,Open-Source,LayoutLMv3,On-Prem,On-Prem
+capa_003,serv_035,Document Intelligence,Open-Source,DocQuery,On-Prem,On-Prem
+capa_003,serv_036,Document Intelligence,Open-Source,Docling,On-Prem,On-Prem
+capa_003,serv_037,Document Intelligence,Open-Source,DeepDoctection,On-Prem,On-Prem
+capa_003,serv_038,Document Intelligence,Open-Source,TableFormer,On-Prem,On-Prem
+capa_004,serv_039,Knowledge & Repository,AWS,Amazon Kendra,Cloud,"AMER, EUR, APAC"
+capa_004,serv_040,Knowledge & Repository,Azure,Azure AI Search,Cloud,"AMER, EUR, APAC"
+capa_004,serv_041,Knowledge & Repository,GCP,Vertex AI Search and Conversation,Cloud,"AMER, EUR, APAC"
+capa_004,serv_042,Knowledge & Repository,SaaS,Diffbot,Cloud,"AMER, EUR, APAC"
+capa_004,serv_043,Knowledge & Repository,SaaS,Import.io,Cloud,"AMER, EUR, APAC"
+capa_004,serv_044,Knowledge & Repository,SaaS,Pinecone,Cloud,"AMER, EUR, APAC"
+capa_004,serv_045,Knowledge & Repository,SaaS,Qdrant,On-Prem,"AMER, EUR, APAC"
+capa_004,serv_046,Knowledge & Repository,Open-Source,Grobid,On-Prem,On-Prem
+capa_004,serv_047,Knowledge & Repository,Open-Source,Camelot,On-Prem,On-Prem
+capa_004,serv_048,Knowledge & Repository,Open-Source,Excalibur,On-Prem,On-Prem
+capa_004,serv_049,Knowledge & Repository,Open-Source,Haystack,On-Prem,On-Prem
+capa_004,serv_050,Knowledge & Repository,Open-Source,Weaviate,On-Prem,On-Prem
+capa_004,serv_051,Knowledge & Repository,Open-Source,Milvus,On-Prem,On-Prem
+capa_004,serv_052,Knowledge & Repository,Open-Source,OpenSemanticSearch,On-Prem,On-Prem
+capa_005,serv_053,Video Processing,AWS,Amazon Kinesis Video Streams,Cloud,"AMER, EUR, APAC"
+capa_005,serv_054,Video Processing,AWS,Amazon Rekognition Video,Cloud,"AMER, EUR, APAC"
+capa_005,serv_055,Video Processing,Azure,Azure AI Video Indexer,Cloud,"AMER, EUR, APAC"
+capa_005,serv_056,Video Processing,Azure,Azure Media Services,Cloud,"AMER, EUR, APAC"
+capa_005,serv_057,Video Processing,GCP,Cloud Video Intelligence API,Cloud,"AMER, EUR, APAC"
+capa_005,serv_058,Video Processing,GCP,Media CDN,Cloud,"AMER, EUR, APAC"
+capa_005,serv_059,Video Processing,SaaS,Deepgram Video API,Cloud,"AMER, EUR, APAC"
+capa_005,serv_060,Video Processing,SaaS,Zubtitle,Cloud,"AMER, EUR, APAC"
+capa_005,serv_061,Video Processing,Open-Source,OpenCV,On-Prem,On-Prem
+capa_005,serv_062,Video Processing,Open-Source,Detectron2,On-Prem,On-Prem
+capa_005,serv_063,Video Processing,Open-Source,MediaPipe,On-Prem,On-Prem
+capa_005,serv_064,Video Processing,Open-Source,PyTorchVideo,On-Prem,On-Prem
+capa_006,serv_065,Voice & Meetings,AWS,Amazon Chime SDK Amazon Transcribe,Cloud,"AMER, EUR, APAC"
+capa_006,serv_066,Voice & Meetings,AWS,Amazon Transcribe,Cloud,"AMER, EUR, APAC"
+capa_006,serv_067,Voice & Meetings,Azure,Azure AI Speech,Cloud,"AMER, EUR, APAC"
+capa_006,serv_068,Voice & Meetings,Azure,Azure Communication Services,Cloud,"AMER, EUR, APAC"
+capa_006,serv_069,Voice & Meetings,GCP,Cloud Speech-to-Text,Cloud,"AMER, EUR, APAC"
+capa_006,serv_070,Voice & Meetings,GCP,Google Meet,Cloud,"AMER, EUR, APAC"
+capa_006,serv_071,Voice & Meetings,SaaS,AssemblyAI,Cloud,"AMER, EUR, APAC"
+capa_006,serv_072,Voice & Meetings,SaaS,Rev.ai,Cloud,"AMER, EUR, APAC"
+capa_006,serv_073,Voice & Meetings,Open-Source,OpenAI Whisper (open-source variant),On-Prem,On-Prem
+capa_006,serv_074,Voice & Meetings,Open-Source,Vosk,On-Prem,On-Prem
+capa_006,serv_075,Voice & Meetings,Open-Source,Coqui STT,On-Prem,On-Prem
+cap_001,serv_agent_031_001,Data & Analytics,AWS,Amazon Redshift,Cloud,US East
+cap_002,serv_agent_031_002,Conversational AI & Advisory,OpenAI,GPT-4,Cloud,Global

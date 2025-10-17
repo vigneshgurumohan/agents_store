@@ -107,3 +107,6 @@ By automating backlog setup, dependency mapping, and Jira integration, the copil
 agent_026,yes,isv_001,Agent,Operations Teams,Data,Knowledge Base,,,,,,
 agent_027,yes,isv_001,Agent,End Customers,Customer Experience,Insurance Agent,,,,,,
 agent_028,yes,isv_001,Agent,End Customers,Customer Experience,Campaign Agent,,,,,,
+agent_029,no,isv_001,AI Agent,Developer,Productivity,Test README Agent,https://example.com/demo,Test agent with README file upload,README upload test,Test,"test,readme",
+agent_030,no,isv_001,AI Agent,Developer,Productivity,Fresh README Agent,https://example.com/fresh-demo,Fresh test agent with README file upload,Fresh README upload test,Fresh Test,"test,readme,fresh",
+agent_031,no,isv_001,AI Agent,Data Scientist,Analytics,Test Deployment Agent,https://example.com/deployment-demo,Test agent for deployment foreign key handling,Deployment test,Test,"test,deployment",

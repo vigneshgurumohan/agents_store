@@ -335,6 +335,7 @@
                             <p><strong>Email:</strong> <span id="company-email">-</span></p>
                             <p><strong>Domain:</strong> <span id="company-domain">-</span></p>
                             <p><strong>Mobile:</strong> <span id="company-mobile">-</span></p>
+                            <p><strong>MOU Document:</strong> <span id="mou-document">-</span></p>
                         </div>
                         
                         <div class="info-card">
@@ -414,6 +415,15 @@
             document.getElementById('company-mobile').textContent = isv.isv_mob_no || 'na';
             document.getElementById('company-address').textContent = isv.isv_address || 'na';
             
+            // Update MOU document info
+            const mouElement = document.getElementById('mou-document');
+            if (isv.mou_file_path && isv.mou_file_path !== 'na') {
+                const mouUrl = isv.mou_file_signed_url || isv.mou_file_path;
+                mouElement.innerHTML = `<a href="${mouUrl}" target="_blank" style="color: #667eea; text-decoration: underline;">📄 View MOU Document</a>`;
+            } else {
+                mouElement.textContent = 'No MOU document uploaded';
+            }
+            
             // Populate agents
             populateAgents();
             
@@ -485,6 +495,14 @@
                         </div>
                     </div>
                     
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">MOU Document</label>
+                        <input type="file" id="edit_mou_file" name="mou_file" accept=".pdf,.doc,.docx,.txt" 
+                               style="width: 100%; padding: 8px; border: 2px dashed #e1e5e9; border-radius: 8px; background: #f8f9fa;">
+                        <small style="color: #666; font-size: 0.9rem;">Upload a new MOU document to replace the current one (PDF, DOC, DOCX, or TXT format, max 10MB)</small>
+                        ${isv.mou_file_path && isv.mou_file_path !== 'na' ? `<div style="margin-top: 8px;"><strong>Current MOU:</strong> <a href="${isv.mou_file_signed_url || isv.mou_file_path}" target="_blank" style="color: #667eea;">View Current Document</a></div>` : '<div style="margin-top: 8px; color: #666;">No MOU document uploaded yet.</div>'}
+                    </div>
+                    
                     <button type="submit" class="edit-btn" style="margin-top: 20px;">
                         Save Changes
                     </button>
@@ -501,6 +519,12 @@
                 formData.append('isv_address', document.getElementById('edit_isv_address').value);
                 formData.append('isv_domain', document.getElementById('edit_isv_domain').value);
                 formData.append('isv_mob_no', document.getElementById('edit_isv_mob_no').value);
+                
+                // Add MOU file if selected
+                const mouFile = document.getElementById('edit_mou_file').files[0];
+                if (mouFile) {
+                    formData.append('mou_file', mouFile);
+                }
                 
                 try {
                     const response = await fetch(`/api/isv/profile/${isvId}`, {

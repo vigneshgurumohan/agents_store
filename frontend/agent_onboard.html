@@ -518,10 +518,53 @@
                 <div id="demo-assets" class="tab-panel">
                     <h3>🎬 Demo Assets</h3>
                     
-                    <button type="button" class="add-btn" onclick="addDemoAsset()">+ Add Demo Asset</button>
+                    <!-- Single Demo Link Input -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #333;">Single Demo Link</h4>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="url" id="single_demo_link" placeholder="https://example.com/demo" 
+                                   style="flex: 1; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+                            <button type="button" onclick="addSingleDemoLink()" 
+                                    style="padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                                Add Link
+                            </button>
+                        </div>
+                        <small style="color: #666; font-size: 0.9rem; display: block; margin-top: 8px;">
+                            Add a single demo link (YouTube, Vimeo, external demo, etc.)
+                        </small>
+                    </div>
                     
-                    <div class="dynamic-list" id="demo-assets-list">
-                        <!-- Demo assets will be added here -->
+                    <!-- Bulk File Upload -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #333;">Bulk File Upload</h4>
+                        <div style="border: 2px dashed #e1e5e9; border-radius: 12px; padding: 30px; text-align: center; background: #f8f9fa;">
+                            <input type="file" id="bulk_demo_files" name="bulk_demo_files" 
+                                   accept=".jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.pdf,.doc,.docx" 
+                                   multiple 
+                                   style="display: none;" 
+                                   onchange="handleBulkFileUpload(this)">
+                            <div onclick="document.getElementById('bulk_demo_files').click()" 
+                                 style="cursor: pointer; padding: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
+                                <div style="font-size: 18px; font-weight: 500; margin-bottom: 8px; color: #333;">
+                                    Click to upload multiple files
+                                </div>
+                                <div style="color: #666; font-size: 14px;">
+                                    Images, videos, documents (max 50MB each)
+                                </div>
+                            </div>
+                        </div>
+                        <div id="bulk-files-preview" style="margin-top: 15px;"></div>
+                    </div>
+                    
+                    <!-- Legacy Demo Assets (for backward compatibility) -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #333;">Advanced: Custom Demo Assets</h4>
+                        <button type="button" class="add-btn" onclick="addDemoAsset()">+ Add Custom Demo Asset</button>
+                        
+                        <div class="dynamic-list" id="demo-assets-list">
+                            <!-- Demo assets will be added here -->
+                        </div>
                     </div>
                     
                     <div class="preview-section">
@@ -563,8 +606,32 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="related_files">Related Files</label>
-                        <input type="text" id="related_files" name="related_files" placeholder="Links to related files, documentation, etc.">
+                        <label for="related_files">README File Upload</label>
+                        <div style="border: 2px dashed #e1e5e9; border-radius: 12px; padding: 20px; text-align: center; background: #f8f9fa; margin-bottom: 10px;">
+                            <input type="file" id="readme_file" name="readme_file" 
+                                   accept=".md,.txt,.pdf,.doc,.docx" 
+                                   style="display: none;" 
+                                   onchange="handleReadmeFileUpload(this)">
+                            <div onclick="document.getElementById('readme_file').click()" 
+                                 style="cursor: pointer;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">📄</div>
+                                <div style="font-size: 16px; font-weight: 500; margin-bottom: 5px; color: #333;">
+                                    Click to upload README file
+                                </div>
+                                <div style="color: #666; font-size: 14px;">
+                                    Markdown, Text, PDF, DOC, DOCX (max 10MB)
+                                </div>
+                            </div>
+                        </div>
+                        <div id="readme-file-preview" style="margin-top: 10px;"></div>
+                        <small style="color: #666; font-size: 0.9rem; display: block; margin-top: 8px;">
+                            Upload your README.md or other documentation files
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="related_files_links">Additional Related Files (Links)</label>
+                        <input type="text" id="related_files" name="related_files" placeholder="Links to additional documentation, guides, or resources (separate from uploaded files)">
                     </div>
                     
                     <h4 style="margin-top: 30px;">Deployment Options</h4>
@@ -594,6 +661,9 @@
         const totalTabs = 4;
         let demoAssets = [];
         let deployments = [];
+        let singleDemoLink = '';
+        let bulkDemoFiles = [];
+        let readmeFile = null;
         
         // Initialize demo assets and deployments
         function initDynamicLists() {
@@ -662,7 +732,135 @@
             }
         }
         
-        // Demo Assets Management
+        // Single Demo Link Management
+        function addSingleDemoLink() {
+            const linkInput = document.getElementById('single_demo_link');
+            const link = linkInput.value.trim();
+            
+            if (link) {
+                singleDemoLink = link;
+                linkInput.value = '';
+                updateDemoAssetsPreview();
+                showSuccessMessage('Demo link added successfully!');
+            } else {
+                showErrorMessage('Please enter a valid demo link');
+            }
+        }
+        
+        // Bulk File Upload Management
+        function handleBulkFileUpload(input) {
+            const files = Array.from(input.files);
+            bulkDemoFiles = files;
+            
+            // Update preview
+            const preview = document.getElementById('bulk-files-preview');
+            if (files.length > 0) {
+                preview.innerHTML = `
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                        <h5 style="margin-bottom: 10px; color: #333;">Selected Files (${files.length}):</h5>
+                        ${files.map(file => `
+                            <div style="display: flex; align-items: center; padding: 8px; background: #f8f9fa; margin: 5px 0; border-radius: 6px;">
+                                <span style="margin-right: 10px;">📁</span>
+                                <span style="flex: 1; font-size: 14px;">${file.name}</span>
+                                <span style="color: #666; font-size: 12px;">${(file.size / (1024 * 1024)).toFixed(1)}MB</span>
+                            </div>
+                        `).join('')}
+                        <button type="button" onclick="clearBulkFiles()" 
+                                style="margin-top: 10px; padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                            Clear All Files
+                        </button>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = '';
+            }
+            
+            updateDemoAssetsPreview();
+        }
+        
+        function clearBulkFiles() {
+            bulkDemoFiles = [];
+            document.getElementById('bulk_demo_files').value = '';
+            document.getElementById('bulk-files-preview').innerHTML = '';
+            updateDemoAssetsPreview();
+        }
+        
+        // README File Upload Management
+        function handleReadmeFileUpload(input) {
+            const file = input.files[0];
+            readmeFile = file;
+            
+            // Update preview
+            const preview = document.getElementById('readme-file-preview');
+            if (file) {
+                preview.innerHTML = `
+                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                        <h5 style="margin-bottom: 10px; color: #333;">Selected README File:</h5>
+                        <div style="display: flex; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+                            <span style="margin-right: 10px;">📄</span>
+                            <span style="flex: 1; font-size: 14px;">${file.name}</span>
+                            <span style="color: #666; font-size: 12px;">${(file.size / (1024 * 1024)).toFixed(1)}MB</span>
+                            <button type="button" onclick="clearReadmeFile()" 
+                                    style="margin-left: 10px; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+                showSuccessMessage('README file selected successfully!');
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+        
+        function clearReadmeFile() {
+            readmeFile = null;
+            document.getElementById('readme_file').value = '';
+            document.getElementById('readme-file-preview').innerHTML = '';
+        }
+        
+        // Helper functions for messages
+        function showSuccessMessage(message) {
+            // Create a temporary success message
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 1000;
+                background: #28a745; color: white; padding: 12px 20px;
+                border-radius: 6px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+        
+        function showErrorMessage(message) {
+            // Create a temporary error message
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 1000;
+                background: #dc3545; color: white; padding: 12px 20px;
+                border-radius: 6px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+        
+        // Demo Assets Management (Legacy)
         function addDemoAsset() {
             const list = document.getElementById('demo-assets-list');
             const index = demoAssets.length;
@@ -679,8 +877,15 @@
                     <input type="text" placeholder="Asset name" onchange="updateDemoAsset(${index}, 'demo_asset_name', this.value)">
                 </div>
                 <div>
-                    <label>Link</label>
+                    <label>Link (Optional)</label>
                     <input type="url" placeholder="https://..." onchange="updateDemoAsset(${index}, 'demo_link', this.value)">
+                </div>
+                <div>
+                    <label>Upload File (Optional)</label>
+                    <input type="file" id="demo_file_${index}" name="demo_files" accept=".jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.pdf,.doc,.docx" 
+                           onchange="updateDemoAsset(${index}, 'demo_file', this.files[0])" 
+                           style="padding: 8px; border: 2px dashed #e1e5e9; border-radius: 8px; background: #f8f9fa; width: 100%;">
+                    <small style="color: #666; font-size: 0.8rem;">Images, videos, or documents (max 50MB)</small>
                 </div>
                 <button type="button" class="remove-btn" onclick="removeDemoAsset(${index})">Remove</button>
             `;
@@ -689,7 +894,8 @@
             demoAssets.push({
                 demo_asset_type: '',
                 demo_asset_name: '',
-                demo_link: ''
+                demo_link: '',
+                demo_file: null
             });
             
             updateDemoAssetsPreview();
@@ -720,15 +926,47 @@
         
         function updateDemoAssetsPreview() {
             const preview = document.getElementById('demo-assets-preview');
-            preview.innerHTML = demoAssets.filter(asset => 
-                asset.demo_asset_type || asset.demo_asset_name || asset.demo_link
-            ).map(asset => `
-                <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
-                    <strong>${asset.demo_asset_name || 'Unnamed Asset'}</strong> 
-                    (${asset.demo_asset_type || 'No Type'})
-                    ${asset.demo_link ? `<br><a href="${asset.demo_link}" target="_blank">View Asset</a>` : ''}
-                </div>
-            `).join('');
+            let previewHTML = '';
+            
+            // Show single demo link
+            if (singleDemoLink) {
+                previewHTML += `
+                    <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                        <strong>Single Demo Link</strong> (External Link)
+                        <br><a href="${singleDemoLink}" target="_blank" style="color: #007bff;">${singleDemoLink}</a>
+                    </div>
+                `;
+            }
+            
+            // Show bulk uploaded files
+            if (bulkDemoFiles.length > 0) {
+                bulkDemoFiles.forEach(file => {
+                    previewHTML += `
+                        <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                            <strong>${file.name}</strong> (Uploaded File)
+                            <br><span style="color: #28a745;">📁 File: ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB)</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Show legacy demo assets
+            const legacyAssets = demoAssets.filter(asset => 
+                asset.demo_asset_type || asset.demo_asset_name || asset.demo_link || asset.demo_file
+            );
+            
+            if (legacyAssets.length > 0) {
+                previewHTML += legacyAssets.map(asset => `
+                    <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                        <strong>${asset.demo_asset_name || 'Unnamed Asset'}</strong> 
+                        (${asset.demo_asset_type || 'No Type'})
+                        ${asset.demo_link ? `<br><a href="${asset.demo_link}" target="_blank">View External Link</a>` : ''}
+                        ${asset.demo_file ? `<br><span style="color: #28a745;">📁 File: ${asset.demo_file.name}</span>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            preview.innerHTML = previewHTML || '<div style="text-align: center; color: #666; padding: 20px;">No demo assets added yet</div>';
         }
         
         // Deployments Management
@@ -864,9 +1102,46 @@
                 formData.append('isv_id', document.getElementById('isv_id').value);
                 
                 formData.append('capabilities', document.getElementById('capabilities_input').value);
-                formData.append('demo_assets', JSON.stringify(demoAssets.filter(asset => 
-                    asset.demo_asset_type || asset.demo_asset_name || asset.demo_link
-                )));
+                
+                // Handle single demo link
+                if (singleDemoLink) {
+                    formData.append('demo_link', singleDemoLink);
+                }
+                
+            // Handle bulk file uploads
+            bulkDemoFiles.forEach(file => {
+                formData.append('demo_files', file);
+                console.log(`Added bulk demo file:`, file.name);
+            });
+            
+            // Handle README file upload
+            if (readmeFile) {
+                formData.append('readme_file', readmeFile);
+                console.log(`Added README file:`, readmeFile.name);
+            }
+                
+                // Handle legacy demo assets (for backward compatibility)
+                const validDemoAssets = demoAssets.filter(asset => 
+                    asset.demo_asset_type || asset.demo_asset_name || asset.demo_link || asset.demo_file
+                );
+                
+                // Add legacy demo asset files to form data
+                validDemoAssets.forEach((asset, index) => {
+                    if (asset.demo_file) {
+                        formData.append('demo_files', asset.demo_file);
+                        console.log(`Added legacy demo file ${index}:`, asset.demo_file.name);
+                    }
+                });
+                
+                // Add legacy demo assets metadata (without file objects)
+                const demoAssetsMetadata = validDemoAssets.map(asset => ({
+                    demo_asset_type: asset.demo_asset_type,
+                    demo_asset_name: asset.demo_asset_name,
+                    demo_link: asset.demo_link,
+                    has_file: !!asset.demo_file
+                }));
+                
+                formData.append('demo_assets', JSON.stringify(demoAssetsMetadata));
                 formData.append('deployments', JSON.stringify(deployments.filter(deploy => 
                     deploy.service_provider || deploy.service_name || deploy.deployment
                 )));
@@ -900,12 +1175,14 @@
                         window.location.href = `/isv/profile/${document.getElementById('isv_id').value}`;
                     }, 3000);
                 } else {
-                    errorDiv.textContent = data.detail || 'Agent creation failed. Please try again.';
+                    console.error('Agent creation failed:', data);
+                    const errorMessage = data.detail || data.message || data.error || 'Agent creation failed. Please try again.';
+                    errorDiv.textContent = `Error creating agent: ${errorMessage}`;
                     errorDiv.style.display = 'block';
                 }
             } catch (error) {
                 console.error('Agent creation error:', error);
-                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.textContent = `Network error: ${error.message}. Please try again.`;
                 errorDiv.style.display = 'block';
             } finally {
                 loadingDiv.style.display = 'none';

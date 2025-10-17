@@ -9,3 +9,7 @@ auth_007,reseller_002,gv2995@gmail.com,password,reseller,yes,2025-10-16
 auth_008,client_004,newclient@example.com,testpass123,client,yes,2025-10-16
 auth_009,client_001,gv2452@gmail.com,password123,client,yes,2025-10-16
 auth_010,client_005,qaslkfgj@asfgasfg,12345,client,yes,2025-10-16
+auth_011,isv_005,test@example.com,password123,isv,yes,2025-10-17
+auth_012,isv_006,test2@example.com,password123,isv,yes,2025-10-17
+auth_013,isv_007,frontend_test@example.com,password123,isv,yes,2025-10-17
+auth_014,isv_008,testtesttest@gmail.com,testtesttest@gmail.com,isv,yes,2025-10-17
