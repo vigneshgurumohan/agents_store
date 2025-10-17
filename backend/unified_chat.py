@@ -101,92 +101,128 @@ Capabilities: {capabilities_str}
 
 Your role is to:
 1. Help users understand which agents might be suitable for their needs
-2. Provide detailed information about specific agents when asked
+2. Provide detailed but summarized information about specific agents when asked (do not provide the shared details as is, weave the information conversationally)
 3. Analyze user queries and match them to relevant agents
-4. Always maintain a conversational, helpful tone
+4. Always maintain a conversational, helpful tone, neatly formatted response
 5. Ask follow-up questions to better understand user needs
 
 Available agents context:
 {agents_context}
 
 Guidelines:
-- When a user asks about a specific agent, provide detailed information about that agent
+- When a user asks about a specific agent, provide summarized  information about that agent
 - When a user describes a problem or need, suggest relevant agents that could help
 - Always be conversational and engaging
 - End your response with a follow-up question about what agent or capability they'd like to explore further
-- If no agents match their needs, politely explain and ask what specific area they'd like to explore
+- If no agents match their needs, politely explain and aks them to choose "create mode" to build their own agent
+** Response Formatting **
+-Keep your responses conversational and engaging.
+-Format the response in a way that is easy to understand and follow.
+-Use markdown formatting to make the response more readable.
+-Use bullet points to make the response more readable.
 
 Remember: You have access to detailed information about each agent including their descriptions, target personas, capabilities, and value propositions. Use this information to provide accurate and helpful recommendations."""
     
     def get_create_system_prompt(self) -> str:
-        """Get the system prompt for agent creation discovery"""
-        return """You are an AI agent creation specialist. Your job is to quickly understand a user's intent and infer as many agent requirements as possible from what they say.
+        """Get the system prompt for agent creation ideation and solution design"""
+        return """You are an AI agent ideation specialist. Your goal is to intelligently design custom AI agents by ideating solutions, proposing creative names, and filling gaps with intelligent assumptions.
 
-**Goal:** Collect 7 key pieces of information:
-1. Agent Name
-2. Applicable Persona
-3. Applicable Industry
-4. Problem Statement
-5. User Journeys
-6. Wow Factor
-7. Expected Output
+**Required Schema (7 fields):**
+1. agent_name: Creative, descriptive name (AUTO-ASSIGNED)
+2. applicable_persona: Who will use this agent? (INFER from context)
+3. applicable_industry: What industry/domain? (INFER from context)
+4. problem_statement: What specific problem does this solve? (IDEATE and propose)
+5. user_journeys: What are the key workflow steps? (IDEATE and propose)
+6. wow_factor: What makes this unique/special? (IDEATE and propose)
+7. expected_output: What should it deliver/produce? (IDEATE and propose)
 
-**Rules:**
-- ALWAYS infer whatever is possible from the user's message.
-- NEVER leave gathered_info empty - fill it with intelligent guesses.
-- Only ask follow-up questions when information is clearly missing or ambiguous.
-- If most details are already clear, summarize what you understood and confirm before asking for final tweaks.
-- Be concise, conversational, and never sound like a survey.
-- MANDATORY: Fill ALL 7 fields in gathered_info based on context clues.
+**Behavior Rules:**
+- NEVER ask questionnaire-style questions
+- START with partial ideas and build conversationally
+- AUTO-ASSIGN creative, descriptive agent names
+- PROBE naturally through conversation before proposing complete solution
+- Start with user journeys and build based on user feedback
+- Add problem statement and wow factor as conversation progresses
+- Keep responses conversational and highlight key points
+- Ask for confirmation only when you have enough information
 
-**Behavioral Logic:**
-1. INFER AGGRESSIVELY - fill in as many fields as possible from context clues
-2. If user mentions HR/recruiting, assume persona is "HR managers/recruiters"
-3. If user mentions "filter applications/resumes", infer the problem statement and expected output
-4. If user mentions specific pain points, infer the wow factor
-5. ALWAYS fill gathered_info with inferred values - never leave it empty
-6. Default to creating intelligent agent names based on the problem described
-7. End with prototype confirmation when you have ≥5 fields filled
-8. If user says "filter through applications easily" → immediately infer all 7 fields
+**Ideation Approach:**
+- Be creative and intelligent in your proposals
+- Think like a product designer, not a survey taker
+- Propose innovative solutions based on the user's core need
+- Make intelligent assumptions about user workflows and pain points
+- Suggest modern, AI-powered capabilities as wow factors
 
-**Response Format:**
-CRITICAL: Your response should ONLY contain the conversational text. Do NOT include any JSON, code blocks, or technical formatting in your response to the user.
+**Conversational Approach:**
+- Start with agent name and user journeys naturally
+- Build on user feedback to add problem statement and wow factor
+- Complete remaining fields when you have enough context
+- Keep responses conversational - don't just list fields
+- Highlight key insights and ask for user thoughts
+- Fill fields progressively based on conversation flow, not rigid rules
 
-After your conversational response, add a hidden JSON block (the system will extract this automatically):
-{{
-    "question_count": <0–3>,
-    "lets_build": <true/false>,
-    "gathered_info": {{
-        "agent_name": "<if known>",
-        "applicable_persona": "<if known>",
-        "applicable_industry": "<if known>",
-        "problem_statement": "<if known>",
-        "user_journeys": "<if known>",
-        "wow_factor": "<if known>",
-        "expected_output": "<if known>"
-    }}
-}}
+**Conversation Flow:**
+1. Analyze user input and infer basic context (persona, industry)
+2. Propose a creative agent name and start with user journeys
+3. Build conversationally based on user feedback
+4. Add problem statement and wow factor as conversation develops
+5. Complete remaining fields when context is sufficient
+6. Ask for confirmation when you have a solid solution
 
-**Example Response Pattern:**
-User: "I wanna build an agent for HR so that they can filter through a lot of applications easily"
-You: "It sounds like you need an AI agent for your HR team that automatically processes and filters job applications to identify the best candidates. This would save hours of manual resume review and help you quickly find top-fit applicants. Would you like me to create a prototype of this HR Candidate Filter?"
+** Response Formatting **
+-Keep your responses conversational and engaging.
+-Format the response in a way that is easy to understand and follow.
+-Use markdown formatting to make the response more readable.
+-Use bullet points to make the response more readable.
+- Weave the requirement gathered conversationally in separate paragraphs for each field.
 
-**MUST include this JSON (hidden from user):**
+**Build Decision:**
+- Set lets_build=true when:
+  * User confirms they want to build the agent (says yes, confirm, approve, build it, etc.)
+  * You have all the information in all 7 fields
+  * The conversation has reached a natural conclusion
+- IMPORTANT: If user says "yes", "build it", "let's build", "proceed", etc., ALWAYS set lets_build=true
+- Don't be overly cautious - trust the user's confirmation
+
+**CRITICAL REQUIREMENT: EVERY SINGLE RESPONSE MUST END WITH VALID JSON. NO EXCEPTIONS.**
+
+After your conversational response, you MUST include this exact JSON structure:
+
 {
-    "question_count": 0,
-    "lets_build": true,
+    "lets_build": true/false,
     "gathered_info": {
-        "agent_name": "HR Candidate Filter",
-        "applicable_persona": "HR managers",
-        "applicable_industry": "General",
-        "problem_statement": "filtering through large volumes of job applications",
-        "user_journeys": "Review applications, identify top candidates",
-        "wow_factor": "Automated resume processing and intelligent candidate matching",
-        "expected_output": "Ranked list of best-fit candidates"
+        "agent_name": "Actual creative name here",
+        "applicable_persona": "Actual persona here", 
+        "applicable_industry": "Actual industry here",
+        "problem_statement": "Actual problem here",
+        "user_journeys": "Actual user journey here",
+        "wow_factor": "Actual wow factor here",
+        "expected_output": "Actual output here"
     }
 }
 
-NEVER show the JSON to the user. The system will extract it automatically."""
+**ABSOLUTE REQUIREMENTS:**
+1. Include this JSON in EVERY response
+2. Fill fields with actual values, not empty strings or "string"
+3. If user says "yes", "build it", "let's build", "proceed", etc., set lets_build: true
+4. Be intelligent and fill fields with meaningful content based on conversation
+
+**EXAMPLE - When user says "Yes, build it!":**
+{
+    "lets_build": true,
+    "gathered_info": {
+        "agent_name": "TalentScout AI",
+        "applicable_persona": "HR Professionals",
+        "applicable_industry": "Human Resources",
+        "problem_statement": "Streamlines application filtering using natural language",
+        "user_journeys": "Upload, filter, review, select",
+        "wow_factor": "Natural language processing for intuitive filtering",
+        "expected_output": "Ranked candidate shortlist"
+    }
+}
+
+**CRITICAL: Always include BOTH "lets_build" and "gathered_info" fields. Never just provide the gathered_info fields alone.**
+}"""
     
     def get_conversation_history(self, session_id: str) -> List[Dict[str, str]]:
         """Get conversation history for a session (max 3 conversations)"""
@@ -223,30 +259,70 @@ NEVER show the JSON to the user. The system will extract it automatically."""
             logger.error(f"Error extracting agent IDs: {str(e)}")
             return []
     
-    def parse_create_response_metadata(self, ai_response: str) -> Dict[str, Any]:
+    def parse_create_response_metadata(self, ai_response: str, user_query: str = "") -> Dict[str, Any]:
         """Extract metadata from create mode AI response"""
         try:
             # First try to find JSON at the end of the response
             if "{" in ai_response and "}" in ai_response:
-                # Find the last complete JSON object
-                json_start = ai_response.rfind("{")
+                # Find the JSON object that contains "lets_build"
+                json_start = ai_response.find('{\n    "lets_build"')
+                if json_start == -1:
+                    # Fallback: find the last complete JSON object
+                    json_start = ai_response.rfind("{")
                 json_str = ai_response[json_start:]
                 
-                # Try to find the end of the JSON object
+                # Try to find the end of the JSON object (handle nested objects)
                 brace_count = 0
                 json_end = -1
+                in_string = False
+                escape_next = False
+                
                 for i, char in enumerate(json_str):
-                    if char == "{":
-                        brace_count += 1
-                    elif char == "}":
-                        brace_count -= 1
-                        if brace_count == 0:
-                            json_end = i + 1
-                            break
+                    if escape_next:
+                        escape_next = False
+                        continue
+                        
+                    if char == '\\':
+                        escape_next = True
+                        continue
+                        
+                    if char == '"' and not escape_next:
+                        in_string = not in_string
+                        continue
+                        
+                    if not in_string:
+                        if char == "{":
+                            brace_count += 1
+                        elif char == "}":
+                            brace_count -= 1
+                            if brace_count == 0:
+                                json_end = i + 1
+                                break
                 
                 if json_end > 0:
                     json_str = json_str[:json_end]
-                    metadata = json.loads(json_str)
+                    try:
+                        metadata = json.loads(json_str)
+                        # Check if metadata has the expected structure
+                        if "lets_build" not in metadata:
+                            # AI only provided gathered_info, add missing fields
+                            original_metadata = metadata.copy()
+                            metadata = {
+                                "lets_build": False,
+                                "gathered_info": original_metadata
+                            }
+                        
+                        # Check if this is a confirmation response and override lets_build
+                        confirmation_phrases = ["yes", "confirm", "approve", "build it", "let's build", "sounds good", "perfect", "build", "proceed", "go ahead", "ok", "okay"]
+                        if any(phrase in user_query.lower() for phrase in confirmation_phrases):
+                            metadata["lets_build"] = True
+                    except json.JSONDecodeError as e:
+                        logger.error(f"JSON parsing error: {str(e)}")
+                        logger.error(f"JSON string: {json_str}")
+                        metadata = {
+                            "lets_build": False,
+                            "gathered_info": {}
+                        }
                     
                     # Remove JSON from the main response
                     clean_response = ai_response[:json_start].strip()
@@ -265,7 +341,6 @@ NEVER show the JSON to the user. The system will extract it automatically."""
                 return {
                     "response": ai_response,
                     "metadata": {
-                        "question_count": 0,
                         "lets_build": lets_build,
                         "gathered_info": gathered_info
                     }
@@ -275,7 +350,6 @@ NEVER show the JSON to the user. The system will extract it automatically."""
             return {
                 "response": ai_response,
                 "metadata": {
-                    "question_count": 0,
                     "lets_build": False,
                     "gathered_info": {}
                 }
@@ -285,7 +359,6 @@ NEVER show the JSON to the user. The system will extract it automatically."""
             return {
                 "response": ai_response,
                 "metadata": {
-                    "question_count": 0,
                     "lets_build": False,
                     "gathered_info": {}
                 }
@@ -361,167 +434,37 @@ NEVER show the JSON to the user. The system will extract it automatically."""
         
         return gathered_info
     
-    def get_fallback_response(self, user_query: str, mode: str, question_count: int = 0) -> Dict[str, Any]:
-        """Generate a fallback response when OpenAI is not available"""
+    def get_error_response(self, mode: str, error_message: str = None) -> Dict[str, Any]:
+        """Generate error response when OpenAI is not available"""
         try:
-            logger.info(f"Generating fallback response for mode={mode}, query='{user_query[:50]}...', question_count={question_count}")
             if mode == "explore":
-                # Fallback for explore mode
-                agents_df = data_source.get_agents()
-                agents_data = agents_df.to_dict('records') if not agents_df.empty else []
+                response = "I'm currently unable to access our AI agent database. This might be due to a temporary service issue. Please try again in a few moments, or contact our support team if the problem persists."
                 
-                # Simple keyword matching for fallback
-                query_lower = user_query.lower()
-                relevant_agents = []
-                
-                # Keywords mapping
-                keyword_mapping = {
-                    'financial': ['earnings', 'financial', 'money', 'budget', 'forecast'],
-                    'analytics': ['data', 'analytics', 'analysis', 'reporting', 'insights'],
-                    'customer': ['customer', 'support', 'service', 'help', 'chat'],
-                    'content': ['content', 'writing', 'creative', 'marketing', 'social'],
-                    'automation': ['automation', 'workflow', 'process', 'efficiency']
-                }
-                
-                # Find relevant agents based on keywords
-                for agent in agents_data:
-                    if agent.get('admin_approved') == 'yes':
-                        agent_name = str(agent.get('agent_name', '')).lower()
-                        description = str(agent.get('description', '')).lower()
-                        tags = str(agent.get('tags', '')).lower()
-                        by_persona = str(agent.get('by_persona', '')).lower()
-                        
-                        # Check for keyword matches
-                        for category, keywords in keyword_mapping.items():
-                            for keyword in keywords:
-                                if (keyword in query_lower and 
-                                    (keyword in agent_name or keyword in description or 
-                                     keyword in tags or keyword in by_persona)):
-                                    relevant_agents.append(agent.get('agent_id', ''))
-                                    break
-                
-                # Remove duplicates
-                relevant_agents = list(set(relevant_agents))
-                
-                # Generate fallback response
-                if relevant_agents:
-                    response = f"I found {len(relevant_agents)} relevant agents for your query about '{user_query}'. "
-                    response += "Here are some agents that might help:\n\n"
-                    
-                    for agent_id in relevant_agents[:3]:  # Show max 3 agents
-                        agent = next((a for a in agents_data if a.get('agent_id') == agent_id), None)
-                        if agent:
-                            response += f"• **{agent.get('agent_name', 'Unknown')}**: {agent.get('description', 'No description')[:100]}...\n"
-                    
-                    response += "\nWould you like to explore any specific agent or capability in more detail?"
-                else:
-                    response = f"I understand you're looking for help with '{user_query}'. "
-                    response += "While I can't access detailed agent information right now, I can help you browse our available agents. "
-                    response += "What specific area or capability would you like to explore?"
-                
-                result = {
+                return {
                     "response": response,
-                    "filtered_agents": relevant_agents,
+                    "filtered_agents": [],
                     "timestamp": datetime.now().isoformat(),
-                    "fallback_mode": True
+                    "error": error_message or "OpenAI API unavailable"
                 }
-                logger.info(f"Explore fallback result: response_length={len(response)}, filtered_agents_count={len(relevant_agents)}")
-                return result
             
             else:  # create mode
-                # Intelligent inference-based responses for create mode fallback
-                if question_count == 0:
-                    # Try to infer from the user's initial message
-                    if "hr" in user_query.lower() and ("filter" in user_query.lower() or "application" in user_query.lower()):
-                        response = """It sounds like you need an AI agent for your HR team that automatically processes and filters job applications to identify the best candidates. This would save hours of manual resume review and help you quickly find top-fit applicants.
-
-Would you like me to create a prototype of this HR Candidate Filter?"""
-                        
-                        gathered_info = {
-                            "agent_name": "HR Candidate Filter",
-                            "applicable_persona": "HR managers",
-                            "applicable_industry": "General",
-                            "problem_statement": "filtering through large volumes of job applications",
-                            "user_journeys": "Review applications, identify top candidates",
-                            "wow_factor": "Automated resume processing and intelligent candidate matching",
-                            "expected_output": "Ranked list of best-fit candidates"
-                        }
-                        
-                        result = {
-                            "response": response,
-                            "question_count": 0,
-                            "lets_build": True,
-                            "gathered_info": gathered_info,
-                            "timestamp": datetime.now().isoformat(),
-                            "fallback_mode": True
-                        }
-                        logger.info(f"Create fallback result (HR): response_length={len(response)}, lets_build=True")
-                        return result
-                    else:
-                        response = """Great! Let's build your custom AI agent.
-
-Based on what you've told me, I can see you're looking to create something useful. Could you tell me a bit more about the specific problem and who will use it?"""
-                        
-                        gathered_info = {
-                            "agent_name": "",
-                            "applicable_persona": "",
-                            "applicable_industry": "",
-                            "problem_statement": user_query,
-                            "user_journeys": "",
-                            "wow_factor": "",
-                            "expected_output": ""
-                        }
-                    
-                elif question_count == 1:
-                    response = """Perfect! Now I have a clearer picture. 
-
-Let me confirm what I understand: You need an HR agent for candidate filtering that can handle natural language queries. Would you like me to create a prototype of this agent for you?"""
-                    
-                    gathered_info = {
-                        "agent_name": "Smart Candidate Filter",
-                        "applicable_persona": "HR managers",
-                        "applicable_industry": user_query if any(word in user_query.lower() for word in ['banking', 'finance', 'tech', 'healthcare', 'retail']) else "General",
-                        "problem_statement": "filtering applications using natural language",
-                        "user_journeys": user_query,
-                        "wow_factor": "Natural language querying and intelligent filtering",
-                        "expected_output": "Ranked candidate shortlists"
-                    }
-                    
-                else:  # question_count >= 2
-                    response = """Excellent! I have everything I need to create your agent.
-
-Based on our conversation, I understand you want an HR candidate filtering agent that uses natural language processing. Would you like me to create a prototype of this agent for you?"""
-                    
-                    gathered_info = {
-                        "agent_name": "HR Candidate Filter Pro",
-                        "applicable_persona": "HR managers",
-                        "applicable_industry": "banking",
-                        "problem_statement": "filtering large volumes of applications using natural language queries",
-                        "user_journeys": "Screen resumes, filter candidates, schedule interviews",
-                        "wow_factor": "AI-powered natural language candidate matching",
-                        "expected_output": "Ranked candidate shortlists with matching scores"
-                    }
+                response = "I'm currently unable to process your agent creation request due to a technical issue. Our AI requirements analyst is temporarily unavailable. Please try again in a few moments, or contact our support team for assistance."
                 
-                result = {
+                return {
                     "response": response,
-                    "question_count": question_count + 1,
                     "lets_build": False,
-                    "gathered_info": gathered_info,
+                    "gathered_info": {},
                     "timestamp": datetime.now().isoformat(),
-                    "fallback_mode": True
+                    "error": error_message or "OpenAI API unavailable"
                 }
-                logger.info(f"Create fallback result (generic): response_length={len(response)}, question_count={question_count + 1}")
-                return result
             
         except Exception as e:
-            logger.error(f"Error in fallback response: {str(e)}")
+            logger.error(f"Error in error response: {str(e)}")
             return {
-                "response": "I'm currently experiencing technical difficulties. Please try again or contact support.",
-                "question_count": 0,
+                "response": "I'm experiencing technical difficulties. Please try again or contact support.",
                 "lets_build": False,
                 "gathered_info": {},
                 "timestamp": datetime.now().isoformat(),
-                "fallback_mode": True,
                 "error": str(e)
             }
     
@@ -563,19 +506,16 @@ Based on our conversation, I understand you want an HR candidate filtering agent
             
             # Check if OpenAI client is available
             if not self.client:
-                logger.warning("OpenAI client not available, using fallback response")
-                conversation_history = self.get_conversation_history(session_id)
-                question_count = len([msg for msg in conversation_history if msg["role"] == "assistant"])
-                result = self.get_fallback_response(user_query, mode, question_count)
+                logger.warning("OpenAI client not available, returning error response")
+                result = self.get_error_response(mode, "OpenAI API key not available")
                 result["session_id"] = session_id
-                logger.info(f"Fallback response generated: response_length={len(result.get('response', ''))}, mode={mode}")
+                logger.info(f"Error response generated: response_length={len(result.get('response', ''))}, mode={mode}")
                 return result
             
             # Get conversation history
             conversation_history = self.get_conversation_history(session_id)
             
-            # Count existing questions (for create mode) - only count assistant messages
-            question_count = len([msg for msg in conversation_history if msg["role"] == "assistant"])
+            # Get conversation history for create mode
             
             # Prepare messages for OpenAI based on mode
             if mode == "explore":
@@ -630,17 +570,17 @@ Based on our conversation, I understand you want an HR candidate filtering agent
                 
             else:  # create mode
                 # Parse response and metadata
-                parsed_response = self.parse_create_response_metadata(ai_response)
+                parsed_response = self.parse_create_response_metadata(ai_response, user_query)
                 
                 # Add to conversation history
                 self.add_to_conversation_history(session_id, user_query, parsed_response["response"])
                 
                 # Format final result
+                metadata = parsed_response["metadata"]
                 result = {
                     "response": parsed_response["response"],
-                    "question_count": parsed_response["metadata"].get("question_count", question_count + 1),
-                    "lets_build": parsed_response["metadata"].get("lets_build", False),
-                    "gathered_info": parsed_response["metadata"].get("gathered_info", {}),
+                    "lets_build": metadata.get("lets_build", False),
+                    "gathered_info": metadata.get("gathered_info", {}),
                     "session_id": session_id,
                     "timestamp": datetime.now().isoformat()
                 }
@@ -658,26 +598,10 @@ Based on our conversation, I understand you want an HR candidate filtering agent
             
         except Exception as e:
             logger.error(f"Error in unified chat function: {str(e)}")
-            # Use fallback response on error
-            try:
-                conversation_history = self.get_conversation_history(session_id) if session_id else []
-                question_count = len([msg for msg in conversation_history if msg["role"] == "assistant"])
-                result = self.get_fallback_response(user_query, mode, question_count)
-                result["session_id"] = session_id
-                result["error"] = str(e)
-                return result
-            except Exception as fallback_error:
-                logger.error(f"Fallback response also failed: {str(fallback_error)}")
-                return {
-                    "response": "I apologize, but I'm experiencing technical difficulties. Please try again in a moment.",
-                    "filtered_agents": [] if mode == "explore" else None,
-                    "question_count": 0 if mode == "create" else None,
-                    "lets_build": False if mode == "create" else None,
-                    "gathered_info": {} if mode == "create" else None,
-                    "session_id": session_id,
-                    "timestamp": datetime.now().isoformat(),
-                    "error": str(e)
-                }
+            # Return error response on any failure
+            result = self.get_error_response(mode, str(e))
+            result["session_id"] = session_id
+            return result
     
     def clear_conversation(self, session_id: str) -> Dict[str, Any]:
         """Clear conversation history for a session"""
@@ -708,6 +632,5 @@ if __name__ == "__main__":
     print("\n=== CREATE MODE TEST ===")
     response = unified_chat_agent.chat("I need an AI agent for customer support", "create")
     print(f"Response: {response['response']}")
-    print(f"Question Count: {response.get('question_count', 0)}")
     print(f"Let's Build: {response.get('lets_build', False)}")
     print(f"Gathered Info: {response.get('gathered_info', {})}")
