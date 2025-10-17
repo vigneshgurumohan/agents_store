@@ -4,6 +4,7 @@ FastAPI application for Agents Marketplace
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import pandas as pd
@@ -49,6 +50,15 @@ app = FastAPI(
     title=API_CONFIG["title"],
     version=API_CONFIG["version"],
     description=API_CONFIG["description"]
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify actual origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods including OPTIONS
+    allow_headers=["*"],
 )
 
 # Mount static files for frontend
