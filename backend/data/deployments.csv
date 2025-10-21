@@ -74,5 +74,3 @@ capa_006,serv_072,Voice & Meetings,SaaS,Rev.ai,Cloud,"AMER, EUR, APAC"
 capa_006,serv_073,Voice & Meetings,Open-Source,OpenAI Whisper (open-source variant),On-Prem,On-Prem
 capa_006,serv_074,Voice & Meetings,Open-Source,Vosk,On-Prem,On-Prem
 capa_006,serv_075,Voice & Meetings,Open-Source,Coqui STT,On-Prem,On-Prem
-cap_001,serv_agent_031_001,Data & Analytics,AWS,Amazon Redshift,Cloud,US East
-cap_002,serv_agent_031_002,Conversational AI & Advisory,OpenAI,GPT-4,Cloud,Global
