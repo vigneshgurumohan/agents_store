@@ -1,5 +1,2 @@
 client_id,client_name,client_company,client_mob_no,client_email_no
-client_001,Vignesh,Crayon,8276587678,gv2452@gmail.com
-client_002,Ajun,Bharat Pvt Ltd,21345243563,gv2452@gmail.com
-client_003,Test Client,Test Company,1234567890,test@example.com
-client_004,New Client,New Company,9876543210,newclient@example.com
+client_001,Test Client,Test Company,8276587678,gv2452@gmail.com
