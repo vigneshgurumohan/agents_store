@@ -1,4 +1,4 @@
-agent_id,admin_approved,isv_id,asset_type,by_persona,by_value,agent_name,demo_link,description,features,roi,tags,demo_preview
+agent_id,admin_approved,isv_id,asset_type,by_persona,by_value,agent_name,demo_link,description,features,roi,tags,demo_preview,agents_ordering
 agent_004,yes,isv_001,Solution,Executives (CXO),Productivity,CXO Conceirge,https://cxoconcierge.tngrm.ai/auth/signin,"Boardroom-ready intelligence, No dashboards, no noise — just the answers that mater,
 The CXO Intelligence Suite is a GenAI-powered layer that gives senior leaders instant, voice-enabled access to key insights and recommendations — no dashboards, no BI delays, From revenue gaps to growth levers, CXOs get answers in seconds, not weeks","Conversational Intelligence: Provides instant, voice-enabled access to enterprise insights via GenAI,
 
@@ -22,7 +22,7 @@ Decreased BI dependency by 50%,
 
 Enhanced executive productivity by 45%, 
 
-Delivered measurable ROI within 6 weeks,","Executive Intelligence, GenAI, Analytics, Decision Support, AI Assistant, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo2,JPG"
+Delivered measurable ROI within 6 weeks,","Executive Intelligence, GenAI, Analytics, Decision Support, AI Assistant, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo2,JPG",1
 agent_005,yes,isv_001,Solution,End Customers,Customer Experience,Travel AI,https://google-travel-dev.vercel.app/user?id=73,"The Travel Solution transforms vague travel wishes into real, bookable journeys, Using spend patterns, preferences, and real-time signals, it recommends destinations, builds full itineraries, and connects the dots across merchants, offers, and transactions,","Intent Understanding: Converts vague or conversational travel inputs into actionable plans,
 
 Personalized Recommendations: Suggests destinations based on user preferences and spend patterns,
@@ -43,7 +43,7 @@ Improved traveler satisfaction by 50%,
 
 Enhanced cross-sell of partner offers by 35%, 
 
-Delivered measurable ROI within 2 months,","Travel, Customer Experience, Personalization, AI Assistant, Commerce Intelligence, Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
+Delivered measurable ROI within 2 months,","Travel, Customer Experience, Personalization, AI Assistant, Commerce Intelligence, Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4",2
 agent_006,yes,isv_001,Solution,End Customers,Customer Experience,Personal Finance Assistant,https://personalfinance.tngrm.ai/,"A smart personal finance assistant that helps users manage money with ease—offering quick access to service requests, intelligent nudges for budgeting, transaction search, spend analysis, and personalized financial product recommendations, It not only simplifies daily banking but also drives smarter decisions with tailored credit, savings, insurance, and investment suggestions,","Unified Money Management: Centralizes banking, credit, and savings information in one intelligent dashboard,
 
 Smart Budgeting: Provides real-time nudges and insights to help users stay within spending goals,
@@ -66,7 +66,7 @@ Improved financial literacy and decision confidence by 50%,
 
 Enhanced cross-sell and product uptake by 45%, 
 
-Delivered measurable ROI within 2 months,","Finance, Personal Banking, FinTech, AI Assistant, Customer Experience, Wealth Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
+Delivered measurable ROI within 2 months,","Finance, Personal Banking, FinTech, AI Assistant, Customer Experience, Wealth Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4",3
 agent_001,yes,isv_001,Solution,Executives (CXO),Productivity,Earnings Analyst,https://earningsanalyst.tngrm.ai/,"The AI Earnings Assistant is an intelligent copilot designed for CFOs and financial leaders to streamline earnings analysis, reporting, and strategic decision-making, 
 Key MVP features include AI-driven earnings summaries, variance and driver analysis, conversational Q&A for financial queries, simple what-if scenario modeling, and auto-generated board deck drafts, 
 
@@ -93,7 +93,7 @@ Improved decision accuracy by 65%,
 
 Accelerated board preparation by 50%, 
 
-Delivered measurable ROI within 2 months,","Finance, CFO Tools, Analytics, AI Assistant, FP&A, Reporting Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear1,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear2,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear3,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear4,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear5,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear6,mp4"
+Delivered measurable ROI within 2 months,","Finance, CFO Tools, Analytics, AI Assistant, FP&A, Reporting Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear1,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear2,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear3,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear4,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear5,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear6,mp4",4
 agent_013,yes,isv_001,Solution,Operations Teams,Productivity,Policy Compliance Analyst,https://v0-ai-compliance-co-pilot.vercel.app/,"The Policy Compliance Automation platform is an AI-driven solution designed to streamline regulatory updates for banks, 
 
 When Bank Indonesia issues new circulars in Bahasa, the GenAI assistant reads the document, extracts and summarizes key changes, identifies impacted SOP sections with redline edits, and generates an approval-ready summary for compliance managers, 
@@ -123,7 +123,7 @@ Lowered non-compliance risk by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Compliance Automation, RegTech, Banking, Document Intelligence, AI Assistant, Policy Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol3,JPG"
+\n","Compliance Automation, RegTech, Banking, Document Intelligence, AI Assistant, Policy Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol3,JPG",5
 agent_012,yes,isv_001,Solution,Technology Teams,Data,Test Data Management,https://testdatamanagement.tngrm.ai/,"The Test Data Hub is an AI-powered platform for synthetic data generation, validation, and test scenario management, designed to streamline development and testing workflows, 
 
 It enables users to create realistic synthetic datasets that maintain referential integrity and adhere to business rules, perform AI-driven schema analysis, and manage comprehensive test scenarios using natural language inputs, 
@@ -158,7 +158,7 @@ Lowered compliance risk by 50%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Software Testing, Synthetic Data, Data Engineering, QA Automation, AI Assistant, Compliance","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm4,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm5,mp4"
+\n","Software Testing, Synthetic Data, Data Engineering, QA Automation, AI Assistant, Compliance","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm4,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm5,mp4",6
 agent_002,yes,isv_001,Solution,Technology Teams,Productivity,Code Assist,https://codeassist.tngrm.ai/,"The CodeAssist App is an intelligent coding companion that seamlessly connects to your data sources, automatically understands your database schema, and generates clear descriptions of your tables and fields, 
 By combining schema awareness with natural language processing (NLP), it enables developers to simply describe the logic they want, and the app translates it into precise SQL queries,
 Whether you need quick insights, complex joins, or performance-optimized queries, CodeAssist bridges the gap between plain English and structured SQL, accelerating development and reducing the need for manual query writing,","Automatically detects and maps database schemas for instant understanding,
@@ -183,7 +183,7 @@ Minimized SQL syntax errors by 70%,
 
 Increased data exploration speed by 65%, 
 
-Delivered measurable ROI within 1,5 months,","Developer Tools, Data Engineering, Code Generation, SQL Automation, AI Assistant, Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod1a,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod6,png"
+Delivered measurable ROI within 1,5 months,","Developer Tools, Data Engineering, Code Generation, SQL Automation, AI Assistant, Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod1a,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod6,png",7
 agent_003,yes,isv_001,Agent,Relationship Managers,Productivity,KYC Genie,https://kycgenie.tngrm.ai/,"The KYC Genie is an AI-powered assistant that simplifies customer onboarding and engagement by accepting KYC documents and bank statements, extracting key information, and building a detailed customer profile, 
 Using advanced data extraction and AI reasoning, it analyzes income patterns, spending habits, risk tolerance, and eligibility signals to generate personalized recommendations of the bank’s products, 
 From loans and credit cards to savings and investment options, KYC Genie ensures every suggestion is backed by contextual insights—helping banks offer the right product to the right customer, while streamlining compliance and enhancing customer trust,","Accepts KYC documents and bank statements for automated data extraction,
@@ -210,7 +210,7 @@ Lowered document review costs by 55%,
 
 Enhanced customer trust and retention by 30%, 
 
-Delivered ROI within 2 months,","Banking, Compliance, Customer Intelligence, KYC Automation, AI Assistant, FinTech","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc6,png"
+Delivered ROI within 2 months,","Banking, Compliance, Customer Intelligence, KYC Automation, AI Assistant, FinTech","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc6,png",8
 agent_020,yes,isv_001,Agent,Operations Teams,Productivity,Voice-to-Text Meetings Analyst,https://www.minutesanalyst.tngrm.ai/,"The Meetings Analyst is an AI-powered voice-to-text solution designed for professional meetings, 
 It captures audio in real time, converts it into accurate transcripts, and auto-generates essential outputs such as meeting minutes, functional specification documents (FSDs), and executive summaries, 
 By combining speech recognition with intelligent document generation, it eliminates manual note-taking, reduces errors, and ensures that every discussion is instantly transformed into structured, actionable documentation, 
@@ -241,7 +241,7 @@ Accelerated decision follow-up by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Productivity, Voice AI, Transcription, Documentation Automation, AI Assistant, Collaboration",
+\n","Productivity, Voice AI, Transcription, Documentation Automation, AI Assistant, Collaboration",,9
 agent_024,yes,isv_001,Agent,Operations Teams,Productivity,Document Writer,,"Document Writer Automation Copilot is an intelligent assistant built to streamline credit application processing and document preparation for corporate lending teams, Key MVP features include automated extraction of customer details from submitted credit applications, intelligent population of multiple document templates with that data, and an interactive chat interface that allows users to review and edit customer information conversationally before finalizing documents,
 
 The system dynamically updates document fields based on user inputs—for example, changing “Mr, Vignesh” to “Vignesh” across all templates in real time—and enables instant PDF generation for download or e-signature workflows,
@@ -272,7 +272,7 @@ Accelerated credit onboarding by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Document Automation, Corporate Lending, AI Assistant, Workflow Automation, Credit Processing, Compliance",
+\n","Document Automation, Corporate Lending, AI Assistant, Workflow Automation, Credit Processing, Compliance",,10
 agent_025,yes,isv_001,Agent,Operations Teams,Productivity,User Story Mapping,,"User Story Mapping AI Agent is an intelligent copilot designed for product managers, delivery leads, and engineering teams to automatically transform product requirement documents (PRDs) into structured user story maps and synchronized Jira backlogs, Key MVP features include requirement ingestion from PRDs or feature specs, AI-powered extraction of Epics, Stories, and Subtasks with acceptance criteria, and an interactive visualization of the complete story map showing dependencies and priorities,
 
 Through a conversational “Digital RM” interface, users can review, edit, and approve the generated story structure before syncing directly to Jira, Specialized agents—covering requirement extraction, decomposition, dependency detection, and role assignment—ensure consistency, traceability, and alignment with business goals,
@@ -305,7 +305,7 @@ Accelerated release planning by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Product Management, Agile Delivery, Jira Automation, AI Assistant, Requirements Engineering, Project Management",
+\n","Product Management, Agile Delivery, Jira Automation, AI Assistant, Requirements Engineering, Project Management",,11
 agent_007,yes,isv_001,Agent,Operations Teams,Productivity,Image Data Extraction Assistant,https://nawaz-crayondata.github.io/ai-document-analysis-assistant/,"The OCR & Document/Image Validation solution for automates merchant onboarding by leveraging OCR and computer vision to validate documents and images efficiently, 
 
 It processes merchant form scans, signboard photos, EDC device images, and SIM card photos, extracting key data such as merchant names, device counts, serial numbers, and SIM numbers, 
@@ -335,7 +335,7 @@ Mitigated fraud and compliance risks by 50%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","OCR, Computer Vision, Document Verification, Compliance, Automation, AI Assistant, Merchant Onboarding","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ide1,JPG"
+\n","OCR, Computer Vision, Document Verification, Compliance, Automation, AI Assistant, Merchant Onboarding","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ide1,JPG",12
 agent_008,yes,isv_001,Solution,Relationship Managers,Productivity,Wealth RM Assistant,https://v0-wealth-rm.vercel.app/,"The AI Wealth RM Portal is a next-generation relationship manager assistant that delivers personalized, AI-powered investment recommendations tailored to client needs, 
 
 By analyzing portfolios, market intelligence, and product performance, it highlights optimal allocation strategies with clear risk-return insights, 
@@ -366,7 +366,7 @@ Boosted assets under management by 45%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Wealth Management, Investment Advisory, Banking, AI Assistant, Portfolio Analytics, Relationship Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea4,JPG"
+\n","Wealth Management, Investment Advisory, Banking, AI Assistant, Portfolio Analytics, Relationship Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea4,JPG",13
 agent_009,yes,isv_001,Solution,Operations Teams,Productivity,RFP Response Generator,https://tangram-ai-product-d-5ffy.bolt.host/,"An AI-powered proposal assistant that transforms RFQs into branded drafts in minutes—not days, Simply upload your tender document, and the system extracts requirements, maps them to the right technical, compliance, and safety content, and auto-generates a proposal using context from past wins,
 Sales teams can refine content with natural language chat, ensure every product claim is backed by verifiable data, and instantly export to a branded PDF,
 The result: faster responses, higher accuracy, less manual grind—and proposals that win more deals,","RFQ Parsing: Extracts key requirements, specifications, and deliverables from uploaded tender documents,
@@ -393,7 +393,7 @@ Reduced manual content creation effort by 65%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Sales Automation, Proposal Management, AI Assistant, Document Generation, Compliance, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp2,JPG"
+\n","Sales Automation, Proposal Management, AI Assistant, Document Generation, Compliance, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp2,JPG",14
 agent_017,yes,isv_001,Solution,Technology Teams,Data,Data Studio,http://74.225.247.242:3000/,"Data Studio turns raw data into instant, decision-ready insights — using agents that clean, enrich, analyze, and visualize, From customer profiles to product diagnostics, get answers in minutes, not weeks — no manual effort, just real-time clarity,","Automated Data Cleaning: Detects and fixes inconsistencies, missing values, and anomalies in datasets,
 
 Data Enrichment Engine: Merges internal and external data sources to add contextual insights,
@@ -420,7 +420,7 @@ Lowered dependency on data teams by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Data Intelligence, Analytics, Business Intelligence, Automation, AI Assistant, No-Code Tools","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat4,JPG"
+\n","Data Intelligence, Analytics, Business Intelligence, Automation, AI Assistant, No-Code Tools","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat4,JPG",15
 agent_010,yes,isv_001,Solution,Operations Teams,Productivity,AP Optimization,https://ap-optimization-agen-394w.bolt.host/,"An AI-powered accounts payable assistant that ingests invoices from email, uploads, or ERP connectors and classifies them automatically,
 It runs a workflow-driven process: extracting fields, validating data, flagging anomalies, and generating follow-up drafts to suppliers or stakeholders when information is missing,
 Once verified, the agent reconciles records, enriches with tax and payment details, and posts clean entries back into your ERP or accounting system,
@@ -450,7 +450,7 @@ Enhanced compliance and audit readiness by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Accounts Payable, Finance Automation, ERP Integration, Document Processing, AI Assistant, Workflow Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa3,png"
+\n","Accounts Payable, Finance Automation, ERP Integration, Document Processing, AI Assistant, Workflow Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa3,png",16
 agent_011,yes,isv_001,Solution,Operations Teams,Productivity,Requirement Analyst,https://v0-adib.vercel.app/requirements,"Write requirements like a product pro,
 A multimodal assistant that captures, structures, and refines business/product requirements using documents, chats, and voice prompts,
 
@@ -484,7 +484,7 @@ Lowered project kickoff delays by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Product Management, Requirements Engineering, Workflow Automation, AI Assistant, Documentation, Collaboration","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
+\n","Product Management, Requirements Engineering, Workflow Automation, AI Assistant, Documentation, Collaboration","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4",17
 agent_014,yes,isv_001,Solution,End Customers,Customer Experience,Voice Based Mobile Banking,https://speech-to-work.vercel.app/,"Voice-Based Mobile Banking enables customers to perform everyday financial tasks hands-free through simple spoken commands, making banking faster, safer, and more accessible, 
 
 With voice commands like “Transfer 500 dollars to Sarah”, “Show my account balance”, “Pay electricity bill”, or “Block my card”, users can manage money, pay bills, and secure accounts instantly without navigating complex menus, 
@@ -514,7 +514,7 @@ Enhanced customer satisfaction by 50%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Voice Banking, Customer Experience, AI Assistant, Natural Language Processing, Banking, Accessibility",
+\n","Voice Banking, Customer Experience, AI Assistant, Natural Language Processing, Banking, Accessibility",,18
 agent_015,yes,isv_001,Solution,Relationship Managers,Productivity,Corporate Transaction Advisory RM Assistant,https://v0-fork-of-fab-relationship-dashbo.vercel.app/,"The Corporate RM Use Case platform enables relationship managers to pivot from individual to corporate client management, providing a comprehensive view of client portfolios, product holdings, and cash flow patterns, 
 
 It identifies gaps in product coverage, tracks inflows and outflows, and suggests competitive FAB product offerings based on client activity and market analysis, 
@@ -545,7 +545,7 @@ Accelerated deal conversion by 45%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Corporate Banking, Relationship Management, AI Assistant, Sales Enablement, Client Intelligence, CRM Analytics",
+\n","Corporate Banking, Relationship Management, AI Assistant, Sales Enablement, Client Intelligence, CRM Analytics",,19
 agent_016,yes,isv_001,Solution,Technology Teams,Data,Controls,https://v0-digital-controls-showcase.vercel.app/,"The Banking Digital Transformation platform automates critical operational controls across payments, cheque book issuance, and chargeback processes, accelerating deployment cycles and ensuring compliance, 
 
 It replaces manual, inconsistent checks with unified digital control systems that include automated validation, reconciliation, quality checks, and multi-system monitoring, 
@@ -576,7 +576,7 @@ Enhanced audit readiness across units by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Banking, Digital Transformation, Automation, Compliance, Enterprise Systems, AI Assistant",
+\n","Banking, Digital Transformation, Automation, Compliance, Enterprise Systems, AI Assistant",,20
 agent_018,yes,isv_001,Solution,HR & Knowledge,Data,Use Case Repo,https://usecaselibrary.tngrm.ai/login,"The Use Case Library Accelerator is an AI-powered platform that transforms scattered use case documentation into a unified, enterprise-grade digital library, 
 
 With minimal user input, it leverages agentic AI workflows to parse documents, enrich metadata, and auto-structure content into standardized, high-quality use case assets, 
@@ -608,7 +608,7 @@ Enhanced cross-team collaboration by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Knowledge Management, AI Assistant, Automation, Enterprise Productivity, Digital Transformation, Content Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use3"
+\n","Knowledge Management, AI Assistant, Automation, Enterprise Productivity, Digital Transformation, Content Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use3",21
 agent_019,yes,isv_001,Agent,Relationship Managers,Productivity,PI Leads Generator,https://investorleads.tngrm.ai/,"The Leads Extractor is an AI-driven platform that helps relationship managers (RMs) identify and target qualified professional investor leads efficiently, 
 
 By analyzing multiple data sources and investor profiles, it automatically filters and ranks prospects based on predefined criteria, ensuring high-quality, actionable leads, 
@@ -640,7 +640,7 @@ Enhanced client acquisition rate by 50%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Sales Intelligence, Banking, Lead Management, AI Assistant, CRM Automation, Relationship Management",
+\n","Sales Intelligence, Banking, Lead Management, AI Assistant, CRM Automation, Relationship Management",,22
 agent_021,yes,isv_001,Solution,Operations Teams,Productivity,Demand forecasting for Banks,https://v0-demand-forecasting-and-inventory.vercel.app/,"The Demand Forecasting AI Agent is a predictive tool designed to optimize inventory management of banks, By analyzing historical sales and external factors such as holidays, local events, and social media trends, the agent generates accurate, branch-level demand forecasts, reducing stockouts and overstock situations, 
 
 This autonomous solution transforms reactive inventory practices into a proactive, data-driven process, 
@@ -670,7 +670,7 @@ Increased operational efficiency by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Predictive Analytics, Banking, Inventory Optimization, AI Assistant, Operational Efficiency, Data Intelligence",
+\n","Predictive Analytics, Banking, Inventory Optimization, AI Assistant, Operational Efficiency, Data Intelligence",,23
 agent_022,yes,isv_001,Agent,Operations Teams,Data,Loan Product Development,,"Loan Product Development Analyst is an intelligent copilot designed for credit strategists, product managers, and lending analytics teams to accelerate the research, simulation, and validation of new loan products, Key MVP features include AI-driven competitor analysis with structured comparisons, borrower-level pricing simulations with risk-adjusted rates and EMI modeling, portfolio risk assessment with expected loss metrics, and a market overview module linking benchmark trends and macro indicators,
 
 Built on a modular architecture—spanning competitor, pricing, and risk agents—the platform transforms raw CSV data or synthetic inputs into actionable insights, summaries, and exportable reports, It supports deterministic or OpenAI-enhanced conversational summaries, enabling flexible deployments across secured or offline environments,
@@ -703,7 +703,7 @@ Accelerated go-to-market for new products by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Lending Analytics, Credit Risk, Product Strategy, Banking, AI Assistant, Predictive Modeling",
+\n","Lending Analytics, Credit Risk, Product Strategy, Banking, AI Assistant, Predictive Modeling",,24
 agent_023,yes,isv_001,Agent,Operations Teams,Productivity,Live Voice to Text,https://live-voice-to-text-transcript.onrender.com/,"Realtime Call Assistant is an intelligent conversational copilot designed for customer support and sales teams to demonstrate live call understanding and AI-driven reply assistance, Key MVP features include streaming speech-to-text transcription from live Twilio calls or uploaded recordings, real-time generation of short, actionable agent reply suggestions via an LLM, and optional voice playback of synthesized responses,
 
 The prototype integrates Twilio Media Streams for call audio capture, Deepgram or AssemblyAI for low-latency speech recognition, and OpenAI’s Chat or Realtime API for contextual reply generation—displayed instantly in a React-based agent UI, It supports both live call and upload-and-run demo paths, enabling stakeholders to experience full conversation flow from voice input to intelligent on-screen guidance,
@@ -736,7 +736,7 @@ Enhanced customer satisfaction by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Conversational AI, Customer Support, Sales Enablement, Real-Time Processing, AI Assistant, Voice Automation",
+\n","Conversational AI, Customer Support, Sales Enablement, Real-Time Processing, AI Assistant, Voice Automation",,25
 agent_026,yes,isv_001,Agent,Operations Teams,Data,Knowledge Base,,"The Knowledge Base is an AI-powered platform that transforms unstructured, scattered organizational content into an intelligent, searchable knowledge hub,
 By automatically processing and understanding files across formats — including PDFs, CSVs, PPTs, audio recordings, and web sources — it empowers teams to get precise, context-aware answers instantly,
 With its semantic search engine and natural language Q&A interface, users can access verified insights without manually browsing documents, enabling faster decision-making, improved collaboration, and true knowledge reuse across the enterprise,","Multiformat Ingestion: Reads and processes data from PDFs, CSVs, PPTs, audio transcripts, and online sources,
@@ -767,7 +767,7 @@ Lowered duplicated work by 50%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Knowledge Management, Enterprise Search, AI Assistant, Information Retrieval, Automation, Productivity",
+\n","Knowledge Management, Enterprise Search, AI Assistant, Information Retrieval, Automation, Productivity",,26
 agent_027,yes,isv_001,Agent,End Customers,Customer Experience,Insurance Agent,,"The Insurance Clarity Assistant is a conversational AI designed to simplify complex insurance documents and help customers understand coverage, exclusions, and benefits instantly,
 By transforming lengthy 30–40 page policy PDFs into plain-language, interactive Q&A experiences, it eliminates confusion and builds customer confidence at the point of purchase,
 With multilingual voice and text support, insurers can cut support costs, accelerate decisions, and improve trust and transparency across digital channels,","Conversational AI Interface: Enables natural chat or voice conversations with policy documents,
@@ -794,7 +794,7 @@ Reduced query resolution time by 80%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Insurance, Customer Experience, Conversational AI, AI Assistant, InsurTech, Knowledge Automation",
+\n","Insurance, Customer Experience, Conversational AI, AI Assistant, InsurTech, Knowledge Automation",,27
 agent_028,yes,isv_001,Agent,End Customers,Customer Experience,Campaign Agent,,"SeasonSmart is an AI-powered marketing copilot that automates the entire lifecycle of seasonal campaigns — from planning launch timing to creating, personalizing, and deploying offer content,
 Instead of spending weeks manually preparing campaign assets, brand and marketing teams can generate fully ready-to-deploy campaigns in minutes, backed by persona-driven personalization and real-time recommendations,
 Built on multi-agent collaboration, SeasonSmart turns campaigns into fast, intelligent, revenue-optimized engines,","Planning Agent: Recommends the optimal launch window for seasonal campaigns using historical and behavioral insights,
@@ -821,7 +821,7 @@ Improved festive revenue capture by 15%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Marketing Automation, Campaign Management, AI Assistant, Personalization, Customer Engagement, MarTech",
+\n","Marketing Automation, Campaign Management, AI Assistant, Personalization, Customer Engagement, MarTech",,28
 agent_029,yes,isv_001,Solution,Operations Teams,Productivity,ESG Co-Pilot,,"GreenLens is an intelligent ESG reporting co-pilot designed to help banks and financial institutions meet mandatory sustainability disclosure requirements with speed, accuracy, and confidence,
 By unifying structured and unstructured data into a single ESG Data Lake, GreenLens leverages specialized AI agents to automatically extract, enhance, calculate, and visualize key ESG metrics,
 Through its chat-based interface and real-time KPI dashboards, compliance teams can query live data, generate audit-ready reports, and edit report narratives or visuals instantly — all without spreadsheet dependency,
@@ -855,7 +855,7 @@ Delivered measurable ROI within 2 months,
 
 \n
 
-","ESG Reporting, Compliance Automation, Banking, Data Intelligence, AI Assistant, Sustainability Tech",
+","ESG Reporting, Compliance Automation, Banking, Data Intelligence, AI Assistant, Sustainability Tech",,29
 agent_030,yes,isv_001,Agent,Operations Teams,Data,Workflow Agent,,"The Universal Request-to-Action Agents platform automates unstructured client requests—such as campaign and offer briefs—into executable actions without human intervention,
 Banks and enterprise clients currently send campaign inputs via free-text emails or Excel attachments, which require hours of manual interpretation, JSON preparation, and QA validation, This agentic system replaces that manual flow with a multi-agent architecture that reads, classifies, extracts, validates, and publishes requests in real time,
 
@@ -884,7 +884,7 @@ Lowered ops dependency and cost by 60%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Marketing Automation, AI Assistant, Operational Efficiency, Workflow Automation, LLM Agents, Banking",
+\n","Marketing Automation, AI Assistant, Operational Efficiency, Workflow Automation, LLM Agents, Banking",,30
 agent_031,yes,isv_001,Agent,Technology Teams,Data,Autonomous Exploratory Testing Agent,,"The Autonomous Exploratory Testing Agent is an AI-powered testing copilot that transforms traditional manual exploratory testing into a structured, intelligent, and repeatable process,
 Powered by LLM reasoning and Playwright MCP, the agent autonomously explores real web applications, plans navigation paths, interacts with the UI like a human tester, detects issues, and auto-generates structured artifacts — including test cases, requirements, and bug reports,
 
@@ -917,7 +917,7 @@ Enhanced traceability and documentation completeness by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Software Testing, LLM Agents, Test Automation, Quality Engineering, Playwright, AI Assistant",
+\n","Software Testing, LLM Agents, Test Automation, Quality Engineering, Playwright, AI Assistant",,31
 agent_032,yes,isv_001,Agent,Operations Teams,Data,OBA-Offer Benchmarking Agent,,"The Offer Benchmarking Agent empowers banks and loyalty teams to track, benchmark, and react to competitor offers in real time,
 In today’s crowded offers marketplace, manually tracking competitors’ promotions across portals and merchant categories is slow, error-prone, and reactive,
 This agent automates end-to-end offer intelligence by scraping public offer portals, normalizing data, and running real-time gap and trend analysis — all accessible via a conversational chat interface,
@@ -949,7 +949,7 @@ Lowered operational cost by 80%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Competitive Intelligence, Offer Benchmarking, Banking, Loyalty & Rewards, AI Assistant, Market Intelligence",
+\n","Competitive Intelligence, Offer Benchmarking, Banking, Loyalty & Rewards, AI Assistant, Market Intelligence",,32
 agent_033,yes,isv_001,Agent,Operations Teams,Data,RF peeps,,"RFPeeps is an AI-powered proposal automation platform that revolutionizes how enterprises respond to RFPs, tenders, and bid documents,
 Using a multi-agent pipeline — including Parsing, Knowledge Extraction, and Proposal Generation — it transforms complex PDFs into structured, context-aware proposal drafts in minutes,
 By leveraging domain-trained LLMs, reusable content libraries, and intelligent response mapping, RFPeeps delivers complete, brand-aligned proposals at 10× the speed of manual methods, helping organizations win more deals while reducing effort and cost,","Parsing Agent: Extracts requirements, deliverables, and compliance clauses from RFP PDFs,
@@ -978,7 +978,7 @@ Enhanced content reuse efficiency by 60%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Proposal Automation, Sales Enablement, AI Assistant, Document Generation, Enterprise Productivity, Bidding",
+\n","Proposal Automation, Sales Enablement, AI Assistant, Document Generation, Enterprise Productivity, Bidding",,33
 agent_034,yes,isv_001,Agent,Technology Teams,Data,Dedupe Agent,,"CleanAI is an intelligent data-cleaning copilot that transforms raw, unstructured datasets into clean, standardized, analytics-ready data — instantly,
 It automates messy text formatting, deduplication, and validation across millions of records, eliminating hours of manual data preparation,
 By leveraging a hybrid of Pandas-based processing, LLM text standardization (Llama 3,3), and deduplication algorithms, CleanAI delivers enterprise-grade data hygiene with explainable transformations and instant export,","Text Normalization: Automatically fixes inconsistent capitalization, punctuation, and formatting errors,
@@ -1005,7 +1005,7 @@ Lowered operational data-prep costs by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","Data Cleaning, Data Quality, AI Assistant, Automation, Data Preparation, Productivity",
+\n","Data Cleaning, Data Quality, AI Assistant, Automation, Data Preparation, Productivity",,34
 agent_035,yes,isv_001,Agent,Technology Teams,Data,AI Anomaly Detection Agent,,"The AI Anomaly Detection Agent transforms financial and compliance monitoring from reactive to proactive,
 It combines natural language querying (NLQ) with anomaly detection models to identify unusual patterns, detect fraud, and flag compliance breaches in near real time,
 Built for finance and risk teams, this agent automates report scanning, issue identification, and cross-team communication — minimizing manual review cycles and reducing losses from delayed detection,","NLQ Interface: Allows users to query transactions and detect anomalies through natural language prompts,
@@ -1032,7 +1032,7 @@ Increased team productivity by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Anomaly Detection, Fraud Prevention, Compliance, AI Assistant, Banking, Risk Management",
+\n","Anomaly Detection, Fraud Prevention, Compliance, AI Assistant, Banking, Risk Management",,35
 agent_036,yes,isv_001,Solution,Technology Teams,Data,DevOps & SRE Agent,,"The DevOps & SRE Agent is an intelligent, conversational copilot that allows engineering and operations teams to query, monitor, and control infrastructure through natural language,
 Integrated with cloud management portals, observability dashboards, and CI/CD systems, it translates human questions into precise API calls — fetching metrics, managing virtual machines, retrieving logs, or even triggering automation workflows in seconds,
 By turning traditional DevOps dashboards into an interactive dialogue, it drastically reduces mean time to detection (MTTD) and mean time to resolution (MTTR), while freeing engineers from routine operational overhead,","Conversational Querying: Allows users to ask natural language questions such as “Show all VM CPU percentages for the last hour” or “Start hb-ind-stage-automation,”
@@ -1063,4 +1063,4 @@ Enhanced SRE efficiency by 55%,
 
 Delivered measurable ROI within 6 weeks,
 
-\n","DevOps, SRE, ChatOps, Cloud Automation, AI Assistant, Infrastructure Management",
+\n","DevOps, SRE, ChatOps, Cloud Automation, AI Assistant, Infrastructure Management",,36

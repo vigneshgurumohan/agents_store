@@ -954,6 +954,16 @@ async def get_all_agents_admin():
             # Add approval status
             agent['is_approved'] = agent.get('admin_approved', 'no') == 'yes'
         
+        # Sort agents by agents_ordering if available, otherwise by agent_id
+        try:
+            agents_list.sort(key=lambda x: (
+                int(x.get('agents_ordering', 0)) if str(x.get('agents_ordering', '')).isdigit() else 999,
+                x.get('agent_id', '')
+            ))
+        except (ValueError, TypeError):
+            # Fallback to sorting by agent_id if agents_ordering is not numeric
+            agents_list.sort(key=lambda x: x.get('agent_id', ''))
+        
         return {"agents": agents_list, "total": len(agents_list)}
         
     except Exception as e:
@@ -1100,6 +1110,16 @@ async def get_all_agents():
             # Add demo_preview from demo_assets (comma-separated list)
             demo_previews = agent_demo_previews.get(agent_id, set())
             agent['demo_preview'] = ', '.join(sorted(demo_previews)) if demo_previews else "na"
+        
+        # Sort agents by agents_ordering if available, otherwise by agent_id
+        try:
+            agents_list.sort(key=lambda x: (
+                int(x.get('agents_ordering', 0)) if str(x.get('agents_ordering', '')).isdigit() else 999,
+                x.get('agent_id', '')
+            ))
+        except (ValueError, TypeError):
+            # Fallback to sorting by agent_id if agents_ordering is not numeric
+            agents_list.sort(key=lambda x: x.get('agent_id', ''))
         
         return {"agents": agents_list, "total": len(agents_list)}
     except Exception as e:
