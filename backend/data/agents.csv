@@ -1,4 +1,72 @@
 agent_id,admin_approved,isv_id,asset_type,by_persona,by_value,agent_name,demo_link,description,features,roi,tags,demo_preview
+agent_004,yes,isv_001,Solution,Executives (CXO),Productivity,CXO Conceirge,https://cxoconcierge.tngrm.ai/auth/signin,"Boardroom-ready intelligence, No dashboards, no noise — just the answers that mater,
+The CXO Intelligence Suite is a GenAI-powered layer that gives senior leaders instant, voice-enabled access to key insights and recommendations — no dashboards, no BI delays, From revenue gaps to growth levers, CXOs get answers in seconds, not weeks","Conversational Intelligence: Provides instant, voice-enabled access to enterprise insights via GenAI,
+
+Dashboard-Free Insights: Delivers direct, contextual answers without the need for dashboards or manual reports,
+
+KPI Discovery: Identifies key business metrics such as revenue gaps and growth levers in seconds,
+
+Unified Data Layer: Synthesizes information from multiple systems into coherent, executive-ready summaries,
+
+Contextual Q&A: Enables CXOs to drill into specific metrics using natural language questions,
+
+BI Independence: Reduces dependency on data teams and static BI dashboards,
+
+Secure Access: Offers encrypted, role-based access for leadership-level decision-making,
+
+Adaptive Learning: Improves response accuracy through continuous usage and feedback,","Reduced insight turnaround time by 80%, 
+
+Improved decision-making speed by 60%, 
+
+Decreased BI dependency by 50%, 
+
+Enhanced executive productivity by 45%, 
+
+Delivered measurable ROI within 6 weeks,","Executive Intelligence, GenAI, Analytics, Decision Support, AI Assistant, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cxo2,JPG"
+agent_005,yes,isv_001,Solution,End Customers,Customer Experience,Travel AI,https://google-travel-dev.vercel.app/user?id=73,"The Travel Solution transforms vague travel wishes into real, bookable journeys, Using spend patterns, preferences, and real-time signals, it recommends destinations, builds full itineraries, and connects the dots across merchants, offers, and transactions,","Intent Understanding: Converts vague or conversational travel inputs into actionable plans,
+
+Personalized Recommendations: Suggests destinations based on user preferences and spend patterns,
+
+Dynamic Itinerary Builder: Creates complete travel plans including flights, hotels, and activities,
+
+Merchant Integration: Connects offers and transactions across partnered merchants,
+
+Real-Time Adaptation: Adjusts itineraries based on live events, pricing, and availability,
+
+Smart Budgeting: Optimizes travel choices based on cost, convenience, and preferences,
+
+Omnichannel Experience: Provides seamless booking through web, mobile, or chat interfaces,","Reduced travel planning time by 65%, 
+
+Increased booking conversion rate by 45%, 
+
+Improved traveler satisfaction by 50%, 
+
+Enhanced cross-sell of partner offers by 35%, 
+
+Delivered measurable ROI within 2 months,","Travel, Customer Experience, Personalization, AI Assistant, Commerce Intelligence, Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
+agent_006,yes,isv_001,Solution,End Customers,Customer Experience,Personal Finance Assistant,https://personalfinance.tngrm.ai/,"A smart personal finance assistant that helps users manage money with ease—offering quick access to service requests, intelligent nudges for budgeting, transaction search, spend analysis, and personalized financial product recommendations, It not only simplifies daily banking but also drives smarter decisions with tailored credit, savings, insurance, and investment suggestions,","Unified Money Management: Centralizes banking, credit, and savings information in one intelligent dashboard,
+
+Smart Budgeting: Provides real-time nudges and insights to help users stay within spending goals,
+
+Transaction Intelligence: Enables instant search and categorization of past transactions,
+
+Spend Analysis: Visualizes spending patterns and identifies opportunities for saving,
+
+Personalized Recommendations: Suggests suitable credit cards, loans, and investment options,
+
+Goal Tracking: Helps users set and monitor financial goals across categories,
+
+Service Request Automation: Simplifies everyday banking tasks through conversational requests,
+
+Security Layer: Protects sensitive data with encrypted, compliance-grade infrastructure,","Increased user engagement by 55%, 
+
+Reduced service request handling time by 60%, 
+
+Improved financial literacy and decision confidence by 50%, 
+
+Enhanced cross-sell and product uptake by 45%, 
+
+Delivered measurable ROI within 2 months,","Finance, Personal Banking, FinTech, AI Assistant, Customer Experience, Wealth Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
 agent_001,yes,isv_001,Solution,Executives (CXO),Productivity,Earnings Analyst,https://earningsanalyst.tngrm.ai/,"The AI Earnings Assistant is an intelligent copilot designed for CFOs and financial leaders to streamline earnings analysis, reporting, and strategic decision-making, 
 Key MVP features include AI-driven earnings summaries, variance and driver analysis, conversational Q&A for financial queries, simple what-if scenario modeling, and auto-generated board deck drafts, 
 
@@ -25,279 +93,37 @@ Improved decision accuracy by 65%,
 
 Accelerated board preparation by 50%, 
 
-Delivered measurable ROI within 2 months,","Finance, CFO Tools, Analytics, AI Assistant, FP&A, Reporting Automation","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear1,jpeg,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear2,jpeg,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear3,jpeg,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear4,jpeg,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear5,jpeg,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ear6,mp4"
-agent_002,yes,isv_001,Solution,Technology Teams,Productivity,Code Assist,https://codeassist.tngrm.ai/,"The CodeAssist App is an intelligent coding companion that seamlessly connects to your data sources, automatically understands your database schema, and generates clear descriptions of your tables and fields, 
-By combining schema awareness with natural language processing (NLP), it enables developers to simply describe the logic they want, and the app translates it into precise SQL queries,
-Whether you need quick insights, complex joins, or performance-optimized queries, CodeAssist bridges the gap between plain English and structured SQL, accelerating development and reducing the need for manual query writing,","Automatically detects and maps database schemas for instant understanding,
+Delivered measurable ROI within 2 months,","Finance, CFO Tools, Analytics, AI Assistant, FP&A, Reporting Automation","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear1,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear2,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear3,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear4,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear5,jpeg,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear6,mp4"
+agent_013,yes,isv_001,Solution,Operations Teams,Productivity,Policy Compliance Analyst,https://v0-ai-compliance-co-pilot.vercel.app/,"The Policy Compliance Automation platform is an AI-driven solution designed to streamline regulatory updates for banks, 
 
-Generates natural-language explanations for tables, columns, and relationships,
+When Bank Indonesia issues new circulars in Bahasa, the GenAI assistant reads the document, extracts and summarizes key changes, identifies impacted SOP sections with redline edits, and generates an approval-ready summary for compliance managers, 
+This automation reduces manual effort, accelerates update cycles, and minimizes regulatory compliance risk, ensuring banks remain current with evolving regulations efficiently and accurately,","Regulation Parsing: Uses GenAI to read and interpret new circulars or policy updates in Bahasa and other languages,
 
-Translates plain English logic into accurate, production-ready SQL queries,
+Change Extraction: Automatically identifies and summarizes regulatory modifications relevant to the institution,
 
-Handles both simple queries and advanced joins with contextual awareness,
+Impact Mapping: Detects affected SOPs, internal policies, and documentation sections for quick redlining,
 
-Optimizes query performance and ensures syntax compatibility across SQL dialects,
+Redline Generation: Produces editable, trackable policy documents with side-by-side change visualization,
 
-Integrates securely with multiple data sources and warehouses,
+Approval Workflow: Generates approval-ready summaries for compliance officers and management review,
 
-Provides schema-level insights to help developers understand complex datasets,
+Knowledge Repository: Maintains an indexed archive of past regulations and implemented changes,
 
-Streamlines data exploration through conversational query building,","Reduced query creation time by 75%, 
+Audit Trail Creation: Logs all actions and document versions for transparent, regulator-ready reporting,
 
-Improved developer productivity by 60%, 
+Multilingual Processing: Supports automatic translation and context retention across regulatory languages,
 
-Minimized SQL syntax errors by 70%, 
+Continuous Monitoring: Scans official sources for new circulars and updates in real time,","Reduced manual review time by 80%,
 
-Increased data exploration speed by 65%, 
+Improved compliance update accuracy by 70%,
 
-Delivered measurable ROI within 1,5 months,","Developer Tools, Data Engineering, Code Generation, SQL Automation, AI Assistant, Productivity","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod1a,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod2,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod3,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod4,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod5,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cod6,png"
-agent_003,yes,isv_001,Agent,Relationship Managers,Productivity,KYC Genie,https://kycgenie.tngrm.ai/,"The KYC Genie is an AI-powered assistant that simplifies customer onboarding and engagement by accepting KYC documents and bank statements, extracting key information, and building a detailed customer profile, 
-Using advanced data extraction and AI reasoning, it analyzes income patterns, spending habits, risk tolerance, and eligibility signals to generate personalized recommendations of the bank’s products, 
-From loans and credit cards to savings and investment options, KYC Genie ensures every suggestion is backed by contextual insights—helping banks offer the right product to the right customer, while streamlining compliance and enhancing customer trust,","Accepts KYC documents and bank statements for automated data extraction,
+Accelerated regulatory adoption cycles by 60%,
 
-Builds comprehensive customer profiles with verified financial attributes,
-
-Analyzes income, spending patterns, and financial behavior using AI reasoning,
-
-Assesses risk tolerance and eligibility for credit, loans, and investment products,
-
-Generates personalized product recommendations backed by contextual insights,
-
-Streamlines regulatory compliance and reduces manual document review,
-
-Integrates seamlessly with existing banking and CRM systems,
-
-Enhances customer experience through faster onboarding and transparent insights,","Reduced onboarding time by 70%, 
-
-Improved compliance accuracy by 65%, 
-
-Increased cross-sell conversions by 40%, 
-
-Lowered document review costs by 55%, 
-
-Enhanced customer trust and retention by 30%, 
-
-Delivered ROI within 2 months,","Banking, Compliance, Customer Intelligence, KYC Automation, AI Assistant, FinTech","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc1,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc2,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc3,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc4,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc5,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/kyc6,png"
-agent_004,yes,isv_001,Solution,Executives (CXO),Productivity,CXO Conceirge,https://cxoconcierge.tngrm.ai/auth/signin,"Boardroom-ready intelligence, No dashboards, no noise — just the answers that mater,
-The CXO Intelligence Suite is a GenAI-powered layer that gives senior leaders instant, voice-enabled access to key insights and recommendations — no dashboards, no BI delays, From revenue gaps to growth levers, CXOs get answers in seconds, not weeks","Conversational Intelligence: Provides instant, voice-enabled access to enterprise insights via GenAI,
-
-Dashboard-Free Insights: Delivers direct, contextual answers without the need for dashboards or manual reports,
-
-KPI Discovery: Identifies key business metrics such as revenue gaps and growth levers in seconds,
-
-Unified Data Layer: Synthesizes information from multiple systems into coherent, executive-ready summaries,
-
-Contextual Q&A: Enables CXOs to drill into specific metrics using natural language questions,
-
-BI Independence: Reduces dependency on data teams and static BI dashboards,
-
-Secure Access: Offers encrypted, role-based access for leadership-level decision-making,
-
-Adaptive Learning: Improves response accuracy through continuous usage and feedback,","Reduced insight turnaround time by 80%, 
-
-Improved decision-making speed by 60%, 
-
-Decreased BI dependency by 50%, 
-
-Enhanced executive productivity by 45%, 
-
-Delivered measurable ROI within 6 weeks,","Executive Intelligence, GenAI, Analytics, Decision Support, AI Assistant, Enterprise Productivity","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cxo1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/cxo2,JPG"
-agent_005,yes,isv_001,Solution,End Customers,Customer Experience,Travel AI,https://google-travel-dev.vercel.app/user?id=73,"The Travel Solution transforms vague travel wishes into real, bookable journeys, Using spend patterns, preferences, and real-time signals, it recommends destinations, builds full itineraries, and connects the dots across merchants, offers, and transactions,","Intent Understanding: Converts vague or conversational travel inputs into actionable plans,
-
-Personalized Recommendations: Suggests destinations based on user preferences and spend patterns,
-
-Dynamic Itinerary Builder: Creates complete travel plans including flights, hotels, and activities,
-
-Merchant Integration: Connects offers and transactions across partnered merchants,
-
-Real-Time Adaptation: Adjusts itineraries based on live events, pricing, and availability,
-
-Smart Budgeting: Optimizes travel choices based on cost, convenience, and preferences,
-
-Omnichannel Experience: Provides seamless booking through web, mobile, or chat interfaces,","Reduced travel planning time by 65%, 
-
-Increased booking conversion rate by 45%, 
-
-Improved traveler satisfaction by 50%, 
-
-Enhanced cross-sell of partner offers by 35%, 
-
-Delivered measurable ROI within 2 months,","Travel, Customer Experience, Personalization, AI Assistant, Commerce Intelligence, Automation","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm4,mp4"
-agent_006,yes,isv_001,Solution,End Customers,Customer Experience,Personal Finance Assistant,https://personalfinance.tngrm.ai/,"A smart personal finance assistant that helps users manage money with ease—offering quick access to service requests, intelligent nudges for budgeting, transaction search, spend analysis, and personalized financial product recommendations, It not only simplifies daily banking but also drives smarter decisions with tailored credit, savings, insurance, and investment suggestions,","Unified Money Management: Centralizes banking, credit, and savings information in one intelligent dashboard,
-
-Smart Budgeting: Provides real-time nudges and insights to help users stay within spending goals,
-
-Transaction Intelligence: Enables instant search and categorization of past transactions,
-
-Spend Analysis: Visualizes spending patterns and identifies opportunities for saving,
-
-Personalized Recommendations: Suggests suitable credit cards, loans, and investment options,
-
-Goal Tracking: Helps users set and monitor financial goals across categories,
-
-Service Request Automation: Simplifies everyday banking tasks through conversational requests,
-
-Security Layer: Protects sensitive data with encrypted, compliance-grade infrastructure,","Increased user engagement by 55%, 
-
-Reduced service request handling time by 60%, 
-
-Improved financial literacy and decision confidence by 50%, 
-
-Enhanced cross-sell and product uptake by 45%, 
-
-Delivered measurable ROI within 2 months,","Finance, Personal Banking, FinTech, AI Assistant, Customer Experience, Wealth Management","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm3,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm4,mp4"
-agent_007,yes,isv_001,Agent,Operations Teams,Productivity,Image Data Extraction Assistant,https://nawaz-crayondata.github.io/ai-document-analysis-assistant/,"The OCR & Document/Image Validation solution for automates merchant onboarding by leveraging OCR and computer vision to validate documents and images efficiently, 
-
-It processes merchant form scans, signboard photos, EDC device images, and SIM card photos, extracting key data such as merchant names, device counts, serial numbers, and SIM numbers, 
-
-The system cross-checks these details against form entries, detects discrepancies, and outputs pass/fail results with detailed reason codes, 
-By replacing manual verification, this AI-driven pipeline reduces errors, accelerates onboarding, mitigates fraud, and ensures regulatory compliance,","Automated Data Extraction: Uses OCR to read and digitize information from scanned forms, photos, and IDs,
-
-Computer Vision Validation: Verifies images such as signboards, EDC devices, and SIM cards for authenticity and accuracy,
-
-Entity Cross-Verification: Matches extracted data (merchant names, device serials, SIM numbers) against submitted forms,
-
-Discrepancy Detection: Flags mismatches and anomalies with detailed reason codes,
-
-Pass/Fail Classification: Generates validation outcomes with structured audit logs,
-
-Fraud Mitigation: Identifies potential tampering or mismatched merchant details automatically,
-
-Compliance Assurance: Ensures adherence to KYC, AML, and internal audit standards,
-
-End-to-End Automation: Eliminates manual verification to accelerate merchant onboarding,","Increased onboarding speed by 70%,
-
-Reduced manual verification effort by 65%,
-
-Improved data validation accuracy by 75%,
-
-Mitigated fraud and compliance risks by 50%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","OCR, Computer Vision, Document Verification, Compliance, Automation, AI Assistant, Merchant Onboarding","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/ide1,JPG"
-agent_008,yes,isv_001,Solution,Relationship Managers,Productivity,Wealth RM Assistant,https://v0-wealth-rm.vercel.app/,"The AI Wealth RM Portal is a next-generation relationship manager assistant that delivers personalized, AI-powered investment recommendations tailored to client needs, 
-
-By analyzing portfolios, market intelligence, and product performance, it highlights optimal allocation strategies with clear risk-return insights, 
-Relationship managers can view recommended investments, assess potential returns, and access detailed fund information instantly, enabling faster, data-driven advisory conversations, 
-The tool transforms wealth management from reactive to proactive, empowering RMs to deepen client trust, grow assets under management, and position the bank as an AI-first innovator in personalized financial services,","Portfolio Intelligence: Analyzes client portfolios, asset allocations, and product performance in real time,
-
-Personalized Investment Recommendations: Suggests optimal fund mixes based on risk-return profiles and market conditions,
-
-Market Insight Engine: Integrates live market data and research to identify emerging opportunities,
-
-Client Advisory Dashboard: Empowers relationship managers with instant access to insights and product details,
-
-Proactive Alerts: Notifies RMs of rebalancing opportunities and underperforming holdings,
-
-Risk Assessment: Evaluates exposure across asset classes with contextual, explainable scoring,
-
-AI-Driven Conversations: Supports client discussions with clear, data-backed rationale for every recommendation,
-
-Performance Tracking: Monitors realized vs, projected returns for continuous advisory optimization,
-
-Regulatory Alignment: Ensures recommendations comply with internal and external investment mandates,","Increased advisor productivity by 65%,
-
-Improved investment recommendation accuracy by 60%,
-
-Enhanced client trust and satisfaction by 55%,
-
-Boosted assets under management by 45%,
+Lowered non-compliance risk by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Wealth Management, Investment Advisory, Banking, AI Assistant, Portfolio Analytics, Relationship Management","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/wea1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/wea2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/wea3,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/wea4,JPG"
-agent_009,yes,isv_001,Solution,Operations Teams,Productivity,RFP Response Generator,https://tangram-ai-product-d-5ffy.bolt.host/,"An AI-powered proposal assistant that transforms RFQs into branded drafts in minutes—not days, Simply upload your tender document, and the system extracts requirements, maps them to the right technical, compliance, and safety content, and auto-generates a proposal using context from past wins,
-Sales teams can refine content with natural language chat, ensure every product claim is backed by verifiable data, and instantly export to a branded PDF,
-The result: faster responses, higher accuracy, less manual grind—and proposals that win more deals,","RFQ Parsing: Extracts key requirements, specifications, and deliverables from uploaded tender documents,
-
-Automated Proposal Generation: Maps extracted data to pre-approved technical, compliance, and safety content libraries,
-
-Contextual Knowledge Reuse: Leverages insights and templates from previous winning proposals for higher relevance,
-
-Natural Language Editing: Allows sales teams to refine or rephrase sections conversationally through chat,
-
-Data Verification Layer: Ensures every claim and metric is linked to a verifiable source or reference,
-
-Branded Export: Produces professional, client-ready PDF proposals instantly with company branding,
-
-Content Consistency Engine: Standardizes tone, format, and compliance language across all proposals,
-
-Collaboration Workflow: Enables cross-functional teams to review, comment, and approve within the system,","Reduced proposal turnaround time by 75%,
-
-Increased bid accuracy by 60%,
-
-Improved win rate by 45%,
-
-Reduced manual content creation effort by 65%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Sales Automation, Proposal Management, AI Assistant, Document Generation, Compliance, Enterprise Productivity","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/rfp1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/rfp2,JPG"
-agent_010,yes,isv_001,Solution,Operations Teams,Productivity,AP Optimization,https://ap-optimization-agen-394w.bolt.host/,"An AI-powered accounts payable assistant that ingests invoices from email, uploads, or ERP connectors and classifies them automatically,
-It runs a workflow-driven process: extracting fields, validating data, flagging anomalies, and generating follow-up drafts to suppliers or stakeholders when information is missing,
-Once verified, the agent reconciles records, enriches with tax and payment details, and posts clean entries back into your ERP or accounting system,
-The outcome: invoices processed in minutes, zero manual data entry, fully auditable trails, and finance teams free to focus on higher-value work,","Automated Invoice Ingestion: Captures invoices from emails, uploads, or ERP integrations,
-
-Intelligent Classification: Categorizes invoices by vendor, department, or expense type automatically,
-
-Field Extraction Engine: Extracts invoice details such as amounts, dates, tax IDs, and payment terms,
-
-Validation & Anomaly Detection: Flags missing data, mismatches, or potential duplicates in real time,
-
-Follow-Up Automation: Drafts supplier or stakeholder follow-up emails when clarification is needed,
-
-Reconciliation Workflow: Matches invoices against purchase orders and payment records seamlessly,
-
-Tax & Payment Enrichment: Automatically appends relevant GST, VAT, or TDS details before posting,
-
-ERP Synchronization: Pushes verified entries directly into accounting systems for clean bookkeeping,
-
-Audit-Ready Logging: Maintains complete traceability for every invoice and decision,","Reduced invoice processing time by 80%,
-
-Lowered manual data entry workload by 70%,
-
-Improved reconciliation accuracy by 65%,
-
-Enhanced compliance and audit readiness by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Accounts Payable, Finance Automation, ERP Integration, Document Processing, AI Assistant, Workflow Intelligence","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/apa1,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/apa2,png,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/apa3,png"
-agent_011,yes,isv_001,Solution,Operations Teams,Productivity,Requirement Analyst,https://v0-adib.vercel.app/requirements,"Write requirements like a product pro,
-A multimodal assistant that captures, structures, and refines business/product requirements using documents, chats, and voice prompts,
-
-It is a workflow-driven system that lets vendors spin up a project, auto-generate customized intake questions with AI, and collaborate with clients through a secure link to capture clarifications in text, audio, or docs, 
-Once client inputs are approved, an agent merges responses, extracts structured details, and produces a polished FSD (and standardized BRD/FSD variants) with preview and export, 
-The result: clearer requirements, fewer back-and-forth loops, standardized documentation for handoff, and faster cross-functional delivery,","Multimodal Capture: Collects business and product requirements through text, documents, and voice prompts,
-
-AI Intake Generation: Automatically creates customized intake questionnaires tailored to each project type,
-
-Collaborative Client Portal: Allows vendors and clients to exchange clarifications securely via shared links,
-
-Workflow-Driven Projects: Orchestrates the full requirements lifecycle from intake to approval,
-
-Intelligent Structuring: Extracts key business logic, dependencies, and technical specs from unstructured input,
-
-Automated Documentation: Generates polished, standardized BRD and FSD documents instantly,
-
-Version Control: Tracks edits, approvals, and feedback for traceable requirement evolution,
-
-Preview & Export: Offers formatted document previews and one-click export to PDF, Word, or Markdown,
-
-Standardization Engine: Ensures consistent documentation across teams and vendors,
-
-Cross-Functional Acceleration: Reduces review loops and enables faster design-to-development handoff,","Increased requirements clarity by 65%,
-
-Reduced documentation turnaround time by 70%,
-
-Improved cross-functional alignment by 60%,
-
-Lowered project kickoff delays by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Product Management, Requirements Engineering, Workflow Automation, AI Assistant, Documentation, Collaboration","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/rqa1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/rqa2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pfm4,mp4"
+\n","Compliance Automation, RegTech, Banking, Document Intelligence, AI Assistant, Policy Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pol3,JPG"
 agent_012,yes,isv_001,Solution,Technology Teams,Data,Test Data Management,https://testdatamanagement.tngrm.ai/,"The Test Data Hub is an AI-powered platform for synthetic data generation, validation, and test scenario management, designed to streamline development and testing workflows, 
 
 It enables users to create realistic synthetic datasets that maintain referential integrity and adhere to business rules, perform AI-driven schema analysis, and manage comprehensive test scenarios using natural language inputs, 
@@ -332,37 +158,333 @@ Lowered compliance risk by 50%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Software Testing, Synthetic Data, Data Engineering, QA Automation, AI Assistant, Compliance","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/tdm1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/tdm2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/tdm3,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/tdm4,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/tdm5,mp4"
-agent_013,yes,isv_001,Solution,Operations Teams,Productivity,Policy Compliance Analyst,https://v0-ai-compliance-co-pilot.vercel.app/,"The Policy Compliance Automation platform is an AI-driven solution designed to streamline regulatory updates for banks, 
+\n","Software Testing, Synthetic Data, Data Engineering, QA Automation, AI Assistant, Compliance","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm4,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/tdm5,mp4"
+agent_002,yes,isv_001,Solution,Technology Teams,Productivity,Code Assist,https://codeassist.tngrm.ai/,"The CodeAssist App is an intelligent coding companion that seamlessly connects to your data sources, automatically understands your database schema, and generates clear descriptions of your tables and fields, 
+By combining schema awareness with natural language processing (NLP), it enables developers to simply describe the logic they want, and the app translates it into precise SQL queries,
+Whether you need quick insights, complex joins, or performance-optimized queries, CodeAssist bridges the gap between plain English and structured SQL, accelerating development and reducing the need for manual query writing,","Automatically detects and maps database schemas for instant understanding,
 
-When Bank Indonesia issues new circulars in Bahasa, the GenAI assistant reads the document, extracts and summarizes key changes, identifies impacted SOP sections with redline edits, and generates an approval-ready summary for compliance managers, 
-This automation reduces manual effort, accelerates update cycles, and minimizes regulatory compliance risk, ensuring banks remain current with evolving regulations efficiently and accurately,","Regulation Parsing: Uses GenAI to read and interpret new circulars or policy updates in Bahasa and other languages,
+Generates natural-language explanations for tables, columns, and relationships,
 
-Change Extraction: Automatically identifies and summarizes regulatory modifications relevant to the institution,
+Translates plain English logic into accurate, production-ready SQL queries,
 
-Impact Mapping: Detects affected SOPs, internal policies, and documentation sections for quick redlining,
+Handles both simple queries and advanced joins with contextual awareness,
 
-Redline Generation: Produces editable, trackable policy documents with side-by-side change visualization,
+Optimizes query performance and ensures syntax compatibility across SQL dialects,
 
-Approval Workflow: Generates approval-ready summaries for compliance officers and management review,
+Integrates securely with multiple data sources and warehouses,
 
-Knowledge Repository: Maintains an indexed archive of past regulations and implemented changes,
+Provides schema-level insights to help developers understand complex datasets,
 
-Audit Trail Creation: Logs all actions and document versions for transparent, regulator-ready reporting,
+Streamlines data exploration through conversational query building,","Reduced query creation time by 75%, 
 
-Multilingual Processing: Supports automatic translation and context retention across regulatory languages,
+Improved developer productivity by 60%, 
 
-Continuous Monitoring: Scans official sources for new circulars and updates in real time,","Reduced manual review time by 80%,
+Minimized SQL syntax errors by 70%, 
 
-Improved compliance update accuracy by 70%,
+Increased data exploration speed by 65%, 
 
-Accelerated regulatory adoption cycles by 60%,
+Delivered measurable ROI within 1,5 months,","Developer Tools, Data Engineering, Code Generation, SQL Automation, AI Assistant, Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod1a,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/cod6,png"
+agent_003,yes,isv_001,Agent,Relationship Managers,Productivity,KYC Genie,https://kycgenie.tngrm.ai/,"The KYC Genie is an AI-powered assistant that simplifies customer onboarding and engagement by accepting KYC documents and bank statements, extracting key information, and building a detailed customer profile, 
+Using advanced data extraction and AI reasoning, it analyzes income patterns, spending habits, risk tolerance, and eligibility signals to generate personalized recommendations of the bank’s products, 
+From loans and credit cards to savings and investment options, KYC Genie ensures every suggestion is backed by contextual insights—helping banks offer the right product to the right customer, while streamlining compliance and enhancing customer trust,","Accepts KYC documents and bank statements for automated data extraction,
 
-Lowered non-compliance risk by 55%,
+Builds comprehensive customer profiles with verified financial attributes,
+
+Analyzes income, spending patterns, and financial behavior using AI reasoning,
+
+Assesses risk tolerance and eligibility for credit, loans, and investment products,
+
+Generates personalized product recommendations backed by contextual insights,
+
+Streamlines regulatory compliance and reduces manual document review,
+
+Integrates seamlessly with existing banking and CRM systems,
+
+Enhances customer experience through faster onboarding and transparent insights,","Reduced onboarding time by 70%, 
+
+Improved compliance accuracy by 65%, 
+
+Increased cross-sell conversions by 40%, 
+
+Lowered document review costs by 55%, 
+
+Enhanced customer trust and retention by 30%, 
+
+Delivered ROI within 2 months,","Banking, Compliance, Customer Intelligence, KYC Automation, AI Assistant, FinTech","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc3,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc4,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc5,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/kyc6,png"
+agent_020,yes,isv_001,Agent,Operations Teams,Productivity,Voice-to-Text Meetings Analyst,https://www.minutesanalyst.tngrm.ai/,"The Meetings Analyst is an AI-powered voice-to-text solution designed for professional meetings, 
+It captures audio in real time, converts it into accurate transcripts, and auto-generates essential outputs such as meeting minutes, functional specification documents (FSDs), and executive summaries, 
+By combining speech recognition with intelligent document generation, it eliminates manual note-taking, reduces errors, and ensures that every discussion is instantly transformed into structured, actionable documentation, 
+
+This not only boosts productivity and clarity but also enables teams to focus on decision-making while the system handles the heavy lifting of documentation,","Real-Time Transcription: Captures and converts meeting audio into accurate, time-stamped transcripts,
+
+Automated Minutes Creation: Generates concise meeting minutes with key points, action items, and ownership,
+
+FSD & Documentation Generation: Transforms discussions into structured Functional Specification Documents automatically,
+
+Executive Summaries: Produces short, context-rich summaries for leadership and stakeholders,
+
+Multi-Speaker Recognition: Distinguishes between participants to maintain clarity in documentation,
+
+AI-Powered Context Extraction: Identifies decisions, dependencies, and follow-up actions from conversation flow,
+
+Searchable Archives: Stores and indexes all transcripts for easy retrieval and compliance review,
+
+Secure Cloud Integration: Ensures encrypted storage and sharing within enterprise collaboration platforms,
+
+Language Flexibility: Supports multilingual transcription and summarization for global teams,","Reduced manual note-taking effort by 80%,
+
+Improved documentation accuracy by 70%,
+
+Increased meeting productivity by 60%,
+
+Accelerated decision follow-up by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Productivity, Voice AI, Transcription, Documentation Automation, AI Assistant, Collaboration",
+agent_024,yes,isv_001,Agent,Operations Teams,Productivity,Document Writer,,"Document Writer Automation Copilot is an intelligent assistant built to streamline credit application processing and document preparation for corporate lending teams, Key MVP features include automated extraction of customer details from submitted credit applications, intelligent population of multiple document templates with that data, and an interactive chat interface that allows users to review and edit customer information conversationally before finalizing documents,
+
+The system dynamically updates document fields based on user inputs—for example, changing “Mr, Vignesh” to “Vignesh” across all templates in real time—and enables instant PDF generation for download or e-signature workflows,
+
+Powered by structured data parsing, natural language editing, and secure document rendering, the copilot reduces manual entry effort, ensures consistency across credit documentation, and accelerates customer onboarding, Future extensions include integration with CRM and document management systems, OCR for scanned forms, and audit trails for compliance-ready automation,","Automated Data Extraction: Parses customer details from credit application forms and structured submissions,
+
+Template Auto-Population: Fills multiple credit document templates with extracted data in real time,
+
+Conversational Editing: Allows users to review and update customer details through a natural language chat interface,
+
+Dynamic Field Syncing: Propagates edits (e,g,, name or company corrections) across all document templates instantly,
+
+Instant PDF Generation: Produces finalized documents for download or integration into e-signature workflows,
+
+Data Consistency Engine: Ensures uniformity and accuracy across loan, KYC, and credit templates,
+
+Secure Document Rendering: Protects sensitive customer data with encrypted document generation,
+
+Integration-Ready Design: Supports future linkage with CRM, DMS, and OCR modules for scanned input handling,
+
+Audit & Compliance Logging: Captures all document actions for traceable, regulatory-ready reporting,","Reduced document preparation time by 75%,
+
+Improved data consistency across loan documents by 70%,
+
+Decreased manual entry effort by 65%,
+
+Accelerated credit onboarding by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Document Automation, Corporate Lending, AI Assistant, Workflow Automation, Credit Processing, Compliance",
+agent_025,yes,isv_001,Agent,Operations Teams,Productivity,User Story Mapping,,"User Story Mapping AI Agent is an intelligent copilot designed for product managers, delivery leads, and engineering teams to automatically transform product requirement documents (PRDs) into structured user story maps and synchronized Jira backlogs, Key MVP features include requirement ingestion from PRDs or feature specs, AI-powered extraction of Epics, Stories, and Subtasks with acceptance criteria, and an interactive visualization of the complete story map showing dependencies and priorities,
+
+Through a conversational “Digital RM” interface, users can review, edit, and approve the generated story structure before syncing directly to Jira, Specialized agents—covering requirement extraction, decomposition, dependency detection, and role assignment—ensure consistency, traceability, and alignment with business goals,
+
+By automating backlog setup, dependency mapping, and Jira integration, the copilot reduces story creation time by up to 70%, improves clarity for developers, and empowers PMs to focus on strategic product delivery, Future extensions include fine-tuned PRD-to-Jira transformation models, proactive planning recommendations, and analytics for effort and dependency optimization,","PRD Ingestion: Automatically reads and interprets Product Requirement Documents and feature specifications,
+
+AI-Driven Decomposition: Extracts and structures Epics, User Stories, and Subtasks with corresponding acceptance criteria,
+
+Interactive Story Mapping: Visualizes user journeys, dependencies, and story hierarchies in an intuitive map view,
+
+Dependency Detection: Identifies and flags cross-story or cross-epic relationships for proactive planning,
+
+Conversational Editing: Enables PMs to review, modify, and approve story structures through a natural chat interface,
+
+Jira Integration: Syncs approved story maps directly into Jira as Epics, Stories, and Tasks,
+
+Role & Ownership Assignment: Suggests default role assignments and workload balancing for engineering teams,
+
+Traceability & Alignment: Maintains linkage between requirements, deliverables, and acceptance goals,
+
+Analytics Dashboard (Planned): Provides insights into dependencies, effort estimation, and delivery bottlenecks,
+
+Fine-Tuned PRD Models (Roadmap): Supports domain-specific PRD parsing and backlog optimization,","Reduced story creation time by 70%,
+
+Improved backlog accuracy by 65%,
+
+Enhanced developer clarity and sprint alignment by 60%,
+
+Accelerated release planning by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Product Management, Agile Delivery, Jira Automation, AI Assistant, Requirements Engineering, Project Management",
+agent_007,yes,isv_001,Agent,Operations Teams,Productivity,Image Data Extraction Assistant,https://nawaz-crayondata.github.io/ai-document-analysis-assistant/,"The OCR & Document/Image Validation solution for automates merchant onboarding by leveraging OCR and computer vision to validate documents and images efficiently, 
+
+It processes merchant form scans, signboard photos, EDC device images, and SIM card photos, extracting key data such as merchant names, device counts, serial numbers, and SIM numbers, 
+
+The system cross-checks these details against form entries, detects discrepancies, and outputs pass/fail results with detailed reason codes, 
+By replacing manual verification, this AI-driven pipeline reduces errors, accelerates onboarding, mitigates fraud, and ensures regulatory compliance,","Automated Data Extraction: Uses OCR to read and digitize information from scanned forms, photos, and IDs,
+
+Computer Vision Validation: Verifies images such as signboards, EDC devices, and SIM cards for authenticity and accuracy,
+
+Entity Cross-Verification: Matches extracted data (merchant names, device serials, SIM numbers) against submitted forms,
+
+Discrepancy Detection: Flags mismatches and anomalies with detailed reason codes,
+
+Pass/Fail Classification: Generates validation outcomes with structured audit logs,
+
+Fraud Mitigation: Identifies potential tampering or mismatched merchant details automatically,
+
+Compliance Assurance: Ensures adherence to KYC, AML, and internal audit standards,
+
+End-to-End Automation: Eliminates manual verification to accelerate merchant onboarding,","Increased onboarding speed by 70%,
+
+Reduced manual verification effort by 65%,
+
+Improved data validation accuracy by 75%,
+
+Mitigated fraud and compliance risks by 50%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","OCR, Computer Vision, Document Verification, Compliance, Automation, AI Assistant, Merchant Onboarding","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ide1,JPG"
+agent_008,yes,isv_001,Solution,Relationship Managers,Productivity,Wealth RM Assistant,https://v0-wealth-rm.vercel.app/,"The AI Wealth RM Portal is a next-generation relationship manager assistant that delivers personalized, AI-powered investment recommendations tailored to client needs, 
+
+By analyzing portfolios, market intelligence, and product performance, it highlights optimal allocation strategies with clear risk-return insights, 
+Relationship managers can view recommended investments, assess potential returns, and access detailed fund information instantly, enabling faster, data-driven advisory conversations, 
+The tool transforms wealth management from reactive to proactive, empowering RMs to deepen client trust, grow assets under management, and position the bank as an AI-first innovator in personalized financial services,","Portfolio Intelligence: Analyzes client portfolios, asset allocations, and product performance in real time,
+
+Personalized Investment Recommendations: Suggests optimal fund mixes based on risk-return profiles and market conditions,
+
+Market Insight Engine: Integrates live market data and research to identify emerging opportunities,
+
+Client Advisory Dashboard: Empowers relationship managers with instant access to insights and product details,
+
+Proactive Alerts: Notifies RMs of rebalancing opportunities and underperforming holdings,
+
+Risk Assessment: Evaluates exposure across asset classes with contextual, explainable scoring,
+
+AI-Driven Conversations: Supports client discussions with clear, data-backed rationale for every recommendation,
+
+Performance Tracking: Monitors realized vs, projected returns for continuous advisory optimization,
+
+Regulatory Alignment: Ensures recommendations comply with internal and external investment mandates,","Increased advisor productivity by 65%,
+
+Improved investment recommendation accuracy by 60%,
+
+Enhanced client trust and satisfaction by 55%,
+
+Boosted assets under management by 45%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Compliance Automation, RegTech, Banking, Document Intelligence, AI Assistant, Policy Management","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pol1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pol2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/pol3,JPG"
+\n","Wealth Management, Investment Advisory, Banking, AI Assistant, Portfolio Analytics, Relationship Management","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea4,JPG"
+agent_009,yes,isv_001,Solution,Operations Teams,Productivity,RFP Response Generator,https://tangram-ai-product-d-5ffy.bolt.host/,"An AI-powered proposal assistant that transforms RFQs into branded drafts in minutes—not days, Simply upload your tender document, and the system extracts requirements, maps them to the right technical, compliance, and safety content, and auto-generates a proposal using context from past wins,
+Sales teams can refine content with natural language chat, ensure every product claim is backed by verifiable data, and instantly export to a branded PDF,
+The result: faster responses, higher accuracy, less manual grind—and proposals that win more deals,","RFQ Parsing: Extracts key requirements, specifications, and deliverables from uploaded tender documents,
+
+Automated Proposal Generation: Maps extracted data to pre-approved technical, compliance, and safety content libraries,
+
+Contextual Knowledge Reuse: Leverages insights and templates from previous winning proposals for higher relevance,
+
+Natural Language Editing: Allows sales teams to refine or rephrase sections conversationally through chat,
+
+Data Verification Layer: Ensures every claim and metric is linked to a verifiable source or reference,
+
+Branded Export: Produces professional, client-ready PDF proposals instantly with company branding,
+
+Content Consistency Engine: Standardizes tone, format, and compliance language across all proposals,
+
+Collaboration Workflow: Enables cross-functional teams to review, comment, and approve within the system,","Reduced proposal turnaround time by 75%,
+
+Increased bid accuracy by 60%,
+
+Improved win rate by 45%,
+
+Reduced manual content creation effort by 65%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Sales Automation, Proposal Management, AI Assistant, Document Generation, Compliance, Enterprise Productivity","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp2,JPG"
+agent_017,yes,isv_001,Solution,Technology Teams,Data,Data Studio,http://74.225.247.242:3000/,"Data Studio turns raw data into instant, decision-ready insights — using agents that clean, enrich, analyze, and visualize, From customer profiles to product diagnostics, get answers in minutes, not weeks — no manual effort, just real-time clarity,","Automated Data Cleaning: Detects and fixes inconsistencies, missing values, and anomalies in datasets,
+
+Data Enrichment Engine: Merges internal and external data sources to add contextual insights,
+
+AI-Powered Analysis: Identifies key patterns, trends, and correlations automatically,
+
+Instant Visualization: Generates charts and dashboards from natural language prompts — no manual setup needed,
+
+Agent-Based Architecture: Utilizes specialized agents for profiling, diagnostics, and insight generation,
+
+Decision-Ready Insights: Transforms raw data into actionable intelligence for faster business outcomes,
+
+Real-Time Processing: Delivers live updates and analytics from streaming or batch data,
+
+No-Code Interface: Empowers business users to analyze data without technical expertise,
+
+Scalable Integration: Connects seamlessly to data warehouses, CRMs, and analytics tools,","Reduced data preparation time by 75%,
+
+Improved decision-making speed by 65%,
+
+Increased analytical productivity by 60%,
+
+Lowered dependency on data teams by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Data Intelligence, Analytics, Business Intelligence, Automation, AI Assistant, No-Code Tools","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat3,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/dat4,JPG"
+agent_010,yes,isv_001,Solution,Operations Teams,Productivity,AP Optimization,https://ap-optimization-agen-394w.bolt.host/,"An AI-powered accounts payable assistant that ingests invoices from email, uploads, or ERP connectors and classifies them automatically,
+It runs a workflow-driven process: extracting fields, validating data, flagging anomalies, and generating follow-up drafts to suppliers or stakeholders when information is missing,
+Once verified, the agent reconciles records, enriches with tax and payment details, and posts clean entries back into your ERP or accounting system,
+The outcome: invoices processed in minutes, zero manual data entry, fully auditable trails, and finance teams free to focus on higher-value work,","Automated Invoice Ingestion: Captures invoices from emails, uploads, or ERP integrations,
+
+Intelligent Classification: Categorizes invoices by vendor, department, or expense type automatically,
+
+Field Extraction Engine: Extracts invoice details such as amounts, dates, tax IDs, and payment terms,
+
+Validation & Anomaly Detection: Flags missing data, mismatches, or potential duplicates in real time,
+
+Follow-Up Automation: Drafts supplier or stakeholder follow-up emails when clarification is needed,
+
+Reconciliation Workflow: Matches invoices against purchase orders and payment records seamlessly,
+
+Tax & Payment Enrichment: Automatically appends relevant GST, VAT, or TDS details before posting,
+
+ERP Synchronization: Pushes verified entries directly into accounting systems for clean bookkeeping,
+
+Audit-Ready Logging: Maintains complete traceability for every invoice and decision,","Reduced invoice processing time by 80%,
+
+Lowered manual data entry workload by 70%,
+
+Improved reconciliation accuracy by 65%,
+
+Enhanced compliance and audit readiness by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Accounts Payable, Finance Automation, ERP Integration, Document Processing, AI Assistant, Workflow Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa1,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa2,png,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa3,png"
+agent_011,yes,isv_001,Solution,Operations Teams,Productivity,Requirement Analyst,https://v0-adib.vercel.app/requirements,"Write requirements like a product pro,
+A multimodal assistant that captures, structures, and refines business/product requirements using documents, chats, and voice prompts,
+
+It is a workflow-driven system that lets vendors spin up a project, auto-generate customized intake questions with AI, and collaborate with clients through a secure link to capture clarifications in text, audio, or docs, 
+Once client inputs are approved, an agent merges responses, extracts structured details, and produces a polished FSD (and standardized BRD/FSD variants) with preview and export, 
+The result: clearer requirements, fewer back-and-forth loops, standardized documentation for handoff, and faster cross-functional delivery,","Multimodal Capture: Collects business and product requirements through text, documents, and voice prompts,
+
+AI Intake Generation: Automatically creates customized intake questionnaires tailored to each project type,
+
+Collaborative Client Portal: Allows vendors and clients to exchange clarifications securely via shared links,
+
+Workflow-Driven Projects: Orchestrates the full requirements lifecycle from intake to approval,
+
+Intelligent Structuring: Extracts key business logic, dependencies, and technical specs from unstructured input,
+
+Automated Documentation: Generates polished, standardized BRD and FSD documents instantly,
+
+Version Control: Tracks edits, approvals, and feedback for traceable requirement evolution,
+
+Preview & Export: Offers formatted document previews and one-click export to PDF, Word, or Markdown,
+
+Standardization Engine: Ensures consistent documentation across teams and vendors,
+
+Cross-Functional Acceleration: Reduces review loops and enables faster design-to-development handoff,","Increased requirements clarity by 65%,
+
+Reduced documentation turnaround time by 70%,
+
+Improved cross-functional alignment by 60%,
+
+Lowered project kickoff delays by 55%,
+
+Delivered measurable ROI within 6 weeks,
+
+\n","Product Management, Requirements Engineering, Workflow Automation, AI Assistant, Documentation, Collaboration","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rqa2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/pfm4,mp4"
 agent_014,yes,isv_001,Solution,End Customers,Customer Experience,Voice Based Mobile Banking,https://speech-to-work.vercel.app/,"Voice-Based Mobile Banking enables customers to perform everyday financial tasks hands-free through simple spoken commands, making banking faster, safer, and more accessible, 
 
 With voice commands like “Transfer 500 dollars to Sarah”, “Show my account balance”, “Pay electricity bill”, or “Block my card”, users can manage money, pay bills, and secure accounts instantly without navigating complex menus, 
@@ -455,33 +577,6 @@ Enhanced audit readiness across units by 55%,
 Delivered measurable ROI within 2 months,
 
 \n","Banking, Digital Transformation, Automation, Compliance, Enterprise Systems, AI Assistant",
-agent_017,yes,isv_001,Solution,Technology Teams,Data,Data Studio,http://74.225.247.242:3000/,"Data Studio turns raw data into instant, decision-ready insights — using agents that clean, enrich, analyze, and visualize, From customer profiles to product diagnostics, get answers in minutes, not weeks — no manual effort, just real-time clarity,","Automated Data Cleaning: Detects and fixes inconsistencies, missing values, and anomalies in datasets,
-
-Data Enrichment Engine: Merges internal and external data sources to add contextual insights,
-
-AI-Powered Analysis: Identifies key patterns, trends, and correlations automatically,
-
-Instant Visualization: Generates charts and dashboards from natural language prompts — no manual setup needed,
-
-Agent-Based Architecture: Utilizes specialized agents for profiling, diagnostics, and insight generation,
-
-Decision-Ready Insights: Transforms raw data into actionable intelligence for faster business outcomes,
-
-Real-Time Processing: Delivers live updates and analytics from streaming or batch data,
-
-No-Code Interface: Empowers business users to analyze data without technical expertise,
-
-Scalable Integration: Connects seamlessly to data warehouses, CRMs, and analytics tools,","Reduced data preparation time by 75%,
-
-Improved decision-making speed by 65%,
-
-Increased analytical productivity by 60%,
-
-Lowered dependency on data teams by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Data Intelligence, Analytics, Business Intelligence, Automation, AI Assistant, No-Code Tools","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/dat1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/dat2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/dat3,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/dat4,JPG"
 agent_018,yes,isv_001,Solution,HR & Knowledge,Data,Use Case Repo,https://usecaselibrary.tngrm.ai/login,"The Use Case Library Accelerator is an AI-powered platform that transforms scattered use case documentation into a unified, enterprise-grade digital library, 
 
 With minimal user input, it leverages agentic AI workflows to parse documents, enrich metadata, and auto-structure content into standardized, high-quality use case assets, 
@@ -513,7 +608,7 @@ Enhanced cross-team collaboration by 55%,
 
 Delivered measurable ROI within 2 months,
 
-\n","Knowledge Management, AI Assistant, Automation, Enterprise Productivity, Digital Transformation, Content Intelligence","https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/use1,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/use2,JPG,https://raw,githubusercontent,com/vigneshgurumohan/demo_images/main/use3"
+\n","Knowledge Management, AI Assistant, Automation, Enterprise Productivity, Digital Transformation, Content Intelligence","https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use1,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use2,JPG,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/use3"
 agent_019,yes,isv_001,Agent,Relationship Managers,Productivity,PI Leads Generator,https://investorleads.tngrm.ai/,"The Leads Extractor is an AI-driven platform that helps relationship managers (RMs) identify and target qualified professional investor leads efficiently, 
 
 By analyzing multiple data sources and investor profiles, it automatically filters and ranks prospects based on predefined criteria, ensuring high-quality, actionable leads, 
@@ -546,37 +641,6 @@ Enhanced client acquisition rate by 50%,
 Delivered measurable ROI within 2 months,
 
 \n","Sales Intelligence, Banking, Lead Management, AI Assistant, CRM Automation, Relationship Management",
-agent_020,yes,isv_001,Agent,Operations Teams,Productivity,Voice-to-Text Meetings Analyst,https://www.minutesanalyst.tngrm.ai/,"The Meetings Analyst is an AI-powered voice-to-text solution designed for professional meetings, 
-It captures audio in real time, converts it into accurate transcripts, and auto-generates essential outputs such as meeting minutes, functional specification documents (FSDs), and executive summaries, 
-By combining speech recognition with intelligent document generation, it eliminates manual note-taking, reduces errors, and ensures that every discussion is instantly transformed into structured, actionable documentation, 
-
-This not only boosts productivity and clarity but also enables teams to focus on decision-making while the system handles the heavy lifting of documentation,","Real-Time Transcription: Captures and converts meeting audio into accurate, time-stamped transcripts,
-
-Automated Minutes Creation: Generates concise meeting minutes with key points, action items, and ownership,
-
-FSD & Documentation Generation: Transforms discussions into structured Functional Specification Documents automatically,
-
-Executive Summaries: Produces short, context-rich summaries for leadership and stakeholders,
-
-Multi-Speaker Recognition: Distinguishes between participants to maintain clarity in documentation,
-
-AI-Powered Context Extraction: Identifies decisions, dependencies, and follow-up actions from conversation flow,
-
-Searchable Archives: Stores and indexes all transcripts for easy retrieval and compliance review,
-
-Secure Cloud Integration: Ensures encrypted storage and sharing within enterprise collaboration platforms,
-
-Language Flexibility: Supports multilingual transcription and summarization for global teams,","Reduced manual note-taking effort by 80%,
-
-Improved documentation accuracy by 70%,
-
-Increased meeting productivity by 60%,
-
-Accelerated decision follow-up by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Productivity, Voice AI, Transcription, Documentation Automation, AI Assistant, Collaboration",
 agent_021,yes,isv_001,Solution,Operations Teams,Productivity,Demand forecasting for Banks,https://v0-demand-forecasting-and-inventory.vercel.app/,"The Demand Forecasting AI Agent is a predictive tool designed to optimize inventory management of banks, By analyzing historical sales and external factors such as holidays, local events, and social media trends, the agent generates accurate, branch-level demand forecasts, reducing stockouts and overstock situations, 
 
 This autonomous solution transforms reactive inventory practices into a proactive, data-driven process, 
@@ -673,70 +737,6 @@ Enhanced customer satisfaction by 55%,
 Delivered measurable ROI within 6 weeks,
 
 \n","Conversational AI, Customer Support, Sales Enablement, Real-Time Processing, AI Assistant, Voice Automation",
-agent_024,yes,isv_001,Agent,Operations Teams,Productivity,Document Writer,,"Document Writer Automation Copilot is an intelligent assistant built to streamline credit application processing and document preparation for corporate lending teams, Key MVP features include automated extraction of customer details from submitted credit applications, intelligent population of multiple document templates with that data, and an interactive chat interface that allows users to review and edit customer information conversationally before finalizing documents,
-
-The system dynamically updates document fields based on user inputs—for example, changing “Mr, Vignesh” to “Vignesh” across all templates in real time—and enables instant PDF generation for download or e-signature workflows,
-
-Powered by structured data parsing, natural language editing, and secure document rendering, the copilot reduces manual entry effort, ensures consistency across credit documentation, and accelerates customer onboarding, Future extensions include integration with CRM and document management systems, OCR for scanned forms, and audit trails for compliance-ready automation,","Automated Data Extraction: Parses customer details from credit application forms and structured submissions,
-
-Template Auto-Population: Fills multiple credit document templates with extracted data in real time,
-
-Conversational Editing: Allows users to review and update customer details through a natural language chat interface,
-
-Dynamic Field Syncing: Propagates edits (e,g,, name or company corrections) across all document templates instantly,
-
-Instant PDF Generation: Produces finalized documents for download or integration into e-signature workflows,
-
-Data Consistency Engine: Ensures uniformity and accuracy across loan, KYC, and credit templates,
-
-Secure Document Rendering: Protects sensitive customer data with encrypted document generation,
-
-Integration-Ready Design: Supports future linkage with CRM, DMS, and OCR modules for scanned input handling,
-
-Audit & Compliance Logging: Captures all document actions for traceable, regulatory-ready reporting,","Reduced document preparation time by 75%,
-
-Improved data consistency across loan documents by 70%,
-
-Decreased manual entry effort by 65%,
-
-Accelerated credit onboarding by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Document Automation, Corporate Lending, AI Assistant, Workflow Automation, Credit Processing, Compliance",
-agent_025,yes,isv_001,Agent,Operations Teams,Productivity,User Story Mapping,,"User Story Mapping AI Agent is an intelligent copilot designed for product managers, delivery leads, and engineering teams to automatically transform product requirement documents (PRDs) into structured user story maps and synchronized Jira backlogs, Key MVP features include requirement ingestion from PRDs or feature specs, AI-powered extraction of Epics, Stories, and Subtasks with acceptance criteria, and an interactive visualization of the complete story map showing dependencies and priorities,
-
-Through a conversational “Digital RM” interface, users can review, edit, and approve the generated story structure before syncing directly to Jira, Specialized agents—covering requirement extraction, decomposition, dependency detection, and role assignment—ensure consistency, traceability, and alignment with business goals,
-
-By automating backlog setup, dependency mapping, and Jira integration, the copilot reduces story creation time by up to 70%, improves clarity for developers, and empowers PMs to focus on strategic product delivery, Future extensions include fine-tuned PRD-to-Jira transformation models, proactive planning recommendations, and analytics for effort and dependency optimization,","PRD Ingestion: Automatically reads and interprets Product Requirement Documents and feature specifications,
-
-AI-Driven Decomposition: Extracts and structures Epics, User Stories, and Subtasks with corresponding acceptance criteria,
-
-Interactive Story Mapping: Visualizes user journeys, dependencies, and story hierarchies in an intuitive map view,
-
-Dependency Detection: Identifies and flags cross-story or cross-epic relationships for proactive planning,
-
-Conversational Editing: Enables PMs to review, modify, and approve story structures through a natural chat interface,
-
-Jira Integration: Syncs approved story maps directly into Jira as Epics, Stories, and Tasks,
-
-Role & Ownership Assignment: Suggests default role assignments and workload balancing for engineering teams,
-
-Traceability & Alignment: Maintains linkage between requirements, deliverables, and acceptance goals,
-
-Analytics Dashboard (Planned): Provides insights into dependencies, effort estimation, and delivery bottlenecks,
-
-Fine-Tuned PRD Models (Roadmap): Supports domain-specific PRD parsing and backlog optimization,","Reduced story creation time by 70%,
-
-Improved backlog accuracy by 65%,
-
-Enhanced developer clarity and sprint alignment by 60%,
-
-Accelerated release planning by 55%,
-
-Delivered measurable ROI within 6 weeks,
-
-\n","Product Management, Agile Delivery, Jira Automation, AI Assistant, Requirements Engineering, Project Management",
 agent_026,yes,isv_001,Agent,Operations Teams,Data,Knowledge Base,,"The Knowledge Base is an AI-powered platform that transforms unstructured, scattered organizational content into an intelligent, searchable knowledge hub,
 By automatically processing and understanding files across formats — including PDFs, CSVs, PPTs, audio recordings, and web sources — it empowers teams to get precise, context-aware answers instantly,
 With its semantic search engine and natural language Q&A interface, users can access verified insights without manually browsing documents, enabling faster decision-making, improved collaboration, and true knowledge reuse across the enterprise,","Multiformat Ingestion: Reads and processes data from PDFs, CSVs, PPTs, audio transcripts, and online sources,
