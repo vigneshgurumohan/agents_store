@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Marketplace - Navigation Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .nav-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .nav-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .nav-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-section h2::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+            border-color: #667eea;
+        }
+
+        .nav-link-icon {
+            font-size: 1.2rem;
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-link-text {
+            flex: 1;
+        }
+
+        .nav-link-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .api-section {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .frontend-section {
+            background: #f3e5f5;
+            border-color: #9c27b0;
+        }
+
+        .auth-section {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .admin-section {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Agents Marketplace</h1>
+            <p>Navigation Dashboard - Test All Functionality</p>
+        </div>
+
+        <div class="nav-grid">
+            <!-- Authentication Section -->
+            <div class="nav-section auth-section">
+                <h2>🔐 Authentication</h2>
+                <div class="nav-links">
+                    <a href="/isv/login" class="nav-link">
+                        <span class="nav-link-icon">👤</span>
+                        <div class="nav-link-text">
+                            <div>ISV Login</div>
+                            <div class="nav-link-desc">Login for Independent Software Vendors</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/isv/signup" class="nav-link">
+                        <span class="nav-link-icon">📝</span>
+                        <div class="nav-link-text">
+                            <div>ISV Signup</div>
+                            <div class="nav-link-desc">Register as an ISV</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/reseller/login" class="nav-link">
+                        <span class="nav-link-icon">🏪</span>
+                        <div class="nav-link-text">
+                            <div>Reseller Login</div>
+                            <div class="nav-link-desc">Login for Resellers</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/reseller/signup" class="nav-link">
+                        <span class="nav-link-icon">📝</span>
+                        <div class="nav-link-text">
+                            <div>Reseller Signup</div>
+                            <div class="nav-link-desc">Register as a Reseller</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/client/login" class="nav-link">
+                        <span class="nav-link-icon">👥</span>
+                        <div class="nav-link-text">
+                            <div>Client Login</div>
+                            <div class="nav-link-desc">Login for Clients</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/client/signup" class="nav-link">
+                        <span class="nav-link-icon">📝</span>
+                        <div class="nav-link-text">
+                            <div>Client Signup</div>
+                            <div class="nav-link-desc">Register as a Client</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/admin/login" class="nav-link">
+                        <span class="nav-link-icon">👨‍💼</span>
+                        <div class="nav-link-text">
+                            <div>Admin Login</div>
+                            <div class="nav-link-desc">Administrator access</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Frontend Pages Section -->
+            <div class="nav-section frontend-section">
+                <h2>🎨 Frontend Pages</h2>
+                <div class="nav-links">
+                    <a href="/unified-chat" class="nav-link">
+                        <span class="nav-link-icon">💬</span>
+                        <div class="nav-link-text">
+                            <div>Unified Chat</div>
+                            <div class="nav-link-desc">AI Agent Chat Interface</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/agent/onboard" class="nav-link">
+                        <span class="nav-link-icon">➕</span>
+                        <div class="nav-link-text">
+                            <div>Agent Onboarding</div>
+                            <div class="nav-link-desc">Create new AI agents</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/agent/edit?agent_id=agent_001" class="nav-link">
+                        <span class="nav-link-icon">✏️</span>
+                        <div class="nav-link-text">
+                            <div>ISV Agent Edit</div>
+                            <div class="nav-link-desc">Edit agent details (ISV)</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/admin/agent/edit?agent_id=agent_001" class="nav-link">
+                        <span class="nav-link-icon">🔧</span>
+                        <div class="nav-link-text">
+                            <div>Admin Agent Edit</div>
+                            <div class="nav-link-desc">Edit agent details (Admin)</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- API Endpoints Section -->
+            <div class="nav-section api-section">
+                <h2>🔌 API Endpoints</h2>
+                <div class="nav-links">
+                    <a href="/api/agents" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">📋</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/agents</div>
+                            <div class="nav-link-desc">Fetch all agents</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/admin/agents" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">👨‍💼</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/admin/agents</div>
+                            <div class="nav-link-desc">Admin agent management</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/agents/agent_001" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">🔍</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/agents/{id}</div>
+                            <div class="nav-link-desc">Get specific agent details</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/capabilities" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">⚡</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/capabilities</div>
+                            <div class="nav-link-desc">Get all capabilities</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/values" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">📊</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/values</div>
+                            <div class="nav-link-desc">Get unique field values</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/health" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">❤️</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/health</div>
+                            <div class="nav-link-desc">System health check</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/chat/history/anonymous" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">💬</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/chat/history/{user_id}</div>
+                            <div class="nav-link-desc">Chat history management</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/brd/test_session_123" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">📄</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/brd/{session_id}</div>
+                            <div class="nav-link-desc">Download BRD documents</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                    <a href="/api/enquiries" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">✉️</span>
+                        <div class="nav-link-text">
+                            <div>GET /api/enquiries</div>
+                            <div class="nav-link-desc">View all enquiries</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact & Communication Section -->
+            <div class="nav-section frontend-section">
+                <h2>📧 Contact & Communication</h2>
+                <div class="nav-links">
+                    <a href="/contact" class="nav-link">
+                        <span class="nav-link-icon">✉️</span>
+                        <div class="nav-link-text">
+                            <div>Contact Us</div>
+                            <div class="nav-link-desc">Submit an enquiry</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/api/enquiries" target="_blank" class="nav-link">
+                        <span class="nav-link-icon">📋</span>
+                        <div class="nav-link-text">
+                            <div>View Enquiries</div>
+                            <div class="nav-link-desc">All contact form submissions</div>
+                        </div>
+                        <span class="status-badge">API</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Admin Functions Section -->
+            <div class="nav-section admin-section">
+                <h2>⚙️ Admin Functions</h2>
+                <div class="nav-links">
+                    <a href="/admin/dashboard" class="nav-link">
+                        <span class="nav-link-icon">📊</span>
+                        <div class="nav-link-text">
+                            <div>Admin Dashboard</div>
+                            <div class="nav-link-desc">System overview and management</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/admin/agents" class="nav-link">
+                        <span class="nav-link-icon">🤖</span>
+                        <div class="nav-link-text">
+                            <div>Agent Management</div>
+                            <div class="nav-link-desc">Manage all agents</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                    <a href="/admin/users" class="nav-link">
+                        <span class="nav-link-icon">👥</span>
+                        <div class="nav-link-text">
+                            <div>User Management</div>
+                            <div class="nav-link-desc">Manage ISVs and users</div>
+                        </div>
+                        <span class="status-badge">Ready</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Testing Tools Section -->
+            <div class="nav-section">
+                <h2>🧪 Testing Tools</h2>
+                <div class="nav-links">
+                    <a href="/test/agent-creation" class="nav-link">
+                        <span class="nav-link-icon">🔬</span>
+                        <div class="nav-link-text">
+                            <div>Agent Creation Test</div>
+                            <div class="nav-link-desc">Test agent onboarding flow</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </a>
+                    <a href="/test/demo-assets" class="nav-link">
+                        <span class="nav-link-icon">🎬</span>
+                        <div class="nav-link-text">
+                            <div>Demo Assets Test</div>
+                            <div class="nav-link-desc">Test multiple demo links & files</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </a>
+                    <a href="/test/chat-history" class="nav-link">
+                        <span class="nav-link-icon">💭</span>
+                        <div class="nav-link-text">
+                            <div>Chat History Test</div>
+                            <div class="nav-link-desc">Test chat functionality</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div class="nav-section">
+                <h2>⚡ Quick Actions</h2>
+                <div class="nav-links">
+                    <button onclick="testLogin()" class="nav-link" style="cursor: pointer;">
+                        <span class="nav-link-icon">🔑</span>
+                        <div class="nav-link-text">
+                            <div>Test ISV Login</div>
+                            <div class="nav-link-desc">Quick login test</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </button>
+                    <button onclick="testAgentCreation()" class="nav-link" style="cursor: pointer;">
+                        <span class="nav-link-icon">🤖</span>
+                        <div class="nav-link-text">
+                            <div>Test Agent Creation</div>
+                            <div class="nav-link-desc">Create test agent</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </button>
+                    <button onclick="testChat()" class="nav-link" style="cursor: pointer;">
+                        <span class="nav-link-icon">💬</span>
+                        <div class="nav-link-text">
+                            <div>Test Chat</div>
+                            <div class="nav-link-desc">Send test message</div>
+                        </div>
+                        <span class="status-badge">Test</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Agents Marketplace</strong> - Complete Testing Dashboard</p>
+            <p>All functionality is ready for testing. Use the navigation above to explore different features.</p>
+            <div class="footer-links">
+                <a href="/api/docs" target="_blank">API Documentation</a>
+                <a href="https://github.com" target="_blank">GitHub</a>
+                <a href="mailto:support@example.com">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quick test functions
+        async function testLogin() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'email=isv@crayondata.ai&password=isv123'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Login test successful!\nUser: ' + result.user.role + '\nRedirect: ' + result.redirect);
+                } else {
+                    alert('❌ Login test failed: ' + result.detail);
+                }
+            } catch (error) {
+                alert('❌ Login test error: ' + error.message);
+            }
+        }
+
+        async function testAgentCreation() {
+            const testData = {
+                agent_name: 'Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Developer',
+                by_value: 'Productivity',
+                description: 'Test agent for navigation dashboard',
+                features: 'Feature 1, Feature 2',
+                roi: 'High ROI',
+                tags: 'test, navigation',
+                application_demo_url: 'https://test.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1, capability2',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(['https://demo1.example.com', 'https://demo2.example.com']),
+                sdk_details: 'Test SDK',
+                swagger_details: 'Test Swagger',
+                sample_input: 'Test input',
+                sample_output: 'Test output',
+                security_details: 'Test security',
+                related_files: 'Test files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Agent creation test successful!\nAgent ID: ' + result.agent_id);
+                } else {
+                    alert('❌ Agent creation test failed: ' + result.detail);
+                }
+            } catch (error) {
+                alert('❌ Agent creation test error: ' + error.message);
+            }
+        }
+
+        async function testChat() {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: 'Hello! This is a test message from the navigation dashboard.',
+                        mode: 'explore',
+                        user_id: 'test_user',
+                        user_type: 'anonymous'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Chat test successful!\nSession ID: ' + result.data.session_id);
+                } else {
+                    alert('❌ Chat test failed: ' + result.detail);
+                }
+            } catch (error) {
+                alert('❌ Chat test error: ' + error.message);
+            }
+        }
+
+        // Add click handlers for all nav links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.href && link.href.includes('agent_id=agent_001')) {
+                    // Update with a real agent ID if available
+                    link.addEventListener('click', function(e) {
+                        // You can add logic here to get a real agent ID
+                        console.log('Navigating to agent edit page');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

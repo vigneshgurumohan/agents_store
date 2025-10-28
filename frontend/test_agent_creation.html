@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Creation Test - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .test-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .test-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .test-results.show {
+            display: block;
+        }
+
+        .test-results h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .test-results pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #007bff;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
+            </div>
+            <h1>🔬 Agent Creation Test</h1>
+            <p>Test agent onboarding flow and functionality</p>
+        </div>
+
+        <div class="content">
+            <div class="test-section">
+                <h3>Basic Agent Creation Test</h3>
+                <p>Test creating a simple agent with basic information.</p>
+                <button class="test-button" onclick="testBasicAgentCreation()">Test Basic Agent</button>
+                <button class="test-button" onclick="testAdvancedAgentCreation()">Test Advanced Agent</button>
+                <button class="test-button" onclick="testAgentWithDemoLinks()">Test with Demo Links</button>
+                
+                <div id="basic-results" class="test-results">
+                    <h4>Test Results:</h4>
+                    <pre id="basic-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Agent Validation Tests</h3>
+                <p>Test various validation scenarios for agent creation.</p>
+                <button class="test-button" onclick="testInvalidAgent()">Test Invalid Data</button>
+                <button class="test-button" onclick="testMissingFields()">Test Missing Fields</button>
+                <button class="test-button" onclick="testDuplicateAgent()">Test Duplicate Agent</button>
+                
+                <div id="validation-results" class="test-results">
+                    <h4>Validation Test Results:</h4>
+                    <pre id="validation-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Agent Retrieval Tests</h3>
+                <p>Test fetching and displaying created agents.</p>
+                <button class="test-button" onclick="testGetAllAgents()">Get All Agents</button>
+                <button class="test-button" onclick="testGetSpecificAgent()">Get Specific Agent</button>
+                <button class="test-button" onclick="testAgentCapabilities()">Test Capabilities</button>
+                
+                <div id="retrieval-results" class="test-results">
+                    <h4>Retrieval Test Results:</h4>
+                    <pre id="retrieval-output"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let createdAgentId = null;
+
+        async function testBasicAgentCreation() {
+            const resultsDiv = document.getElementById('basic-results');
+            const outputPre = document.getElementById('basic-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing basic agent creation...';
+            
+            const testData = {
+                agent_name: 'Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Developer',
+                by_value: 'Productivity',
+                description: 'A test agent for validation',
+                features: 'Feature 1, Feature 2',
+                roi: 'High ROI',
+                tags: 'test, validation',
+                application_demo_url: 'https://test.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1, capability2',
+                demo_assets: '[]',
+                demo_links: '[]',
+                sdk_details: 'Test SDK',
+                swagger_details: 'Test Swagger',
+                sample_input: 'Test input',
+                sample_output: 'Test output',
+                security_details: 'Test security',
+                related_files: 'Test files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    createdAgentId = result.agent_id;
+                    outputPre.textContent = `✅ SUCCESS: Agent created successfully!\n\nAgent ID: ${result.agent_id}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testAdvancedAgentCreation() {
+            const resultsDiv = document.getElementById('basic-results');
+            const outputPre = document.getElementById('basic-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing advanced agent creation...';
+            
+            const testData = {
+                agent_name: 'Advanced Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Business Analyst',
+                by_value: 'Efficiency',
+                description: 'An advanced test agent with comprehensive features',
+                features: 'Advanced Feature 1, Advanced Feature 2, Advanced Feature 3',
+                roi: 'Very High ROI',
+                tags: 'advanced, test, comprehensive',
+                application_demo_url: 'https://advanced-test.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1, capability2, capability3',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(['https://demo1.example.com', 'https://demo2.example.com']),
+                sdk_details: 'Advanced SDK with comprehensive documentation',
+                swagger_details: 'Complete Swagger API documentation',
+                sample_input: 'Complex input example',
+                sample_output: 'Detailed output example',
+                security_details: 'Enterprise-grade security',
+                related_files: 'Multiple related files',
+                deployments: JSON.stringify([{'deployment_type': 'Cloud', 'deployment_url': 'https://cloud.example.com'}])
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    createdAgentId = result.agent_id;
+                    outputPre.textContent = `✅ SUCCESS: Advanced agent created successfully!\n\nAgent ID: ${result.agent_id}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testAgentWithDemoLinks() {
+            const resultsDiv = document.getElementById('basic-results');
+            const outputPre = document.getElementById('basic-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing agent creation with multiple demo links...';
+            
+            const demoLinks = [
+                'https://youtube.com/watch?v=demo1',
+                'https://vimeo.com/demo2',
+                'https://example.com/demo3',
+                'https://demo4.example.com'
+            ];
+
+            const testData = {
+                agent_name: 'Demo Links Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Content Creator',
+                by_value: 'Engagement',
+                description: 'Test agent with multiple demo links',
+                features: 'Demo Feature 1, Demo Feature 2',
+                roi: 'Medium ROI',
+                tags: 'demo, links, test',
+                application_demo_url: 'https://demo-app.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1, capability2',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(demoLinks),
+                sdk_details: 'Demo SDK',
+                swagger_details: 'Demo Swagger',
+                sample_input: 'Demo input',
+                sample_output: 'Demo output',
+                security_details: 'Demo security',
+                related_files: 'Demo files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    createdAgentId = result.agent_id;
+                    outputPre.textContent = `✅ SUCCESS: Agent with demo links created successfully!\n\nAgent ID: ${result.agent_id}\nDemo Links: ${demoLinks.length}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testInvalidAgent() {
+            const resultsDiv = document.getElementById('validation-results');
+            const outputPre = document.getElementById('validation-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing invalid agent data...';
+            
+            const testData = {
+                agent_name: '', // Invalid: empty name
+                asset_type: 'Invalid Type',
+                by_persona: '',
+                by_value: '',
+                description: '',
+                features: '',
+                roi: '',
+                tags: '',
+                application_demo_url: 'invalid-url', // Invalid URL
+                isv_id: 'invalid_isv', // Invalid ISV
+                capabilities: '',
+                demo_assets: '[]',
+                demo_links: '[]',
+                sdk_details: '',
+                swagger_details: '',
+                sample_input: '',
+                sample_output: '',
+                security_details: '',
+                related_files: '',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Validation correctly rejected invalid data!\n\nError: ${result.detail}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: Validation should have rejected invalid data!\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `✅ SUCCESS: Server correctly rejected invalid data!\n\nError: ${error.message}`;
+                outputPre.className = 'success';
+            }
+        }
+
+        async function testMissingFields() {
+            const resultsDiv = document.getElementById('validation-results');
+            const outputPre = document.getElementById('validation-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing missing required fields...';
+            
+            const testData = {
+                // Missing required fields like agent_name, isv_id, etc.
+                asset_type: 'AI Assistant',
+                description: 'Test with missing fields'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Correctly rejected missing required fields!\n\nError: ${result.detail}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: Should have rejected missing required fields!\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `✅ SUCCESS: Server correctly rejected missing fields!\n\nError: ${error.message}`;
+                outputPre.className = 'success';
+            }
+        }
+
+        async function testDuplicateAgent() {
+            const resultsDiv = document.getElementById('validation-results');
+            const outputPre = document.getElementById('validation-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing duplicate agent name...';
+            
+            const testData = {
+                agent_name: 'Duplicate Test Agent', // Same name as previous test
+                asset_type: 'AI Assistant',
+                by_persona: 'Developer',
+                by_value: 'Productivity',
+                description: 'Test duplicate agent',
+                features: 'Feature 1',
+                roi: 'High ROI',
+                tags: 'duplicate, test',
+                application_demo_url: 'https://duplicate.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1',
+                demo_assets: '[]',
+                demo_links: '[]',
+                sdk_details: 'Test SDK',
+                swagger_details: 'Test Swagger',
+                sample_input: 'Test input',
+                sample_output: 'Test output',
+                security_details: 'Test security',
+                related_files: 'Test files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                // This test might pass or fail depending on duplicate validation
+                outputPre.textContent = `Test completed: Duplicate agent handling\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                outputPre.className = result.success ? 'success' : 'error';
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetAllAgents() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get all agents...';
+            
+            try {
+                const response = await fetch('/api/agents');
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved all agents!\n\nTotal Agents: ${result.total}\nAgents: ${JSON.stringify(result.agents.slice(0, 3), null, 2)}${result.agents.length > 3 ? '\n... (showing first 3)' : ''}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetSpecificAgent() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get specific agent...';
+            
+            if (!createdAgentId) {
+                outputPre.textContent = '❌ ERROR: No agent ID available. Please create an agent first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/agents/${createdAgentId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved specific agent!\n\nAgent ID: ${createdAgentId}\nAgent Details: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testAgentCapabilities() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing agent capabilities...';
+            
+            try {
+                const response = await fetch('/api/capabilities');
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved capabilities!\n\nCapabilities: ${JSON.stringify(result.capabilities.slice(0, 5), null, 2)}${result.capabilities.length > 5 ? '\n... (showing first 5)' : ''}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
+

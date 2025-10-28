@@ -1,17 +1,17 @@
 by_capability_id,service_id,by_capability,service_provider,service_name,deployment,cloud_region
-capa_001,serv_001,Conversational AI & Advisory,SaaS,Anthropic Claude,Cloud,"AMER, EUR"
-capa_001,serv_002,Conversational AI & Advisory,AWS,Amazon Comprehend,Cloud,"AMER, EUR, APAC"
-capa_001,serv_003,Conversational AI & Advisory,AWS,Amazon Lex,Cloud,"AMER, EUR, APAC"
-capa_001,serv_004,Conversational AI & Advisory,AWS,Amazon Polly,Cloud,"AMER, EUR, APAC"
-capa_001,serv_005,Conversational AI & Advisory,Azure,Azure AI Bot Service,Cloud,"AMER, EUR, APAC"
-capa_001,serv_006,Conversational AI & Advisory,Azure,Azure OpenAI Service,Cloud,"AMER, EUR, APAC"
-capa_001,serv_007,Conversational AI & Advisory,GCP,Dialogflow,Cloud,"AMER, EUR, APAC"
-capa_001,serv_008,Conversational AI & Advisory,SaaS,OpenAI GPT APIs,Cloud,"AMER, EUR, APAC"
-capa_001,serv_009,Conversational AI & Advisory,Open-Source,Rasa,On-Prem,On-Prem
-capa_001,serv_010,Conversational AI & Advisory,Open-Source,Botpress,On-Prem,On-Prem
-capa_001,serv_011,Conversational AI & Advisory,Open-Source,LangChain,On-Prem,On-Prem
-capa_001,serv_012,Conversational AI & Advisory,Open-Source,OpenAssistant,On-Prem,On-Prem
-capa_001,serv_013,Conversational AI & Advisory,Open-Source,GPT-4 Open-Source Variants,On-Prem,On-Prem
+capa_001,serv_001,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_002,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_003,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_004,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_005,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_006,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_007,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_008,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_009,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_010,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_011,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_012,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
+capa_001,serv_013,Conversational AI & Advisory,AWS,Amazon Bedrock,Cloud,US-East-1
 capa_002,serv_014,Data & Analytics,AWS,Amazon Athena,Cloud,"AMER, EUR, APAC"
 capa_002,serv_015,Data & Analytics,AWS,Amazon EMR,Cloud,"AMER, EUR, APAC"
 capa_002,serv_016,Data & Analytics,AWS,Amazon Redshift,Cloud,"AMER, EUR, APAC"
@@ -74,3 +74,5 @@ capa_006,serv_072,Voice & Meetings,SaaS,Rev.ai,Cloud,"AMER, EUR, APAC"
 capa_006,serv_073,Voice & Meetings,Open-Source,OpenAI Whisper (open-source variant),On-Prem,On-Prem
 capa_006,serv_074,Voice & Meetings,Open-Source,Vosk,On-Prem,On-Prem
 capa_006,serv_075,Voice & Meetings,Open-Source,Coqui STT,On-Prem,On-Prem
+capa_012,serv_agent_042_001,,,,,
+capa_019,serv_agent_043_001,asdfasdf,dasfdasf,asdfadsf,asdfasdf,sadfsdfs

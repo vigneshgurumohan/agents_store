@@ -10,6 +10,11 @@ from openai import OpenAI
 from datetime import datetime
 from collections import deque
 import uuid
+import threading
+from docx import Document
+from docx.shared import Pt, RGBColor, Inches
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+import os
 
 from config import OPENAI_API_KEY
 from data_source import data_source
@@ -116,6 +121,8 @@ Guidelines:
 - End your response with a follow-up question about what agent or capability they'd like to explore further
 - If no agents match their needs, politely explain and aks them to choose "create mode" to build their own agent
 ** Response Formatting **
+- Keep in mind that you responding to a chat interface built on react-markdown library 
+- and therefore you need to format your responses that appears beautifully in the chat interface.
 -Keep your responses conversational and engaging.
 -Format the response in a way that is easy to understand and follow.
 -Use markdown formatting to make the response more readable.
@@ -170,11 +177,11 @@ Remember: You have access to detailed information about each agent including the
 6. Ask for confirmation when you have a solid solution
 
 ** Response Formatting **
--Keep your responses conversational and engaging.
--Format the response in a way that is easy to understand and follow.
--Use markdown formatting to make the response more readable.
--Use bullet points to make the response more readable.
+- Keep in mind that you responding to a chat interface built on react-markdown library 
+- and therefore you need to format your responses that appears beautifully in the chat interface.
+- Use bullet points to make the response more readable.
 - Weave the requirement gathered conversationally in separate paragraphs for each field.
+- Use markdown formatting to make the response more readable.
 
 **Build Decision:**
 - Set lets_build=true when:
@@ -434,6 +441,200 @@ After your conversational response, you MUST include this exact JSON structure:
         
         return gathered_info
     
+    def generate_brd_document_async(self, gathered_info: Dict, session_id: str, user_id: str, user_type: str):
+        """Generate BRD document asynchronously without blocking chat response"""
+        try:
+            def generate_brd():
+                """Background thread function to generate BRD"""
+                try:
+                    logger.info(f"Starting async BRD generation for session {session_id}")
+                    
+                    # Create Word document
+                    doc = Document()
+                    
+                    # Add title
+                    title = doc.add_heading('Business Requirements Document', 0)
+                    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    title_run = title.runs[0]
+                    title_run.bold = True
+                    title_run.font.size = Pt(24)
+                    title_run.font.color.rgb = RGBColor(102, 126, 234)
+                    
+                    # Add subtitle
+                    subtitle = doc.add_paragraph()
+                    subtitle_run = subtitle.add_run('AI Agent Development Project')
+                    subtitle_run.font.size = Pt(14)
+                    subtitle_run.font.color.rgb = RGBColor(118, 75, 162)
+                    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    
+                    # Add date
+                    date_para = doc.add_paragraph()
+                    date_run = date_para.add_run(f'Generated: {datetime.now().strftime("%B %d, %Y")}')
+                    date_run.font.size = Pt(10)
+                    date_run.font.italic = True
+                    date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    
+                    # Add line break
+                    doc.add_paragraph()
+                    
+                    # Add project information section
+                    doc.add_heading('Project Information', 1)
+                    
+                    project_info = [
+                        ('Agent Name', gathered_info.get('agent_name', 'N/A')),
+                        ('Applicable Persona', gathered_info.get('applicable_persona', 'N/A')),
+                        ('Applicable Industry', gathered_info.get('applicable_industry', 'N/A')),
+                        ('Session ID', session_id),
+                        ('Requested By', f'{user_type}: {user_id}')
+                    ]
+                    
+                    for label, value in project_info:
+                        p = doc.add_paragraph()
+                        p.add_run(f'{label}: ').bold = True
+                        p.add_run(value)
+                    
+                    doc.add_paragraph()
+                    
+                    # Add main content sections - generate all in one API call
+                    sections = [
+                        'Executive Summary',
+                        'Business Context & Objectives',
+                        'Problem Statement',
+                        'User Personas & Journeys',
+                        'Functional Requirements',
+                        'Technical Requirements',
+                        'Success Metrics',
+                        'Timeline & Deliverables',
+                        'Risks & Mitigation',
+                        'Next Steps'
+                    ]
+                    
+                    # Generate all sections content in one API call
+                    all_sections_prompt = f"""Based on the following AI agent requirements, create a comprehensive BRD with these sections:
+Agent Name: {gathered_info.get('agent_name', 'N/A')}
+Persona: {gathered_info.get('applicable_persona', 'N/A')}
+Industry: {gathered_info.get('applicable_industry', 'N/A')}
+Problem: {gathered_info.get('problem_statement', 'N/A')}
+User Journey: {gathered_info.get('user_journeys', 'N/A')}
+Wow Factor: {gathered_info.get('wow_factor', 'N/A')}
+Expected Output: {gathered_info.get('expected_output', 'N/A')}
+
+Create content for ALL sections. Format each section as:
+## SECTION_NAME
+[Content with bullet points where appropriate]
+
+Sections to create:
+1. Executive Summary
+2. Business Context & Objectives
+3. Problem Statement
+4. User Personas & Journeys
+5. Functional Requirements
+6. Technical Requirements
+7. Success Metrics
+8. Timeline & Deliverables
+9. Risks & Mitigation
+10. Next Steps
+
+Return the complete document with all sections."""
+                    
+                    if self.client:
+                        try:
+                            response = self.client.chat.completions.create(
+                                model="gpt-4o-mini",
+                                messages=[
+                                    {"role": "system", "content": "You are a professional business analyst who creates comprehensive BRD documents."},
+                                    {"role": "user", "content": all_sections_prompt}
+                                ],
+                                max_tokens=4000,
+                                temperature=0.7
+                            )
+                            
+                            content = response.choices[0].message.content
+                            
+                            # Parse the content and add to document
+                            current_section = None
+                            lines = content.split('\n')
+                            current_paragraph = []
+                            
+                            for line in lines:
+                                line = line.strip()
+                                if not line:
+                                    if current_paragraph:
+                                        # Add accumulated paragraph
+                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        current_paragraph = []
+                                    continue
+                                
+                                # Check if this is a section header
+                                if line.startswith('##'):
+                                    # Save previous section
+                                    if current_paragraph:
+                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        current_paragraph = []
+                                    
+                                    # Add new section heading
+                                    section_name = line.replace('##', '').strip()
+                                    current_section = section_name
+                                    doc.add_heading(section_name, 1)
+                                elif line.startswith('-') or line.startswith('•'):
+                                    # Bullet point
+                                    if current_paragraph:
+                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        current_paragraph = []
+                                    doc.add_paragraph(line[1:].strip(), style='List Bullet')
+                                elif line.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.')):
+                                    # Numbered list
+                                    if current_paragraph:
+                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        current_paragraph = []
+                                    doc.add_paragraph(line[line.find('.')+1:].strip(), style='List Number')
+                                else:
+                                    # Regular text - accumulate into paragraph
+                                    current_paragraph.append(line)
+                            
+                            # Add any remaining paragraph
+                            if current_paragraph:
+                                doc.add_paragraph(' '.join(current_paragraph))
+                            
+                        except Exception as e:
+                            logger.error(f"Error generating BRD content: {str(e)}")
+                            # Fallback: add placeholder content for each section
+                            for section in sections:
+                                doc.add_heading(section, 1)
+                                doc.add_paragraph("Content for this section could not be generated at this time.")
+                                doc.add_paragraph()
+                    
+                    # Save document
+                    brd_filename = f"brd_{session_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+                    brd_dir = "data/brds"
+                    os.makedirs(brd_dir, exist_ok=True)
+                    brd_path = os.path.join(brd_dir, brd_filename)
+                    
+                    doc.save(brd_path)
+                    logger.info(f"BRD Word document generated successfully: {brd_path}")
+                    
+                    # Store filename in a way that's accessible to the download endpoint
+                    # We'll use a simple file-based approach to signal completion
+                    ready_file = os.path.join(brd_dir, f".ready_{session_id}")
+                    with open(ready_file, 'w') as f:
+                        f.write(brd_filename)
+                    
+                    return brd_filename
+                    
+                except Exception as e:
+                    logger.error(f"Error generating BRD: {str(e)}")
+                    return None
+            
+            # Start background thread and immediately return None (generation in progress)
+            thread = threading.Thread(target=generate_brd)
+            thread.daemon = True
+            thread.start()
+            logger.info(f"BRD generation thread started for session {session_id}")
+            return None  # Return immediately, generation continues in background
+            
+        except Exception as e:
+            logger.error(f"Error starting BRD generation: {str(e)}")
+    
     def get_error_response(self, mode: str, error_message: str = None) -> Dict[str, Any]:
         """Generate error response when OpenAI is not available"""
         try:
@@ -468,26 +669,97 @@ After your conversational response, you MUST include this exact JSON structure:
                 "error": str(e)
             }
     
-    def save_agent_requirements(self, requirements: Dict[str, Any], session_id: str) -> bool:
+    def save_chat_history(self, session_id: str, user_id: str, user_type: str, mode: str, user_query: str, response: str) -> bool:
+        """Save or update chat history for a session with full conversation JSON"""
+        try:
+            # Get the full conversation history from memory
+            full_conversation = self.get_conversation_history(session_id) if session_id in self.conversation_memory else []
+            
+            # Add current messages to conversation
+            conversation_with_current = full_conversation.copy()
+            conversation_with_current.append({"role": "user", "content": user_query})
+            conversation_with_current.append({"role": "assistant", "content": response})
+            
+            # Convert to JSON for storage
+            conversation_json = json.dumps(conversation_with_current)
+            
+            # Check if session already exists
+            chat_history_df = data_source.get_chat_history()
+            existing_session = chat_history_df[chat_history_df['session_id'] == session_id]
+            
+            if not existing_session.empty:
+                # Update existing session
+                current_messages = existing_session.iloc[0]['total_messages']
+                updated_data = {
+                    'total_messages': current_messages + 1,
+                    'last_message_at': datetime.now().isoformat(),
+                    'conversation_summary': conversation_json  # Store full conversation as JSON
+                }
+                return data_source.update_chat_history_data(session_id, updated_data)
+            else:
+                # Create new session
+                chat_data = {
+                    'session_id': session_id,
+                    'user_id': user_id,
+                    'user_type': user_type,
+                    'chat_mode': mode,
+                    'title': self._generate_chat_title(user_query),
+                    'conversation_summary': conversation_json,  # Store full conversation as JSON
+                    'total_messages': 1,
+                    'last_message_at': datetime.now().isoformat()
+                }
+                return data_source.save_chat_history_data(chat_data)
+                
+        except Exception as e:
+            logger.error(f"Error saving chat history: {str(e)}")
+            return False
+    
+    def _generate_chat_title(self, user_query: str) -> str:
+        """Generate a title for the chat based on the first query"""
+        try:
+            # Extract key words from the query
+            words = user_query.lower().split()
+            key_words = []
+            
+            # Look for important keywords
+            important_words = ['agent', 'build', 'create', 'help', 'need', 'want', 'for', 'to']
+            for word in words[:10]:  # First 10 words
+                if word not in important_words and len(word) > 3:
+                    key_words.append(word)
+            
+            if key_words:
+                title = ' '.join(key_words[:3]).title()  # First 3 meaningful words
+                return f"Chat: {title}"
+            else:
+                return f"Chat: {user_query[:30]}..." if len(user_query) > 30 else f"Chat: {user_query}"
+                
+        except Exception as e:
+            logger.error(f"Error generating chat title: {str(e)}")
+            return "Chat Session"
+    
+
+    def save_agent_requirements(self, requirements: Dict[str, Any], session_id: str, user_id: Optional[str] = None, user_type: Optional[str] = None) -> bool:
         """Save the gathered agent requirements to the database"""
         try:
-            # Add session_id to requirements
+            # Add session_id and user information to requirements
             requirements['session_id'] = session_id
+            requirements['user_id'] = user_id or "anonymous"
+            requirements['user_type'] = user_type or "anonymous"
             
             # Save to data source
             success = data_source.save_agent_requirements_data(requirements)
             
             if success:
-                logger.info(f"Agent requirements saved successfully for session {session_id}")
+                logger.info(f"Agent requirements saved successfully for session {session_id}, user {user_id} ({user_type})")
             else:
-                logger.error(f"Failed to save agent requirements for session {session_id}")
+                logger.error(f"Failed to save agent requirements for session {session_id}, user {user_id} ({user_type})")
             
             return success
         except Exception as e:
             logger.error(f"Error saving agent requirements: {str(e)}")
             return False
     
-    def chat(self, user_query: str, mode: str = "explore", session_id: Optional[str] = None) -> Dict[str, Any]:
+    def chat(self, user_query: str, mode: str = "explore", session_id: Optional[str] = None, user_id: Optional[str] = None, user_type: Optional[str] = None) -> Dict[str, Any]:
         """
         Main unified chat function that handles both explore and create modes
         
@@ -495,6 +767,8 @@ After your conversational response, you MUST include this exact JSON structure:
             user_query: The user's question or request
             mode: "explore" or "create"
             session_id: Optional session ID for conversation memory
+            user_id: Optional user ID (isv_id, admin_id, reseller_id, client_id, or anonymous)
+            user_type: Optional user type (isv, admin, reseller, client, anonymous)
             
         Returns:
             Dict containing response, metadata, and session info
@@ -552,6 +826,9 @@ After your conversational response, you MUST include this exact JSON structure:
             # Extract AI response
             ai_response = response.choices[0].message.content
             
+            # Save chat history
+            self.save_chat_history(session_id, user_id or "anonymous", user_type or "anonymous", mode, user_query, ai_response)
+            
             # Process response based on mode
             if mode == "explore":
                 # Extract relevant agent IDs from the response
@@ -590,8 +867,18 @@ After your conversational response, you MUST include this exact JSON structure:
                     gathered_info = result["gathered_info"]
                     # Only save if we have meaningful information
                     if any(value.strip() for value in gathered_info.values() if isinstance(value, str)):
-                        save_success = self.save_agent_requirements(gathered_info, session_id)
+                        save_success = self.save_agent_requirements(gathered_info, session_id, user_id, user_type)
                         result["requirements_saved"] = save_success
+                        
+                        # Trigger async BRD generation (doesn't block response)
+                        brd_filename = self.generate_brd_document_async(gathered_info, session_id, user_id, user_type)
+                        
+                        # Add BRD download link and generation status to result
+                        result["brd_download_url"] = f"/api/brd/{session_id}"
+                        result["brd_status"] = "generating"  # Indicates BRD is being generated
+                        if brd_filename:
+                            result["brd_filename"] = brd_filename
+                        logger.info(f"BRD download link added for session {session_id}, status: generating")
             
             logger.info(f"Unified chat response generated for mode {mode}, session {session_id}")
             return result

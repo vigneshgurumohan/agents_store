@@ -7,6 +7,7 @@ import psycopg2
 from typing import Dict, List, Optional, Union
 from pathlib import Path
 import logging
+import os
 from datetime import datetime
 from config import CSV_PATHS, DATABASE_CONFIG
 
@@ -53,7 +54,7 @@ class DataSource:
         
         for encoding in encodings:
             try:
-                df = pd.read_csv(csv_path, encoding=encoding)
+                df = pd.read_csv(csv_path, encoding=encoding, quoting=1)  # quoting=1 handles multiline fields
                 logger.info(f"Loaded {len(df)} rows from {table_name} using {encoding} encoding")
                 return df
             except UnicodeDecodeError:
@@ -490,6 +491,236 @@ class DataSource:
             return True
         except Exception as e:
             logger.error(f"Error updating agent data: {e}")
+            return False
+    
+    def update_docs_data(self, agent_id: str, updated_data: Dict) -> bool:
+        """Update existing docs data in CSV file"""
+        try:
+            docs_df = self.get_docs()
+            
+            # Find the row to update
+            mask = docs_df['agent_id'] == agent_id
+            if not mask.any():
+                logger.error(f"Docs not found for agent: {agent_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in docs_df.columns:
+                    docs_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["docs"]
+            docs_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated docs for agent: {agent_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating docs data: {e}")
+            return False
+    
+    def update_deployments_data(self, by_capability_id: str, updated_data: Dict) -> bool:
+        """Update existing deployments data in CSV file"""
+        try:
+            deployments_df = self.get_deployments()
+            
+            # Find the row to update
+            mask = deployments_df['by_capability_id'] == by_capability_id
+            if not mask.any():
+                logger.error(f"Deployment not found for capability: {by_capability_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in deployments_df.columns:
+                    deployments_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["deployments"]
+            deployments_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated deployment for capability: {by_capability_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating deployments data: {e}")
+            return False
+    
+    def update_demo_assets_data(self, demo_asset_id: str, updated_data: Dict) -> bool:
+        """Update existing demo assets data in CSV file"""
+        try:
+            demo_assets_df = self.get_demo_assets()
+            
+            # Find the row to update
+            mask = demo_assets_df['demo_asset_id'] == demo_asset_id
+            if not mask.any():
+                logger.error(f"Demo asset not found: {demo_asset_id}")
+                return False
+            
+            # Update the row
+            for key, value in updated_data.items():
+                if key in demo_assets_df.columns:
+                    demo_assets_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["demo_assets"]
+            demo_assets_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated demo asset: {demo_asset_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating demo assets data: {e}")
+            return False
+    
+    def get_chat_history(self) -> pd.DataFrame:
+        """Load chat history data from CSV file"""
+        try:
+            csv_path = self.csv_paths["chat_history"]
+            if not csv_path.exists():
+                # Create empty DataFrame with correct columns
+                return pd.DataFrame(columns=[
+                    'session_id', 'user_id', 'user_type', 'chat_mode', 'title', 
+                    'conversation_summary', 'total_messages', 'last_message_at', 
+                    'created_at', 'updated_at', 'status'
+                ])
+            
+            df = pd.read_csv(csv_path, encoding='utf-8')
+            logger.info(f"Loaded {len(df)} rows from chat_history using utf-8 encoding")
+            return df
+        except Exception as e:
+            logger.error(f"Error loading chat history: {e}")
+            return pd.DataFrame()
+    
+    def save_chat_history_data(self, chat_data: Dict) -> bool:
+        """Save new chat history data to CSV file"""
+        try:
+            chat_history_df = self.get_chat_history()
+            
+            # Add timestamps
+            chat_data['created_at'] = datetime.now().isoformat()
+            chat_data['updated_at'] = datetime.now().isoformat()
+            chat_data['status'] = 'active'
+            
+            # Convert to DataFrame and append
+            new_chat_df = pd.DataFrame([chat_data])
+            
+            if chat_history_df.empty:
+                # First chat history entry
+                new_chat_df.to_csv(self.csv_paths["chat_history"], index=False)
+            else:
+                # Append to existing
+                combined_df = pd.concat([chat_history_df, new_chat_df], ignore_index=True)
+                combined_df.to_csv(self.csv_paths["chat_history"], index=False)
+            
+            logger.info(f"Chat history saved for session: {chat_data['session_id']}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving chat history: {str(e)}")
+            return False
+    
+    def update_chat_history_data(self, session_id: str, updated_data: Dict) -> bool:
+        """Update existing chat history data in CSV file"""
+        try:
+            chat_history_df = self.get_chat_history()
+            
+            # Find the row to update
+            mask = chat_history_df['session_id'] == session_id
+            if not mask.any():
+                logger.error(f"Chat history not found for session: {session_id}")
+                return False
+            
+            # Update the row
+            updated_data['updated_at'] = datetime.now().isoformat()
+            for key, value in updated_data.items():
+                if key in chat_history_df.columns:
+                    chat_history_df.loc[mask, key] = value
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["chat_history"]
+            chat_history_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Updated chat history for session: {session_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating chat history: {e}")
+            return False
+    
+    def delete_chat_history_data(self, session_id: str) -> bool:
+        """Delete chat history data from CSV file"""
+        try:
+            chat_history_df = self.get_chat_history()
+            
+            # Find the row to delete
+            mask = chat_history_df['session_id'] == session_id
+            if not mask.any():
+                logger.error(f"Chat history not found for session: {session_id}")
+                return False
+            
+            # Remove the row
+            chat_history_df = chat_history_df[~mask]
+            
+            # Save back to CSV
+            csv_path = self.csv_paths["chat_history"]
+            chat_history_df.to_csv(csv_path, index=False)
+            
+            logger.info(f"Deleted chat history for session: {session_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting chat history: {e}")
+            return False
+    
+    def get_enquiries(self) -> pd.DataFrame:
+        """Get all enquiries"""
+        try:
+            csv_path = self.csv_paths["enquiries"]
+            if not os.path.exists(csv_path):
+                # Create empty DataFrame with correct columns
+                return pd.DataFrame(columns=[
+                    'enquiry_id', 'full_name', 'email', 'phone', 'company_name', 
+                    'message', 'user_id', 'user_type', 'session_id', 
+                    'created_at', 'status', 'type'
+                ])
+            
+            df = pd.read_csv(csv_path, encoding='utf-8')
+            logger.info(f"Loaded {len(df)} rows from enquiries")
+            return df
+        except Exception as e:
+            logger.error(f"Error loading enquiries: {e}")
+            return pd.DataFrame()
+    
+    def save_enquiries_data(self, enquiry_data: Dict) -> bool:
+        """Save new enquiry data to CSV file"""
+        try:
+            enquiries_df = self.get_enquiries()
+            
+            # Generate enquiry ID
+            if enquiries_df.empty:
+                enquiry_id = "enquiry_001"
+            else:
+                max_id = int(enquiries_df['enquiry_id'].str.replace('enquiry_', '').astype(int).max())
+                enquiry_id = f"enquiry_{max_id + 1:03d}"
+            
+            # Add required fields
+            enquiry_data['enquiry_id'] = enquiry_id
+            enquiry_data['created_at'] = datetime.now().isoformat()
+            enquiry_data['status'] = 'new'
+            
+            # Convert to DataFrame and append
+            new_enquiry_df = pd.DataFrame([enquiry_data])
+            
+            if enquiries_df.empty:
+                # First enquiry
+                new_enquiry_df.to_csv(self.csv_paths["enquiries"], index=False)
+            else:
+                # Append to existing
+                combined_df = pd.concat([enquiries_df, new_enquiry_df], ignore_index=True)
+                combined_df.to_csv(self.csv_paths["enquiries"], index=False)
+            
+            logger.info(f"Enquiry saved successfully with ID: {enquiry_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving enquiry: {str(e)}")
             return False
     
     def health_check(self) -> Dict:

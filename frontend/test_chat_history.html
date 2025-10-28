@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History Test - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .test-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .test-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .test-results.show {
+            display: block;
+        }
+
+        .test-results h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .test-results pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .chat-input {
+            margin: 20px 0;
+        }
+
+        .chat-input input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .chat-input button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
+            </div>
+            <h1>💭 Chat History Test</h1>
+            <p>Test chat functionality and history management</p>
+        </div>
+
+        <div class="content">
+            <div class="test-section">
+                <h3>Chat Message Tests</h3>
+                <p>Test sending chat messages and creating chat history.</p>
+                
+                <div class="chat-input">
+                    <input type="text" id="chatMessage" placeholder="Enter test message" value="Hello! This is a test message from the chat history test page.">
+                    <button onclick="sendTestMessage()">Send Test Message</button>
+                </div>
+                
+                <button class="test-button" onclick="testMultipleChatMessages()">Test Multiple Messages</button>
+                <button class="test-button" onclick="testDifferentUsers()">Test Different Users</button>
+                <button class="test-button" onclick="testChatModes()">Test Different Modes</button>
+                
+                <div id="chat-results" class="test-results">
+                    <h4>Chat Test Results:</h4>
+                    <pre id="chat-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Chat History Retrieval Tests</h3>
+                <p>Test retrieving chat history for different users.</p>
+                <button class="test-button" onclick="testGetChatHistory()">Get Chat History</button>
+                <button class="test-button" onclick="testGetUserChatHistory()">Get User Chat History</button>
+                <button class="test-button" onclick="testGetAnonymousChatHistory()">Get Anonymous Chat History</button>
+                
+                <div id="history-results" class="test-results">
+                    <h4>History Test Results:</h4>
+                    <pre id="history-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Chat History Management Tests</h3>
+                <p>Test chat history management operations.</p>
+                <button class="test-button" onclick="testDeleteChatSession()">Delete Chat Session</button>
+                <button class="test-button" onclick="testDeleteUserChatHistory()">Delete User Chat History</button>
+                <button class="test-button" onclick="testChatHistoryStructure()">Test History Structure</button>
+                
+                <div id="management-results" class="test-results">
+                    <h4>Management Test Results:</h4>
+                    <pre id="management-output"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testSessionId = null;
+        let testUserId = 'test_user_' + Date.now();
+        let testUserType = 'anonymous';
+
+        async function sendTestMessage() {
+            const resultsDiv = document.getElementById('chat-results');
+            const outputPre = document.getElementById('chat-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Sending test message...';
+            
+            const message = document.getElementById('chatMessage').value || 'Hello! This is a test message.';
+            
+            const chatData = {
+                query: message,
+                mode: 'explore',
+                session_id: testSessionId,
+                user_id: testUserId,
+                user_type: testUserType
+            };
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(chatData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    testSessionId = result.data.session_id;
+                    outputPre.textContent = `✅ SUCCESS: Message sent successfully!\n\nSession ID: ${testSessionId}\nUser ID: ${testUserId}\nUser Type: ${testUserType}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testMultipleChatMessages() {
+            const resultsDiv = document.getElementById('chat-results');
+            const outputPre = document.getElementById('chat-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing multiple chat messages...';
+            
+            const messages = [
+                'Hello! This is the first test message.',
+                'This is the second test message.',
+                'And this is the third test message.',
+                'Final test message to complete the conversation.'
+            ];
+
+            let successCount = 0;
+            let errorCount = 0;
+            const results = [];
+
+            for (let i = 0; i < messages.length; i++) {
+                const chatData = {
+                    query: messages[i],
+                    mode: 'explore',
+                    session_id: testSessionId,
+                    user_id: testUserId,
+                    user_type: testUserType
+                };
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(chatData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        testSessionId = result.data.session_id;
+                        successCount++;
+                        results.push(`Message ${i + 1}: ✅ Success`);
+                    } else {
+                        errorCount++;
+                        results.push(`Message ${i + 1}: ❌ Failed - ${result.detail}`);
+                    }
+                } catch (error) {
+                    errorCount++;
+                    results.push(`Message ${i + 1}: ❌ Error - ${error.message}`);
+                }
+            }
+
+            outputPre.textContent = `Multiple messages test completed!\n\nSuccess: ${successCount}\nErrors: ${errorCount}\nSession ID: ${testSessionId}\n\nResults:\n${results.join('\n')}`;
+            outputPre.className = successCount > errorCount ? 'success' : 'error';
+        }
+
+        async function testDifferentUsers() {
+            const resultsDiv = document.getElementById('chat-results');
+            const outputPre = document.getElementById('chat-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing different users...';
+            
+            const users = [
+                { id: 'user_isv_001', type: 'isv' },
+                { id: 'user_admin_001', type: 'admin' },
+                { id: 'user_client_001', type: 'client' },
+                { id: 'user_anonymous_001', type: 'anonymous' }
+            ];
+
+            let successCount = 0;
+            let errorCount = 0;
+            const results = [];
+
+            for (const user of users) {
+                const chatData = {
+                    query: `Test message from ${user.type} user`,
+                    mode: 'explore',
+                    user_id: user.id,
+                    user_type: user.type
+                };
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(chatData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        successCount++;
+                        results.push(`${user.type}: ✅ Success - Session: ${result.data.session_id}`);
+                    } else {
+                        errorCount++;
+                        results.push(`${user.type}: ❌ Failed - ${result.detail}`);
+                    }
+                } catch (error) {
+                    errorCount++;
+                    results.push(`${user.type}: ❌ Error - ${error.message}`);
+                }
+            }
+
+            outputPre.textContent = `Different users test completed!\n\nSuccess: ${successCount}\nErrors: ${errorCount}\n\nResults:\n${results.join('\n')}`;
+            outputPre.className = successCount > errorCount ? 'success' : 'error';
+        }
+
+        async function testChatModes() {
+            const resultsDiv = document.getElementById('chat-results');
+            const outputPre = document.getElementById('chat-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing different chat modes...';
+            
+            const modes = ['explore', 'build', 'deploy'];
+            let successCount = 0;
+            let errorCount = 0;
+            const results = [];
+
+            for (const mode of modes) {
+                const chatData = {
+                    query: `Test message in ${mode} mode`,
+                    mode: mode,
+                    user_id: testUserId,
+                    user_type: testUserType
+                };
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(chatData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        successCount++;
+                        results.push(`${mode}: ✅ Success - Session: ${result.data.session_id}`);
+                    } else {
+                        errorCount++;
+                        results.push(`${mode}: ❌ Failed - ${result.detail}`);
+                    }
+                } catch (error) {
+                    errorCount++;
+                    results.push(`${mode}: ❌ Error - ${error.message}`);
+                }
+            }
+
+            outputPre.textContent = `Chat modes test completed!\n\nSuccess: ${successCount}\nErrors: ${errorCount}\n\nResults:\n${results.join('\n')}`;
+            outputPre.className = successCount > errorCount ? 'success' : 'error';
+        }
+
+        async function testGetChatHistory() {
+            const resultsDiv = document.getElementById('history-results');
+            const outputPre = document.getElementById('history-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get chat history...';
+            
+            try {
+                const response = await fetch(`/api/chat/history/${testUserId}?user_type=${testUserType}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved chat history!\n\nUser ID: ${testUserId}\nUser Type: ${testUserType}\nTotal Chats: ${result.total_chats}\nChats: ${JSON.stringify(result.data, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetUserChatHistory() {
+            const resultsDiv = document.getElementById('history-results');
+            const outputPre = document.getElementById('history-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get user chat history...';
+            
+            try {
+                const response = await fetch('/api/chat/history/user_isv_001?user_type=isv');
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved ISV user chat history!\n\nUser ID: user_isv_001\nUser Type: isv\nTotal Chats: ${result.total_chats}\nChats: ${JSON.stringify(result.data, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetAnonymousChatHistory() {
+            const resultsDiv = document.getElementById('history-results');
+            const outputPre = document.getElementById('history-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get anonymous chat history...';
+            
+            try {
+                const response = await fetch('/api/chat/history/anonymous?user_type=anonymous');
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Retrieved anonymous chat history!\n\nUser ID: anonymous\nUser Type: anonymous\nTotal Chats: ${result.total_chats}\nChats: ${JSON.stringify(result.data, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testDeleteChatSession() {
+            const resultsDiv = document.getElementById('management-results');
+            const outputPre = document.getElementById('management-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing delete chat session...';
+            
+            if (!testSessionId) {
+                outputPre.textContent = '❌ ERROR: No test session ID available. Please send a message first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/chat/history/${testSessionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: testUserId,
+                        user_type: testUserType
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Chat session deleted!\n\nSession ID: ${testSessionId}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                    testSessionId = null; // Reset session ID
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testDeleteUserChatHistory() {
+            const resultsDiv = document.getElementById('management-results');
+            const outputPre = document.getElementById('management-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing delete user chat history...';
+            
+            try {
+                const response = await fetch(`/api/chat/history/user/${testUserId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_type: testUserType
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: User chat history deleted!\n\nUser ID: ${testUserId}\nUser Type: ${testUserType}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testChatHistoryStructure() {
+            const resultsDiv = document.getElementById('management-results');
+            const outputPre = document.getElementById('management-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing chat history structure...';
+            
+            try {
+                const response = await fetch('/api/chat/history/anonymous?user_type=anonymous');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const chats = result.data || [];
+                    const structure = {
+                        total_chats: result.total_chats,
+                        has_chats: chats.length > 0,
+                        sample_chat: chats[0] || null,
+                        chat_fields: chats[0] ? Object.keys(chats[0]) : [],
+                        chat_types: [...new Set(chats.map(chat => chat.chat_mode))],
+                        user_types: [...new Set(chats.map(chat => chat.user_type))]
+                    };
+                    
+                    outputPre.textContent = `✅ SUCCESS: Chat history structure analysis!\n\nStructure: ${JSON.stringify(structure, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
+
+

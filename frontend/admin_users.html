@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Users Management - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .user-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            padding: 12px 25px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .user-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .user-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .user-card p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .user-card .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-card .actions a {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .user-card .actions a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-card .actions a.secondary {
+            background: #6c757d;
+        }
+
+        .user-card .actions a.danger {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/admin/dashboard">📊 Admin Dashboard</a>
+                <a href="/admin/agents">🤖 Agent Management</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
+            </div>
+            <h1>👥 User Management</h1>
+            <p>Manage ISVs, resellers, and clients</p>
+        </div>
+
+        <div class="content">
+            <div class="user-tabs">
+                <button class="tab-button active" onclick="showTab('isvs')">ISVs</button>
+                <button class="tab-button" onclick="showTab('resellers')">Resellers</button>
+                <button class="tab-button" onclick="showTab('clients')">Clients</button>
+            </div>
+
+            <div id="isvs" class="tab-content active">
+                <h2>Independent Software Vendors</h2>
+                <div class="user-grid" id="isvs-grid">
+                    <!-- ISVs will be loaded here -->
+                </div>
+            </div>
+
+            <div id="resellers" class="tab-content">
+                <h2>Resellers</h2>
+                <div class="user-grid" id="resellers-grid">
+                    <!-- Resellers will be loaded here -->
+                </div>
+            </div>
+
+            <div id="clients" class="tab-content">
+                <h2>Clients</h2>
+                <div class="user-grid" id="clients-grid">
+                    <!-- Clients will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        async function loadISVs() {
+            try {
+                const response = await fetch('/api/admin/isvs');
+                if (response.ok) {
+                    const data = await response.json();
+                    const grid = document.getElementById('isvs-grid');
+                    
+                    if (data.isvs && data.isvs.length > 0) {
+                        grid.innerHTML = data.isvs.map(isv => `
+                            <div class="user-card">
+                                <h3>${isv.company_name || 'Unknown Company'}</h3>
+                                <p><strong>Email:</strong> ${isv.email}</p>
+                                <p><strong>Contact:</strong> ${isv.contact_person || 'N/A'}</p>
+                                <p><strong>Status:</strong> ${isv.status || 'Active'}</p>
+                                <div class="actions">
+                                    <a href="isv_profile.html?isv_id=${isv.isv_id}">View Profile</a>
+                                    <a href="#" class="secondary">Edit</a>
+                                    <a href="#" class="danger">Suspend</a>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = '<p>No ISVs found.</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading ISVs:', error);
+                document.getElementById('isvs-grid').innerHTML = '<p>Error loading ISVs.</p>';
+            }
+        }
+
+        async function loadResellers() {
+            try {
+                const response = await fetch('/api/admin/resellers');
+                if (response.ok) {
+                    const data = await response.json();
+                    const grid = document.getElementById('resellers-grid');
+                    
+                    if (data.resellers && data.resellers.length > 0) {
+                        grid.innerHTML = data.resellers.map(reseller => `
+                            <div class="user-card">
+                                <h3>${reseller.company_name || 'Unknown Company'}</h3>
+                                <p><strong>Email:</strong> ${reseller.email}</p>
+                                <p><strong>Contact:</strong> ${reseller.contact_person || 'N/A'}</p>
+                                <p><strong>Status:</strong> ${reseller.status || 'Active'}</p>
+                                <div class="actions">
+                                    <a href="reseller_profile.html?reseller_id=${reseller.reseller_id}">View Profile</a>
+                                    <a href="#" class="secondary">Edit</a>
+                                    <a href="#" class="danger">Suspend</a>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        grid.innerHTML = '<p>No resellers found.</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading resellers:', error);
+                document.getElementById('resellers-grid').innerHTML = '<p>Error loading resellers.</p>';
+            }
+        }
+
+        function loadClients() {
+            // Placeholder for clients - would need API endpoint
+            document.getElementById('clients-grid').innerHTML = '<p>Client management coming soon.</p>';
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadISVs();
+            loadResellers();
+            loadClients();
+        });
+    </script>
+</body>
+</html>
+

@@ -24,6 +24,8 @@ class ChatRequest(BaseModel):
     query: str
     session_id: Optional[str] = None
     mode: str = "explore"
+    user_id: Optional[str] = None  # Add user_id field
+    user_type: Optional[str] = None  # Add user_type field (isv, admin, reseller, client, anonymous)
     
     class Config:
         json_schema_extra = {
@@ -45,6 +47,33 @@ class ClearChatRequest(BaseModel):
                 "mode": "create"
             }
         }
+
+class ContactRequest(BaseModel):
+    full_name: str
+    email: str
+    phone: Optional[str] = ""
+    company_name: Optional[str] = ""
+    message: str
+    user_id: str = "anonymous"
+    user_type: str = "anonymous"
+    session_id: Optional[str] = "none"
+    type: str = "contact"
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "full_name": "John Doe",
+                "email": "john@example.com",
+                "phone": "+1 555-123-4567",
+                "company_name": "Example Corp",
+                "message": "I want to build an AI agent for my business",
+                "user_id": "user_123",
+                "user_type": "client",
+                "session_id": "session_123",
+                "type": "contact"
+            }
+        }
+
 
 # Create FastAPI app
 app = FastAPI(
@@ -667,7 +696,7 @@ async def onboard_agent(
     features: str = Form(""),
     roi: str = Form(""),
     tags: str = Form(""),
-    demo_link: str = Form(""),
+    application_demo_url: str = Form(""),
     isv_id: str = Form(...),
     
     # Capabilities (comma-separated)
@@ -675,6 +704,9 @@ async def onboard_agent(
     
     # Demo assets (JSON string)
     demo_assets: str = Form(""),
+    
+    # Demo links (JSON string for multiple links)
+    demo_links: str = Form(""),
     
     # Documentation
     sdk_details: str = Form(""),
@@ -709,7 +741,7 @@ async def onboard_agent(
             "features": features,
             "roi": roi,
             "tags": tags,
-            "demo_link": demo_link,
+            "demo_link": application_demo_url,
             "isv_id": isv_id,
             "admin_approved": "no"  # Requires admin approval
         }
@@ -750,15 +782,15 @@ async def onboard_agent(
         demo_assets_data = []
         
         # Handle single demo links from form data
-        if demo_link and demo_link.strip():
+        if application_demo_url and application_demo_url.strip():
             demo_assets_data.append({
                 "demo_asset_id": f"demo_{agent_id}_001",
                 "agent_id": agent_id,
                 "demo_asset_type": "External Link",
-                "demo_asset_name": "Demo Link",
-                "demo_link": demo_link.strip()
+                "demo_asset_name": "Application Demo Link",
+                "asset_url": application_demo_url.strip()
             })
-            logger.info(f"Added single demo link for agent {agent_id}: {demo_link}")
+            logger.info(f"Added application demo link for agent {agent_id}: {application_demo_url}")
         
         # Handle bulk file uploads
         if demo_files:
@@ -785,7 +817,8 @@ async def onboard_agent(
                                 "agent_id": agent_id,
                                 "demo_asset_type": "Uploaded File",
                                 "demo_asset_name": file.filename,
-                                "demo_link": s3_url  # Save S3 URL in demo_link field
+                                "asset_url": s3_url,  # Save S3 URL in asset_url field
+                                "asset_file_path": s3_url  # Also save in file path field for compatibility
                             })
                             logger.info(f"Bulk file uploaded successfully for agent {agent_id}: {s3_url}")
                             file_counter += 1
@@ -812,6 +845,25 @@ async def onboard_agent(
                             "demo_link": asset["demo_link"].strip()
                         })
                         logger.info(f"Added legacy demo asset for agent {agent_id}: {asset['demo_link']}")
+            except json.JSONDecodeError:
+                pass  # Skip if invalid JSON
+        
+        # Handle demo_links JSON (multiple demo links)
+        if demo_links:
+            try:
+                import json
+                demo_links_list = json.loads(demo_links) if demo_links else []
+                
+                for link in demo_links_list:
+                    if link and link.strip():
+                        demo_assets_data.append({
+                            "demo_asset_id": f"demo_{agent_id}_{len(demo_assets_data) + 1:03d}",
+                            "agent_id": agent_id,
+                            "demo_asset_type": "External Link",
+                            "demo_asset_name": "Demo Link",
+                            "asset_url": link.strip()
+                        })
+                        logger.info(f"Added demo link for agent {agent_id}: {link}")
             except json.JSONDecodeError:
                 pass  # Skip if invalid JSON
         
@@ -995,6 +1047,490 @@ async def admin_update_agent_approval(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating agent approval: {str(e)}")
 
+@app.put("/api/agents/{agent_id}")
+async def edit_agent(
+    agent_id: str,
+    # Agent details
+    agent_name: str = Form(None),
+    asset_type: str = Form(None),
+    by_persona: str = Form(None),
+    by_value: str = Form(None),
+    description: str = Form(None),
+    features: str = Form(None),
+    roi: str = Form(None),
+    tags: str = Form(None),
+    application_demo_url: str = Form(None),
+    agents_ordering: str = Form(None),
+    # Documentation fields
+    sdk_details: str = Form(None),
+    swagger_details: str = Form(None),
+    sample_input: str = Form(None),
+    sample_output: str = Form(None),
+    security_details: str = Form(None),
+    related_files: str = Form(None),
+    # Deployment fields (JSON string for multiple deployments)
+    deployments: str = Form(None),
+    # Demo assets (JSON string for multiple demo assets)
+    demo_assets: str = Form(None),
+    # Demo links (JSON string for multiple demo links)
+    demo_links: str = Form(None),
+    # Demo asset files (multiple files)
+    demo_files: List[UploadFile] = File([]),
+    # Authentication (you can add proper auth later)
+    isv_id: str = Form(...)
+):
+    """ISV: Edit own agent details"""
+    try:
+        # Get the agent to verify ownership
+        agent = data_source.get_agent_by_id(agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+        
+        # Verify ISV ownership
+        if agent.get('isv_id') != isv_id:
+            raise HTTPException(status_code=403, detail="You can only edit your own agents")
+        
+        # Prepare update data (only include fields that are provided)
+        update_data = {}
+        if agent_name is not None:
+            update_data['agent_name'] = agent_name
+        if asset_type is not None:
+            update_data['asset_type'] = asset_type
+        if by_persona is not None:
+            update_data['by_persona'] = by_persona
+        if by_value is not None:
+            update_data['by_value'] = by_value
+        if description is not None:
+            update_data['description'] = description
+        if features is not None:
+            update_data['features'] = features
+        if roi is not None:
+            update_data['roi'] = roi
+        if tags is not None:
+            update_data['tags'] = tags
+        if application_demo_url is not None:
+            update_data['demo_link'] = application_demo_url
+        if agents_ordering is not None:
+            update_data['agents_ordering'] = agents_ordering
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields provided for update")
+        
+        # Update the agent data
+        success = data_source.update_agent_data(agent_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update agent")
+        
+        # Handle documentation updates
+        docs_updated = False
+        docs_data = {}
+        if sdk_details is not None:
+            docs_data['sdk_details'] = sdk_details
+        if swagger_details is not None:
+            docs_data['swagger_details'] = swagger_details
+        if sample_input is not None:
+            docs_data['sample_input'] = sample_input
+        if sample_output is not None:
+            docs_data['sample_output'] = sample_output
+        if security_details is not None:
+            docs_data['security_details'] = security_details
+        if related_files is not None:
+            docs_data['related_files'] = related_files
+        
+        if docs_data:
+            docs_success = data_source.update_docs_data(agent_id, docs_data)
+            if docs_success:
+                docs_updated = True
+        
+        # Handle deployment updates
+        deployments_updated = False
+        if deployments is not None:
+            try:
+                import json
+                deployments_list = json.loads(deployments)
+                if isinstance(deployments_list, list) and deployments_list:
+                    # For now, we'll update the first deployment found for the agent's capabilities
+                    # In a more complex scenario, you might want to handle multiple deployments per agent
+                    capabilities_mapping_df = data_source.get_capabilities_mapping()
+                    agent_capabilities = capabilities_mapping_df[capabilities_mapping_df['agent_id'] == agent_id]
+                    
+                    if not agent_capabilities.empty:
+                        first_capability_id = agent_capabilities.iloc[0]['by_capability_id']
+                        first_deployment = deployments_list[0]
+                        
+                        deployment_success = data_source.update_deployments_data(first_capability_id, first_deployment)
+                        if deployment_success:
+                            deployments_updated = True
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
+                # If JSON parsing fails, we'll just skip deployment updates
+                pass
+        
+        # Handle demo assets updates
+        demo_assets_updated = False
+        if demo_assets is not None:
+            try:
+                import json
+                demo_assets_list = json.loads(demo_assets)
+                if isinstance(demo_assets_list, list) and demo_assets_list:
+                    # Update existing demo assets
+                    for asset_data in demo_assets_list:
+                        if 'demo_asset_id' in asset_data:
+                            # Update existing asset
+                            demo_asset_id = asset_data['demo_asset_id']
+                            update_data = {k: v for k, v in asset_data.items() if k != 'demo_asset_id'}
+                            if update_data:
+                                success = data_source.update_demo_assets_data(demo_asset_id, update_data)
+                                if success:
+                                    demo_assets_updated = True
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
+                # If JSON parsing fails, we'll just skip demo assets updates
+                pass
+        
+        # Handle new demo asset file uploads
+        if demo_files:
+            try:
+                from s3_manager import S3Manager
+                s3_manager = S3Manager()
+                
+                # Get existing demo assets to find next counter
+                existing_demo_assets_df = data_source.get_demo_assets()
+                agent_demo_assets = existing_demo_assets_df[existing_demo_assets_df['agent_id'] == agent_id]
+                file_counter = len(agent_demo_assets) + 1
+                
+                for file in demo_files:
+                    if file.filename:
+                        try:
+                            file_content = await file.read()
+                            
+                            success, message, s3_url = s3_manager.upload_file(
+                                file_content,
+                                file.filename,
+                                "demo_assets",
+                                agent_id
+                            )
+                            
+                            if success:
+                                # Save to demo_assets table
+                                demo_asset_data = {
+                                    "demo_asset_id": f"demo_{agent_id}_{file_counter:03d}",
+                                    "agent_id": agent_id,
+                                    "demo_asset_type": "Uploaded File",
+                                    "demo_asset_name": file.filename,
+                                    "asset_url": s3_url,
+                                    "asset_file_path": s3_url
+                                }
+                                
+                                data_source.save_demo_assets_data([demo_asset_data])
+                                demo_assets_updated = True
+                                file_counter += 1
+                                
+                        except Exception as e:
+                            logger.error(f"Error uploading demo file {file.filename}: {str(e)}")
+                            
+            except Exception as e:
+                logger.error(f"Error processing demo files: {str(e)}")
+        
+        updated_fields = list(update_data.keys())
+        if docs_updated:
+            updated_fields.extend([f"docs_{k}" for k in docs_data.keys()])
+        if deployments_updated:
+            updated_fields.append("deployments")
+        if demo_assets_updated:
+            updated_fields.append("demo_assets")
+        
+        # Handle demo_links updates
+        demo_links_updated = False
+        if demo_links is not None:
+            try:
+                import json
+                demo_links_list = json.loads(demo_links) if demo_links else []
+                
+                if demo_links_list:
+                    # Get existing demo assets for this agent
+                    existing_demo_assets_df = data_source.get_demo_assets()
+                    agent_demo_assets = existing_demo_assets_df[existing_demo_assets_df['agent_id'] == agent_id]
+                    file_counter = len(agent_demo_assets) + 1
+                    
+                    for link in demo_links_list:
+                        if link and link.strip():
+                            # Save to demo_assets table
+                            demo_asset_data = {
+                                "demo_asset_id": f"demo_{agent_id}_{file_counter:03d}",
+                                "agent_id": agent_id,
+                                "demo_asset_type": "External Link",
+                                "demo_asset_name": "Demo Link",
+                                "asset_url": link.strip()
+                            }
+                            
+                            success = data_source.save_demo_assets_data([demo_asset_data])
+                            if success:
+                                demo_links_updated = True
+                                file_counter += 1
+                                logger.info(f"Added demo link for agent {agent_id}: {link}")
+            except json.JSONDecodeError:
+                pass  # Skip if invalid JSON
+        
+        if demo_links_updated:
+            updated_fields.append("demo_links")
+        
+        return {
+            "success": True,
+            "message": "Agent updated successfully",
+            "agent_id": agent_id,
+            "updated_fields": updated_fields,
+            "docs_updated": docs_updated,
+            "deployments_updated": deployments_updated,
+            "demo_assets_updated": demo_assets_updated
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating agent: {str(e)}")
+
+@app.put("/api/admin/agents/{agent_id}/edit")
+async def admin_edit_agent(
+    agent_id: str,
+    # Agent details
+    agent_name: str = Form(None),
+    asset_type: str = Form(None),
+    by_persona: str = Form(None),
+    by_value: str = Form(None),
+    description: str = Form(None),
+    features: str = Form(None),
+    roi: str = Form(None),
+    tags: str = Form(None),
+    application_demo_url: str = Form(None),
+    agents_ordering: str = Form(None),
+    admin_approved: str = Form(None),
+    isv_id: str = Form(None),
+    # Documentation fields
+    sdk_details: str = Form(None),
+    swagger_details: str = Form(None),
+    sample_input: str = Form(None),
+    sample_output: str = Form(None),
+    security_details: str = Form(None),
+    related_files: str = Form(None),
+    # Deployment fields (JSON string for multiple deployments)
+    deployments: str = Form(None),
+    # Demo assets (JSON string for multiple demo assets)
+    demo_assets: str = Form(None),
+    # Demo links (JSON string for multiple demo links)
+    demo_links: str = Form(None),
+    # Demo asset files (multiple files)
+    demo_files: List[UploadFile] = File([])
+):
+    """Admin: Edit any agent details"""
+    try:
+        # Get the agent to verify it exists
+        agent = data_source.get_agent_by_id(agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+        
+        # Prepare update data (only include fields that are provided)
+        update_data = {}
+        if agent_name is not None:
+            update_data['agent_name'] = agent_name
+        if asset_type is not None:
+            update_data['asset_type'] = asset_type
+        if by_persona is not None:
+            update_data['by_persona'] = by_persona
+        if by_value is not None:
+            update_data['by_value'] = by_value
+        if description is not None:
+            update_data['description'] = description
+        if features is not None:
+            update_data['features'] = features
+        if roi is not None:
+            update_data['roi'] = roi
+        if tags is not None:
+            update_data['tags'] = tags
+        if application_demo_url is not None:
+            update_data['demo_link'] = application_demo_url
+        if agents_ordering is not None:
+            update_data['agents_ordering'] = agents_ordering
+        if admin_approved is not None:
+            update_data['admin_approved'] = admin_approved
+        if isv_id is not None:
+            update_data['isv_id'] = isv_id
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields provided for update")
+        
+        # Update the agent data
+        success = data_source.update_agent_data(agent_id, update_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update agent")
+        
+        # Handle documentation updates
+        docs_updated = False
+        docs_data = {}
+        if sdk_details is not None:
+            docs_data['sdk_details'] = sdk_details
+        if swagger_details is not None:
+            docs_data['swagger_details'] = swagger_details
+        if sample_input is not None:
+            docs_data['sample_input'] = sample_input
+        if sample_output is not None:
+            docs_data['sample_output'] = sample_output
+        if security_details is not None:
+            docs_data['security_details'] = security_details
+        if related_files is not None:
+            docs_data['related_files'] = related_files
+        
+        if docs_data:
+            docs_success = data_source.update_docs_data(agent_id, docs_data)
+            if docs_success:
+                docs_updated = True
+        
+        # Handle deployment updates
+        deployments_updated = False
+        if deployments is not None:
+            try:
+                import json
+                deployments_list = json.loads(deployments)
+                if isinstance(deployments_list, list) and deployments_list:
+                    # For now, we'll update the first deployment found for the agent's capabilities
+                    # In a more complex scenario, you might want to handle multiple deployments per agent
+                    capabilities_mapping_df = data_source.get_capabilities_mapping()
+                    agent_capabilities = capabilities_mapping_df[capabilities_mapping_df['agent_id'] == agent_id]
+                    
+                    if not agent_capabilities.empty:
+                        first_capability_id = agent_capabilities.iloc[0]['by_capability_id']
+                        first_deployment = deployments_list[0]
+                        
+                        deployment_success = data_source.update_deployments_data(first_capability_id, first_deployment)
+                        if deployment_success:
+                            deployments_updated = True
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
+                # If JSON parsing fails, we'll just skip deployment updates
+                pass
+        
+        # Handle demo assets updates
+        demo_assets_updated = False
+        if demo_assets is not None:
+            try:
+                import json
+                demo_assets_list = json.loads(demo_assets)
+                if isinstance(demo_assets_list, list) and demo_assets_list:
+                    # Update existing demo assets
+                    for asset_data in demo_assets_list:
+                        if 'demo_asset_id' in asset_data:
+                            # Update existing asset
+                            demo_asset_id = asset_data['demo_asset_id']
+                            update_data = {k: v for k, v in asset_data.items() if k != 'demo_asset_id'}
+                            if update_data:
+                                success = data_source.update_demo_assets_data(demo_asset_id, update_data)
+                                if success:
+                                    demo_assets_updated = True
+            except (json.JSONDecodeError, KeyError, IndexError) as e:
+                # If JSON parsing fails, we'll just skip demo assets updates
+                pass
+        
+        # Handle new demo asset file uploads
+        if demo_files:
+            try:
+                from s3_manager import S3Manager
+                s3_manager = S3Manager()
+                
+                # Get existing demo assets to find next counter
+                existing_demo_assets_df = data_source.get_demo_assets()
+                agent_demo_assets = existing_demo_assets_df[existing_demo_assets_df['agent_id'] == agent_id]
+                file_counter = len(agent_demo_assets) + 1
+                
+                for file in demo_files:
+                    if file.filename:
+                        try:
+                            file_content = await file.read()
+                            
+                            success, message, s3_url = s3_manager.upload_file(
+                                file_content,
+                                file.filename,
+                                "demo_assets",
+                                agent_id
+                            )
+                            
+                            if success:
+                                # Save to demo_assets table
+                                demo_asset_data = {
+                                    "demo_asset_id": f"demo_{agent_id}_{file_counter:03d}",
+                                    "agent_id": agent_id,
+                                    "demo_asset_type": "Uploaded File",
+                                    "demo_asset_name": file.filename,
+                                    "asset_url": s3_url,
+                                    "asset_file_path": s3_url
+                                }
+                                
+                                data_source.save_demo_assets_data([demo_asset_data])
+                                demo_assets_updated = True
+                                file_counter += 1
+                                
+                        except Exception as e:
+                            logger.error(f"Error uploading demo file {file.filename}: {str(e)}")
+                            
+            except Exception as e:
+                logger.error(f"Error processing demo files: {str(e)}")
+        
+        updated_fields = list(update_data.keys())
+        if docs_updated:
+            updated_fields.extend([f"docs_{k}" for k in docs_data.keys()])
+        if deployments_updated:
+            updated_fields.append("deployments")
+        if demo_assets_updated:
+            updated_fields.append("demo_assets")
+        
+        # Handle demo_links updates
+        demo_links_updated = False
+        if demo_links is not None:
+            try:
+                import json
+                demo_links_list = json.loads(demo_links) if demo_links else []
+                
+                if demo_links_list:
+                    # Get existing demo assets for this agent
+                    existing_demo_assets_df = data_source.get_demo_assets()
+                    agent_demo_assets = existing_demo_assets_df[existing_demo_assets_df['agent_id'] == agent_id]
+                    file_counter = len(agent_demo_assets) + 1
+                    
+                    for link in demo_links_list:
+                        if link and link.strip():
+                            # Save to demo_assets table
+                            demo_asset_data = {
+                                "demo_asset_id": f"demo_{agent_id}_{file_counter:03d}",
+                                "agent_id": agent_id,
+                                "demo_asset_type": "External Link",
+                                "demo_asset_name": "Demo Link",
+                                "asset_url": link.strip()
+                            }
+                            
+                            success = data_source.save_demo_assets_data([demo_asset_data])
+                            if success:
+                                demo_links_updated = True
+                                file_counter += 1
+                                logger.info(f"Added demo link for agent {agent_id}: {link}")
+            except json.JSONDecodeError:
+                pass  # Skip if invalid JSON
+        
+        if demo_links_updated:
+            updated_fields.append("demo_links")
+        
+        return {
+            "success": True,
+            "message": "Agent updated successfully by admin",
+            "agent_id": agent_id,
+            "updated_fields": updated_fields,
+            "docs_updated": docs_updated,
+            "deployments_updated": deployments_updated,
+            "demo_assets_updated": demo_assets_updated
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating agent: {str(e)}")
+
 @app.get("/api/agents")
 async def get_all_agents():
     """Get all agents with basic info including by_capability, service_provider, and demo_preview"""
@@ -1016,6 +1552,22 @@ async def get_all_agents():
                 by_capability = mapping.get('by_capability', '')
                 by_capability_id = mapping.get('by_capability_id', '')
                 
+                # Handle NaN values
+                if pd.isna(agent_id):
+                    agent_id = ''
+                else:
+                    agent_id = str(agent_id)
+                    
+                if pd.isna(by_capability):
+                    by_capability = ''
+                else:
+                    by_capability = str(by_capability)
+                    
+                if pd.isna(by_capability_id):
+                    by_capability_id = ''
+                else:
+                    by_capability_id = str(by_capability_id)
+                
                 if agent_id and by_capability:
                     if agent_id not in agent_capabilities:
                         agent_capabilities[agent_id] = set()
@@ -1029,6 +1581,22 @@ async def get_all_agents():
                 by_capability = deployment.get('by_capability', '')
                 service_provider = deployment.get('service_provider', '')
                 
+                # Handle NaN values
+                if pd.isna(by_capability_id):
+                    by_capability_id = ''
+                else:
+                    by_capability_id = str(by_capability_id)
+                    
+                if pd.isna(by_capability):
+                    by_capability = ''
+                else:
+                    by_capability = str(by_capability)
+                    
+                if pd.isna(service_provider):
+                    service_provider = ''
+                else:
+                    service_provider = str(service_provider)
+                
                 if by_capability_id and service_provider:
                     if by_capability_id not in capability_service_providers:
                         capability_service_providers[by_capability_id] = set()
@@ -1038,16 +1606,32 @@ async def get_all_agents():
         if not demo_assets_df.empty:
             for _, demo_asset in demo_assets_df.iterrows():
                 agent_id = str(demo_asset.get('agent_id', ''))
-                demo_link = str(demo_asset.get('demo_link', ''))
-                demo_asset_name = str(demo_asset.get('demo_asset_name', ''))
-                demo_file_path = str(demo_asset.get('demo_file_path', ''))
+                demo_link = demo_asset.get('asset_url', '')
+                demo_asset_name = demo_asset.get('demo_asset_name', '')
+                demo_file_path = demo_asset.get('asset_file_path', '')
+                
+                # Handle NaN values properly
+                if pd.isna(demo_link):
+                    demo_link = ''
+                else:
+                    demo_link = str(demo_link)
+                    
+                if pd.isna(demo_asset_name):
+                    demo_asset_name = ''
+                else:
+                    demo_asset_name = str(demo_asset_name)
+                    
+                if pd.isna(demo_file_path):
+                    demo_file_path = ''
+                else:
+                    demo_file_path = str(demo_file_path)
                 
                 if agent_id and agent_id != 'nan':
                     if agent_id not in agent_demo_previews:
                         agent_demo_previews[agent_id] = set()
                     
                     # Use demo_link as the preview, or demo_asset_name if available
-                    preview_text = demo_link if demo_link != 'nan' and demo_link else demo_asset_name
+                    preview_text = demo_link if demo_link and demo_link != 'nan' else demo_asset_name
                     if preview_text and preview_text != 'nan':
                         agent_demo_previews[agent_id].add(preview_text)
                     
@@ -1101,15 +1685,21 @@ async def get_all_agents():
             
             # Add by_capability (comma-separated list)
             capabilities = agent_capabilities.get(agent_id, set())
-            agent['by_capability'] = ', '.join(sorted(capabilities)) if capabilities else "na"
+            # Ensure all capabilities are strings
+            capabilities_str = [str(cap) for cap in capabilities if not pd.isna(cap)]
+            agent['by_capability'] = ', '.join(sorted(capabilities_str)) if capabilities_str else "na"
             
             # Add service_provider (comma-separated list)
             providers = agent_service_providers.get(agent_id, set())
-            agent['service_provider'] = ', '.join(sorted(providers)) if providers else "na"
+            # Ensure all providers are strings
+            providers_str = [str(prov) for prov in providers if not pd.isna(prov)]
+            agent['service_provider'] = ', '.join(sorted(providers_str)) if providers_str else "na"
             
             # Add demo_preview from demo_assets (comma-separated list)
             demo_previews = agent_demo_previews.get(agent_id, set())
-            agent['demo_preview'] = ', '.join(sorted(demo_previews)) if demo_previews else "na"
+            # Ensure all previews are strings
+            previews_str = [str(prev) for prev in demo_previews if not pd.isna(prev)]
+            agent['demo_preview'] = ', '.join(sorted(previews_str)) if previews_str else "na"
         
         # Sort agents by agents_ordering if available, otherwise by agent_id
         try:
@@ -1205,7 +1795,7 @@ async def get_agent_details(agent_id: str):
         # Get demo previews from demo_assets for this agent
         if demo_assets:
             for demo_asset in demo_assets:
-                demo_link = str(demo_asset.get('demo_link', ''))
+                demo_link = str(demo_asset.get('asset_url', ''))
                 demo_asset_name = str(demo_asset.get('demo_asset_name', ''))
                 
                 if demo_link and demo_link != 'nan':
@@ -1255,13 +1845,37 @@ async def get_agent_details(agent_id: str):
                     if pd.isna(value):
                         isv_info[key] = "na"
         
+        # Clean all data for JSON serialization
+        def clean_for_json(obj):
+            """Recursively clean data to ensure JSON serialization compatibility"""
+            if isinstance(obj, dict):
+                return {k: clean_for_json(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [clean_for_json(item) for item in obj]
+            elif isinstance(obj, float):
+                if pd.isna(obj) or obj == float('inf') or obj == float('-inf'):
+                    return "na"
+                return obj
+            elif pd.isna(obj):
+                return "na"
+            else:
+                return obj
+        
+        # Clean all data before returning
+        agent = clean_for_json(agent)
+        capabilities = clean_for_json(capabilities)
+        all_deployments = clean_for_json(all_deployments)
+        demo_assets = clean_for_json(demo_assets)
+        docs = clean_for_json(docs)
+        isv_info = clean_for_json(isv_info) if isv_info else {"isv_name": "na"}
+        
         return {
             "agent": agent,
             "capabilities": capabilities,
             "deployments": all_deployments,
             "demo_assets": demo_assets,
             "documentation": docs,
-            "isv_info": isv_info or {"isv_name": "na"}
+            "isv_info": isv_info
         }
         
     except HTTPException:
@@ -1418,6 +2032,329 @@ async def get_unique_values():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching unique values: {str(e)}")
 
+@app.get("/", response_class=HTMLResponse)
+async def navigation_dashboard():
+    """Serve the navigation dashboard"""
+    try:
+        with open("../frontend/navigation_dashboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Navigation dashboard not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading navigation dashboard: {str(e)}")
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def navigation_dashboard_alt():
+    """Serve the navigation dashboard (alternative route)"""
+    try:
+        with open("../frontend/navigation_dashboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Navigation dashboard not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading navigation dashboard: {str(e)}")
+
+@app.get("/unified-chat", response_class=HTMLResponse)
+async def unified_chat_page():
+    """Serve the unified chat page"""
+    try:
+        with open("../frontend/unified_chat.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Unified chat page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading unified chat page: {str(e)}")
+
+@app.get("/agent/onboard", response_class=HTMLResponse)
+async def agent_onboard_page_direct():
+    """Serve the agent onboarding page (direct access)"""
+    try:
+        with open("../frontend/agent_onboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Agent onboard page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading agent onboard page: {str(e)}")
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page():
+    """Serve the admin login page"""
+    try:
+        with open("../frontend/admin_login.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin login page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin login page: {str(e)}")
+
+@app.get("/admin/dashboard", response_class=HTMLResponse)
+async def admin_dashboard_page():
+    """Serve the admin dashboard page"""
+    try:
+        with open("../frontend/admin_dashboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin dashboard page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin dashboard page: {str(e)}")
+
+@app.get("/admin/users", response_class=HTMLResponse)
+async def admin_users_page():
+    """Serve the admin users management page"""
+    try:
+        with open("../frontend/admin_users.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin users page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin users page: {str(e)}")
+
+@app.get("/test/agent-creation", response_class=HTMLResponse)
+async def test_agent_creation_page():
+    """Serve the agent creation test page"""
+    try:
+        with open("../frontend/test_agent_creation.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Agent creation test page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading agent creation test page: {str(e)}")
+
+@app.get("/test/demo-assets", response_class=HTMLResponse)
+async def test_demo_assets_page():
+    """Serve the demo assets test page"""
+    try:
+        with open("../frontend/test_demo_assets.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Demo assets test page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading demo assets test page: {str(e)}")
+
+@app.get("/test/chat-history", response_class=HTMLResponse)
+async def test_chat_history_page():
+    """Serve the chat history test page"""
+    try:
+        with open("../frontend/test_chat_history.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Chat history test page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading chat history test page: {str(e)}")
+
+@app.get("/agent/edit", response_class=HTMLResponse)
+async def agent_edit_page(agent_id: str):
+    """Serve the agent edit page"""
+    try:
+        with open("../frontend/agent_edit.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Agent edit page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading agent edit page: {str(e)}")
+
+@app.get("/admin/agent/edit", response_class=HTMLResponse)
+async def admin_agent_edit_page(agent_id: str):
+    """Serve the admin agent edit page"""
+    try:
+        with open("../frontend/admin_agent_edit.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Admin agent edit page not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading admin agent edit page: {str(e)}")
+
+@app.get("/contact", response_class=HTMLResponse)
+async def contact_page():
+    """Serve the contact us page"""
+    try:
+        html_content = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Agents Marketplace</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 20px; }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        textarea { resize: vertical; min-height: 120px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { background: #5568d3; }
+        .success { background: #28a745; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+        .error { background: #dc3545; color: white; padding: 15px; border-radius: 8px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        <h1>✉️ Contact Us</h1>
+        <p>Ready to build your AI agent? Fill out the form below and we'll get back to you soon!</p>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="full_name">Full Name *</label>
+                <input type="text" id="full_name" name="full_name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+            </div>
+            <div class="form-group">
+                <label for="company_name">Company Name</label>
+                <input type="text" id="company_name" name="company_name" placeholder="Your Company Inc.">
+            </div>
+            <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" required placeholder="Tell us about your agent requirements..."></textarea>
+            </div>
+            <button type="submit">Send Message</button>
+        </form>
+        <div id="successMessage" class="success">
+            <strong>✅ Thank you!</strong> Your message has been sent. We'll contact you shortly.
+        </div>
+    </div>
+    <script>
+        // Get user info from localStorage (if available)
+        function getUserInfo() {
+            return {
+                user_id: localStorage.getItem('user_id') || 'anonymous',
+                user_type: localStorage.getItem('user_type') || 'anonymous'
+            };
+        }
+        
+        // Get session ID if available
+        function getSessionId() {
+            return localStorage.getItem('sessionId') || 'none';
+        }
+        
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const errorMsg = document.getElementById('errorMessage') || document.createElement('div');
+            if (!document.getElementById('errorMessage')) {
+                errorMsg.id = 'errorMessage';
+                errorMsg.className = 'error';
+                errorMsg.style.display = 'none';
+                errorMsg.style.marginBottom = '15px';
+                this.parentNode.insertBefore(errorMsg, this);
+            }
+            
+            const success = document.getElementById('successMessage');
+            
+            try {
+                const userInfo = getUserInfo();
+                
+                const formData = {
+                    full_name: document.getElementById('full_name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value || '',
+                    company_name: document.getElementById('company_name').value || '',
+                    message: document.getElementById('message').value,
+                    user_id: userInfo.user_id,
+                    user_type: userInfo.user_type,
+                    session_id: getSessionId(),
+                    type: 'contact'
+                };
+                
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    errorMsg.style.display = 'none';
+                    success.style.display = 'block';
+                    this.reset();
+                } else {
+                    errorMsg.textContent = result.detail || 'Error sending message. Please try again.';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                errorMsg.textContent = 'Error sending message. Please try again.';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+        """
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading contact page: {str(e)}")
+
 @app.get("/agents", response_class=HTMLResponse)
 async def agents_listing():
     """Serve the agents listing page"""
@@ -1459,12 +2396,14 @@ async def unified_chat(chat_request: ChatRequest):
         user_query = chat_request.query.strip()
         session_id = chat_request.session_id or ""
         mode = chat_request.mode
+        user_id = chat_request.user_id or "anonymous"
+        user_type = chat_request.user_type or "anonymous"
         
         if not user_query:
             raise HTTPException(status_code=400, detail="Query is required")
         
-        # Use unified chat agent
-        response = unified_chat_agent.chat(user_query, mode, session_id)
+        # Use unified chat agent with user information
+        response = unified_chat_agent.chat(user_query, mode, session_id, user_id, user_type)
         
         return {
             "success": True,
@@ -1498,6 +2437,218 @@ async def clear_chat_session(clear_request: ClearChatRequest):
     except Exception as e:
         logger.error(f"Clear chat error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Clear chat error: {str(e)}")
+
+@app.get("/api/brd/{session_id}")
+async def download_brd(session_id: str):
+    """Download BRD document for a session"""
+    try:
+        import os
+        import glob
+        
+        # Check if BRD is ready
+        brd_dir = "data/brds"
+        ready_file = os.path.join(brd_dir, f".ready_{session_id}")
+        
+        # If ready file doesn't exist, BRD is still generating
+        if not os.path.exists(ready_file):
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=202,
+                content={
+                    "status": "generating",
+                    "message": "BRD document is being generated. Please try again in a few seconds."
+                }
+            )
+        
+        # Read the actual filename from ready file
+        with open(ready_file, 'r') as f:
+            brd_filename = f.read().strip()
+        
+        brd_path = os.path.join(brd_dir, brd_filename)
+        
+        # Check if file exists
+        if not os.path.exists(brd_path):
+            raise HTTPException(status_code=404, detail="BRD document not found")
+        
+        # Read file content as binary
+        with open(brd_path, 'rb') as f:
+            content = f.read()
+        
+        # Return as downloadable Word document
+        from fastapi.responses import Response
+        
+        return Response(
+            content=content,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": f"attachment; filename=BRD_{session_id}.docx"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"BRD download error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error downloading BRD: {str(e)}")
+
+@app.post("/api/contact")
+async def submit_contact_form(contact_request: ContactRequest):
+    """Submit contact form enquiry"""
+    try:
+        # Create enquiry data
+        enquiry_data = {
+            'full_name': contact_request.full_name,
+            'email': contact_request.email,
+            'phone': contact_request.phone or '',
+            'company_name': contact_request.company_name or '',
+            'message': contact_request.message,
+            'user_id': contact_request.user_id,
+            'user_type': contact_request.user_type,
+            'session_id': contact_request.session_id or 'none',
+            'type': contact_request.type
+        }
+        
+        # Save to database
+        success = data_source.save_enquiries_data(enquiry_data)
+        
+        if success:
+            return {
+                "success": True,
+                "message": "Thank you for your enquiry! We'll get back to you soon.",
+                "enquiry_id": enquiry_data.get('enquiry_id', 'pending')
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Error saving enquiry")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Contact form error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error submitting contact form: {str(e)}")
+
+@app.get("/api/enquiries")
+async def get_enquiries():
+    """Get all enquiries (admin only)"""
+    try:
+        enquiries_df = data_source.get_enquiries()
+        
+        if enquiries_df.empty:
+            return {
+                "success": True,
+                "enquiries": [],
+                "total": 0
+            }
+        
+        enquiries_list = enquiries_df.to_dict('records')
+        
+        return {
+            "success": True,
+            "enquiries": enquiries_list,
+            "total": len(enquiries_list)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching enquiries: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching enquiries: {str(e)}")
+
+# ============================================================================
+# CHAT HISTORY MANAGEMENT ENDPOINTS
+# ============================================================================
+
+@app.get("/api/chat/history/{user_id}")
+async def get_chat_history(user_id: str, user_type: str = "anonymous"):
+    """Get chat history for a specific user"""
+    try:
+        if not user_id:
+            raise HTTPException(status_code=400, detail="User ID is required")
+        
+        # Get chat history from data source
+        chat_history_df = data_source.get_chat_history()
+        
+        # Filter by user_id and user_type
+        user_chats = chat_history_df[
+            (chat_history_df['user_id'] == user_id) & 
+            (chat_history_df['user_type'] == user_type)
+        ]
+        
+        # Convert to list of dictionaries
+        chat_list = user_chats.to_dict('records')
+        
+        # Sort by last_message_at (most recent first)
+        chat_list.sort(key=lambda x: x.get('last_message_at', ''), reverse=True)
+        
+        return {
+            "success": True,
+            "data": chat_list,
+            "total_chats": len(chat_list)
+        }
+        
+    except Exception as e:
+        logger.error(f"Get chat history API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get chat history error: {str(e)}")
+
+@app.delete("/api/chat/history/{session_id}")
+async def delete_chat_history(session_id: str, user_id: str = None, user_type: str = None):
+    """Delete a specific chat session"""
+    try:
+        if not session_id:
+            raise HTTPException(status_code=400, detail="Session ID is required")
+        
+        # Verify ownership if user_id is provided
+        if user_id and user_type:
+            chat_history_df = data_source.get_chat_history()
+            session_exists = chat_history_df[
+                (chat_history_df['session_id'] == session_id) & 
+                (chat_history_df['user_id'] == user_id) & 
+                (chat_history_df['user_type'] == user_type)
+            ]
+            
+            if session_exists.empty:
+                raise HTTPException(status_code=404, detail="Chat session not found or access denied")
+        
+        # Delete the chat session
+        success = data_source.delete_chat_history_data(session_id)
+        
+        if success:
+            return {"success": True, "message": "Chat session deleted successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to delete chat session")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Delete chat history API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Delete chat history error: {str(e)}")
+
+@app.delete("/api/chat/history/user/{user_id}")
+async def delete_all_user_chat_history(user_id: str, user_type: str = "anonymous"):
+    """Delete all chat history for a specific user"""
+    try:
+        if not user_id:
+            raise HTTPException(status_code=400, detail="User ID is required")
+        
+        # Get all chat sessions for the user
+        chat_history_df = data_source.get_chat_history()
+        user_chats = chat_history_df[
+            (chat_history_df['user_id'] == user_id) & 
+            (chat_history_df['user_type'] == user_type)
+        ]
+        
+        deleted_count = 0
+        for _, chat in user_chats.iterrows():
+            success = data_source.delete_chat_history_data(chat['session_id'])
+            if success:
+                deleted_count += 1
+        
+        return {
+            "success": True, 
+            "message": f"Deleted {deleted_count} chat sessions",
+            "deleted_count": deleted_count
+        }
+        
+    except Exception as e:
+        logger.error(f"Delete all user chat history API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Delete all user chat history error: {str(e)}")
 
 @app.get("/isv/login", response_class=HTMLResponse)
 async def isv_login_page():

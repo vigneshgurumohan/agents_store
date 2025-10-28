@@ -389,9 +389,10 @@
                 <h1>🤖 AI Agent Chat</h1>
             </div>
             <div class="nav-links">
-                <a href="/agents">Marketplace</a>
-                <a href="/isv/login">ISV Login</a>
-                <a href="/admin/login">Admin Login</a>
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/isv/login">👤 ISV Login</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
             </div>
         </div>
     </div>
@@ -467,6 +468,78 @@
         let sessionId = generateSessionId();
         let currentMode = 'explore';
         document.getElementById('sessionId').value = sessionId;
+        
+        // User session management
+        function getUserInfo() {
+            try {
+                const userInfo = localStorage.getItem('userInfo');
+                if (userInfo) {
+                    return JSON.parse(userInfo);
+                }
+            } catch (e) {
+                console.error('Error reading user info:', e);
+            }
+            return { user_id: null, user_type: null };
+        }
+        
+        function setUserInfo(userId, userType) {
+            try {
+                const userInfo = { user_id: userId, user_type: userType };
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            } catch (e) {
+                console.error('Error saving user info:', e);
+            }
+        }
+        
+        function clearUserInfo() {
+            try {
+                localStorage.removeItem('userInfo');
+            } catch (e) {
+                console.error('Error clearing user info:', e);
+            }
+        }
+        
+        function isUserLoggedIn() {
+            const userInfo = getUserInfo();
+            return userInfo.user_id && userInfo.user_type;
+        }
+        
+        // Initialize user info from URL parameters (for demo purposes)
+        function initializeUserFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const userType = urlParams.get('user_type');
+            
+            if (userId && userType) {
+                setUserInfo(userId, userType);
+                console.log(`User initialized: ${userType} ${userId}`);
+            }
+        }
+        
+        // Check authentication status on page load
+        function checkAuthStatus() {
+            const userInfo = getUserInfo();
+            if (userInfo.user_id && userInfo.user_type) {
+                console.log(`Logged in as: ${userInfo.user_type} ${userInfo.user_id}`);
+                // Optionally show user info in UI
+                updateUserDisplay(userInfo);
+            } else {
+                console.log('No user session found - using anonymous mode');
+            }
+        }
+        
+        function updateUserDisplay(userInfo) {
+            // Add user info to the header or create a user info section
+            const header = document.querySelector('.header');
+            if (header && !document.getElementById('userInfo')) {
+                const userDiv = document.createElement('div');
+                userDiv.id = 'userInfo';
+                userDiv.style.cssText = 'position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;';
+                userDiv.innerHTML = `👤 ${userInfo.user_type.toUpperCase()}: ${userInfo.user_id}`;
+                header.style.position = 'relative';
+                header.appendChild(userDiv);
+            }
+        }
         
         function generateSessionId() {
             return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -552,6 +625,78 @@
             document.getElementById('typingIndicator').classList.remove('show');
         }
         
+        function showBuildCTAs(brdDownloadUrl, brdStatus) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const ctaDiv = document.createElement('div');
+            ctaDiv.className = 'message assistant';
+            ctaDiv.id = 'buildCTAs';
+            
+            const downloadButton = brdStatus === 'generating' 
+                ? `<button onclick="downloadBRD('${brdDownloadUrl}')" style="padding: 12px 24px; background: #ffc107; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                    ⏳ BRD Generating... (Click to check)
+                </button>`
+                : `<a href="${brdDownloadUrl}" download style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                    📄 Download BRD (Word Document)
+                </a>`;
+            
+            ctaDiv.innerHTML = `
+                <div class="message-avatar">🏗️</div>
+                <div class="message-content">
+                    <div style="background: #f0f7ff; border-left: 4px solid #667eea; padding: 20px; margin: 10px 0; border-radius: 8px;">
+                        <h3 style="margin: 0 0 15px 0; color: #333;">🚀 Ready to Build!</h3>
+                        <p style="margin: 0 0 15px 0; color: #555;">Your agent requirements have been saved! Download the BRD document and let's get started.</p>
+                        
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            ${downloadButton}
+                            <a href="/contact" style="display: inline-block; padding: 12px 24px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                ✉️ Contact Us to Start Building
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(ctaDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function downloadBRD(url) {
+            fetch(url)
+                .then(response => {
+                    if (response.status === 202) {
+                        // Still generating
+                        alert('⏳ BRD is still being generated. Please try again in a few seconds.');
+                    } else if (response.ok) {
+                        // Ready to download
+                        return response.blob().then(blob => {
+                            const downloadUrl = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = `BRD_${new Date().getTime()}.docx`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(downloadUrl);
+                            document.body.removeChild(a);
+                            
+                            // Update button to show success
+                            const ctaDiv = document.getElementById('buildCTAs');
+                            if (ctaDiv) {
+                                ctaDiv.innerHTML = ctaDiv.innerHTML.replace(
+                                    '⏳ BRD Generating... (Click to check)',
+                                    '✅ Download Complete!'
+                                );
+                            }
+                        });
+                    } else {
+                        alert('Error downloading BRD. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Download error:', error);
+                    alert('Error downloading BRD. Please try again.');
+                });
+        }
+        
         function updateInfoPanel(chatData) {
             const infoPanel = document.getElementById('infoPanel');
             const infoTitle = document.getElementById('infoTitle');
@@ -623,14 +768,24 @@
             sendBtn.disabled = true;
             
             try {
-                const formData = new FormData();
-                formData.append('query', query);
-                formData.append('session_id', sessionId);
-                formData.append('mode', currentMode);
+                // Get user information
+                const userInfo = getUserInfo();
+                
+                // Prepare JSON data
+                const requestData = {
+                    query: query,
+                    session_id: sessionId,
+                    mode: currentMode,
+                    user_id: userInfo.user_id || undefined,
+                    user_type: userInfo.user_type || undefined
+                };
                 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
                 });
                 
                 const data = await response.json();
@@ -641,6 +796,11 @@
                     // Hide typing and add AI response
                     hideTyping();
                     addMessage(chatData.response);
+                    
+                    // If lets_build is true, show BRD download and Contact Us CTA
+                    if (chatData.lets_build && chatData.brd_download_url) {
+                        showBuildCTAs(chatData.brd_download_url, chatData.brd_status || 'generating');
+                    }
                     
                     // Update info panel based on mode
                     updateInfoPanel(chatData);
@@ -669,13 +829,17 @@
         
         async function clearConversation() {
             try {
-                const formData = new FormData();
-                formData.append('session_id', sessionId);
-                formData.append('mode', currentMode);
+                const requestData = {
+                    session_id: sessionId,
+                    mode: currentMode
+                };
                 
                 const response = await fetch('/api/chat/clear', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
                 });
                 
                 if (response.ok) {
@@ -747,6 +911,10 @@
                 document.getElementById('chatForm').dispatchEvent(new Event('submit'));
             }
         });
+        
+        // Initialize user session on page load
+        initializeUserFromURL();
+        checkAuthStatus();
     </script>
 </body>
 </html>

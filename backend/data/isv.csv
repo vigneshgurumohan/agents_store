@@ -1,2 +1,3 @@
 isv_id,isv_name,isv_address,isv_domain,isv_mob_no,isv_email_no,mou_file_path,admin_approved
 isv_001,Crayon Data India Pvt Ltd,"Awfis Space Solutions, 7th Floor, RAR Technopolis, Perungudi, Chennai",tngrm.ai,na,babu@crayondata.com,https://agentsstore.s3.us-east-1.amazonaws.com/documents/mou/isv_008/20251017_211040_6bc24ddb.pdf,yes
+isv_002,test1,test@gmail.com1,test@gmail.com,21542352354,test@gmail.com,https://agentsstore.s3.us-east-1.amazonaws.com/documents/mou/isv_002/20251023_232959_53b88424.pdf,no

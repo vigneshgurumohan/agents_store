@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Agent - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/isv/login">👤 Login</a>
+            </div>
+            <h1>Edit Agent</h1>
+            <p>Update your agent information</p>
+        </div>
+        
+        <a href="/isv/profile/isv_001" class="back-link">← Back to Profile</a>
+        
+        <div class="alert alert-success" id="successAlert">
+            Agent updated successfully!
+        </div>
+        
+        <div class="alert alert-error" id="errorAlert">
+            Error updating agent. Please try again.
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Updating agent...</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="editAgentForm">
+                <input type="hidden" id="agent_id" name="agent_id">
+                <input type="hidden" id="isv_id" name="isv_id" value="isv_001">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="agent_name">Agent Name *</label>
+                        <input type="text" id="agent_name" name="agent_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset_type">Asset Type</label>
+                        <select id="asset_type" name="asset_type">
+                            <option value="Solution">Solution</option>
+                            <option value="Service">Service</option>
+                            <option value="Tool">Tool</option>
+                            <option value="Platform">Platform</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="by_persona">Target Persona</label>
+                        <input type="text" id="by_persona" name="by_persona" placeholder="e.g., Executives, Developers, Analysts">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="by_value">Value Proposition</label>
+                        <input type="text" id="by_value" name="by_value" placeholder="e.g., Productivity, Efficiency, Cost Savings">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" required placeholder="Describe what your agent does and its key features"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="features">Key Features</label>
+                    <textarea id="features" name="features" placeholder="List the main features and capabilities"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roi">ROI/Benefits</label>
+                    <textarea id="roi" name="roi" placeholder="Describe the return on investment and benefits"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <input type="text" id="tags" name="tags" placeholder="Tags separated by commas">
+                </div>
+                
+                <div class="form-group">
+                    <label for="application_demo_url">Application Demo URL</label>
+                    <input type="url" id="application_demo_url" name="application_demo_url" placeholder="https://your-demo-link.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="agents_ordering">Display Order</label>
+                    <input type="number" id="agents_ordering" name="agents_ordering" placeholder="1" min="1">
+                </div>
+                
+                <!-- Documentation Section -->
+                <h3 style="margin-top: 30px; margin-bottom: 20px; color: #555;">Documentation</h3>
+                
+                <div class="form-group">
+                    <label for="sdk_details">SDK Details</label>
+                    <textarea id="sdk_details" name="sdk_details" placeholder="SDK documentation and integration details"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="swagger_details">Swagger/API Documentation</label>
+                    <textarea id="swagger_details" name="swagger_details" placeholder="API documentation and Swagger details"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sample_input">Sample Input</label>
+                    <textarea id="sample_input" name="sample_input" placeholder="Example input data"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sample_output">Sample Output</label>
+                    <textarea id="sample_output" name="sample_output" placeholder="Example output data"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="security_details">Security Details</label>
+                    <textarea id="security_details" name="security_details" placeholder="Security configuration and compliance details"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="related_files">Related Files</label>
+                    <input type="text" id="related_files" name="related_files" placeholder="README.md, API_DOCS.pdf">
+                </div>
+                
+                <!-- Demo Assets Section -->
+                <div class="form-section">
+                    <h3>Demo Assets</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Manage your agent's demo assets (images, videos, documents)</p>
+                    
+                    <!-- Existing Demo Assets -->
+                    <div id="existing-demo-assets" style="margin-bottom: 20px;">
+                        <h4>Existing Demo Assets</h4>
+                        <div id="demo-assets-list"></div>
+                    </div>
+                    
+                    <!-- Add New Demo Assets -->
+                    <div style="margin-bottom: 20px;">
+                        <h4>Add New Demo Assets</h4>
+                        
+                        <!-- Multiple Demo Links -->
+                        <div style="margin-bottom: 15px;">
+                            <label for="demo_link_input">Demo Links (Optional)</label>
+                            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                                <input type="url" id="demo_link_input" placeholder="https://your-demo-link.com" 
+                                       style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <button type="button" onclick="addDemoLink()" 
+                                        style="padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    Add Link
+                                </button>
+                            </div>
+                            <div id="demo-links-list" style="margin-top: 10px;"></div>
+                            <small style="color: #666; font-size: 0.9rem;">
+                                Add multiple demo links (YouTube, Vimeo, external demos, etc.)
+                            </small>
+                        </div>
+                        
+                        <!-- Bulk File Upload -->
+                        <div style="margin-bottom: 15px;">
+                            <label>Upload Files (Optional)</label>
+                            <div style="border: 2px dashed #e1e5e9; border-radius: 8px; padding: 20px; text-align: center; background: #f8f9fa;">
+                                <input type="file" id="bulk_demo_files" name="bulk_demo_files" 
+                                       accept=".jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.pdf,.doc,.docx" 
+                                       multiple 
+                                       style="display: none;" 
+                                       onchange="handleBulkFileUpload(this)">
+                                <div onclick="document.getElementById('bulk_demo_files').click()" 
+                                     style="cursor: pointer; padding: 10px;">
+                                    <div style="font-size: 24px; margin-bottom: 10px;">📁</div>
+                                    <div style="font-weight: 500; margin-bottom: 5px; color: #333;">
+                                        Click to upload multiple files
+                                    </div>
+                                    <div style="color: #666; font-size: 14px;">
+                                        Images, videos, documents (max 50MB each)
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="bulk-files-preview" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+                    <button type="submit" class="btn">Update Agent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get agent ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const agentId = urlParams.get('agent_id');
+        
+        // Demo assets variables
+        let existingDemoAssets = [];
+        let bulkDemoFiles = [];
+        let demoLinks = []; // Changed from singleDemoLink to array
+        
+        if (!agentId) {
+            alert('No agent ID provided');
+            window.location.href = '/isv/profile/isv_001';
+        }
+        
+        // Load agent data
+        async function loadAgentData() {
+            try {
+                const response = await fetch(`/api/agents/${agentId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load agent data');
+                }
+                
+                const data = await response.json();
+                const agent = data.agent;
+                
+                // Populate form fields
+                document.getElementById('agent_id').value = agent.agent_id;
+                document.getElementById('agent_name').value = agent.agent_name || '';
+                document.getElementById('asset_type').value = agent.asset_type || 'Solution';
+                document.getElementById('by_persona').value = agent.by_persona || '';
+                document.getElementById('by_value').value = agent.by_value || '';
+                document.getElementById('description').value = agent.description || '';
+                document.getElementById('features').value = agent.features || '';
+                document.getElementById('roi').value = agent.roi || '';
+                document.getElementById('tags').value = agent.tags || '';
+                document.getElementById('application_demo_url').value = agent.demo_link || '';
+                document.getElementById('agents_ordering').value = agent.agents_ordering || '';
+                
+                // Load documentation data
+                const docsResponse = await fetch(`/api/agents/${agentId}`);
+                if (docsResponse.ok) {
+                    const docsData = await docsResponse.json();
+                    const docs = docsData.docs || [];
+                    
+                    if (docs.length > 0) {
+                        const doc = docs[0];
+                        document.getElementById('sdk_details').value = doc.sdk_details || '';
+                        document.getElementById('swagger_details').value = doc.swagger_details || '';
+                        document.getElementById('sample_input').value = doc.sample_input || '';
+                        document.getElementById('sample_output').value = doc.sample_output || '';
+                        document.getElementById('security_details').value = doc.security_details || '';
+                        document.getElementById('related_files').value = doc.related_files || '';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error loading agent data:', error);
+                showAlert('error', 'Failed to load agent data');
+            }
+        }
+        
+        // Handle form submission
+        document.getElementById('editAgentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            
+            // Add all form fields
+            const fields = [
+                'agent_name', 'asset_type', 'by_persona', 'by_value', 'description',
+                'features', 'roi', 'tags', 'application_demo_url', 'agents_ordering',
+                'sdk_details', 'swagger_details', 'sample_input', 'sample_output',
+                'security_details', 'related_files', 'isv_id'
+            ];
+            
+            fields.forEach(field => {
+                const value = document.getElementById(field).value;
+                if (value) {
+                    formData.append(field, value);
+                }
+            });
+            
+            // Add demo assets data
+            if (existingDemoAssets.length > 0) {
+                formData.append('demo_assets', JSON.stringify(existingDemoAssets));
+            }
+            
+            // Add new demo files
+            bulkDemoFiles.forEach(file => {
+                formData.append('demo_files', file);
+            });
+            
+            // Add multiple demo links
+            if (demoLinks.length > 0) {
+                formData.append('demo_links', JSON.stringify(demoLinks));
+            }
+            
+            try {
+                showLoading(true);
+                hideAlerts();
+                
+                const response = await fetch(`/api/agents/${agentId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert('success', 'Agent updated successfully!');
+                    setTimeout(() => {
+                        window.location.href = '/isv/profile/isv_001';
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    showAlert('error', error.detail || 'Failed to update agent');
+                }
+                
+            } catch (error) {
+                console.error('Error updating agent:', error);
+                showAlert('error', 'Failed to update agent');
+            } finally {
+                showLoading(false);
+            }
+        });
+        
+        function showAlert(type, message) {
+            const alertElement = document.getElementById(`${type}Alert`);
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        function hideAlerts() {
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function cancelEdit() {
+            if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                window.location.href = '/isv/profile/isv_001';
+            }
+        }
+        
+        // Demo assets functions
+        function updateDemoAssetsDisplay() {
+            const container = document.getElementById('demo-assets-list');
+            if (!container) return;
+            
+            if (existingDemoAssets.length === 0) {
+                container.innerHTML = '<p style="color: #666; font-style: italic;">No demo assets found</p>';
+                return;
+            }
+            
+            let html = '';
+            existingDemoAssets.forEach(asset => {
+                html += `
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #e1e5e9; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${asset.demo_asset_name || 'Unnamed Asset'}</strong>
+                            <br><span style="color: #666; font-size: 14px;">${asset.demo_asset_type || 'Unknown Type'}</span>
+                            ${asset.asset_url ? `<br><a href="${asset.asset_url}" target="_blank" style="color: #007bff; font-size: 14px;">View Asset</a>` : ''}
+                        </div>
+                        <button type="button" onclick="removeDemoAsset('${asset.demo_asset_id}')" 
+                                style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        // Multiple Demo Links Management
+        function addDemoLink() {
+            const linkInput = document.getElementById('demo_link_input');
+            const link = linkInput.value.trim();
+            
+            if (link) {
+                // Validate URL
+                try {
+                    new URL(link);
+                    demoLinks.push(link);
+                    linkInput.value = '';
+                    updateDemoLinksList();
+                } catch (e) {
+                    alert('Please enter a valid URL');
+                }
+            } else {
+                alert('Please enter a demo link');
+            }
+        }
+        
+        function removeDemoLink(index) {
+            demoLinks.splice(index, 1);
+            updateDemoLinksList();
+        }
+        
+        function updateDemoLinksList() {
+            const listContainer = document.getElementById('demo-links-list');
+            if (demoLinks.length === 0) {
+                listContainer.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #e1e5e9;">';
+            html += '<h5 style="margin: 0 0 10px 0; color: #333;">Added Demo Links:</h5>';
+            
+            demoLinks.forEach((link, index) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; margin: 5px 0; background: white; border-radius: 5px; border: 1px solid #dee2e6;">
+                        <div style="flex: 1;">
+                            <a href="${link}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 0.9rem;">${link}</a>
+                        </div>
+                        <button type="button" onclick="removeDemoLink(${index})" 
+                                style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            listContainer.innerHTML = html;
+        }
+        
+        function handleBulkFileUpload(input) {
+            bulkDemoFiles = Array.from(input.files);
+            updateBulkFilesPreview();
+        }
+        
+        function updateBulkFilesPreview() {
+            const preview = document.getElementById('bulk-files-preview');
+            if (!preview) return;
+            
+            if (bulkDemoFiles.length === 0) {
+                preview.innerHTML = '';
+                return;
+            }
+            
+            let html = '<h5>Files to upload:</h5>';
+            bulkDemoFiles.forEach(file => {
+                html += `
+                    <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB)</span>
+                        <button type="button" onclick="removeBulkFile('${file.name}')" 
+                                style="background: #dc3545; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            });
+            preview.innerHTML = html;
+        }
+        
+        function removeBulkFile(fileName) {
+            bulkDemoFiles = bulkDemoFiles.filter(file => file.name !== fileName);
+            updateBulkFilesPreview();
+        }
+        
+        function removeDemoAsset(assetId) {
+            if (confirm('Are you sure you want to remove this demo asset?')) {
+                existingDemoAssets = existingDemoAssets.filter(asset => asset.demo_asset_id !== assetId);
+                updateDemoAssetsDisplay();
+            }
+        }
+        
+        // Load agent data when page loads
+        loadAgentData();
+    </script>
+</body>
+</html>

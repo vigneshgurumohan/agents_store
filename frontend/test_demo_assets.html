@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Assets Test - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .test-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .test-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .test-results.show {
+            display: block;
+        }
+
+        .test-results h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .test-results pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .demo-links-input {
+            margin: 20px 0;
+        }
+
+        .demo-links-input input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .demo-links-input button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
+            </div>
+            <h1>🎬 Demo Assets Test</h1>
+            <p>Test multiple demo links and file uploads</p>
+        </div>
+
+        <div class="content">
+            <div class="test-section">
+                <h3>Multiple Demo Links Test</h3>
+                <p>Test creating an agent with multiple demo links.</p>
+                
+                <div class="demo-links-input">
+                    <input type="url" id="demoLink1" placeholder="https://youtube.com/watch?v=demo1" value="https://youtube.com/watch?v=demo1">
+                    <input type="url" id="demoLink2" placeholder="https://vimeo.com/demo2" value="https://vimeo.com/demo2">
+                    <input type="url" id="demoLink3" placeholder="https://example.com/demo3" value="https://example.com/demo3">
+                    <input type="url" id="demoLink4" placeholder="https://demo4.example.com" value="https://demo4.example.com">
+                </div>
+                
+                <button class="test-button" onclick="testMultipleDemoLinks()">Test Multiple Demo Links</button>
+                <button class="test-button" onclick="testSingleDemoLink()">Test Single Demo Link</button>
+                <button class="test-button" onclick="testInvalidDemoLinks()">Test Invalid Demo Links</button>
+                
+                <div id="demo-links-results" class="test-results">
+                    <h4>Demo Links Test Results:</h4>
+                    <pre id="demo-links-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Demo Assets Retrieval Test</h3>
+                <p>Test retrieving demo assets for created agents.</p>
+                <button class="test-button" onclick="testGetDemoAssets()">Get Demo Assets</button>
+                <button class="test-button" onclick="testGetSpecificAgentAssets()">Get Specific Agent Assets</button>
+                <button class="test-button" onclick="testDemoAssetsStructure()">Test Assets Structure</button>
+                
+                <div id="retrieval-results" class="test-results">
+                    <h4>Retrieval Test Results:</h4>
+                    <pre id="retrieval-output"></pre>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>Demo Assets Edit Test</h3>
+                <p>Test editing demo assets for existing agents.</p>
+                <button class="test-button" onclick="testEditAgentDemoAssets()">Edit Agent Demo Assets</button>
+                <button class="test-button" onclick="testAddMoreDemoLinks()">Add More Demo Links</button>
+                <button class="test-button" onclick="testRemoveDemoAssets()">Test Remove Demo Assets</button>
+                
+                <div id="edit-results" class="test-results">
+                    <h4>Edit Test Results:</h4>
+                    <pre id="edit-output"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testAgentId = null;
+
+        async function testMultipleDemoLinks() {
+            const resultsDiv = document.getElementById('demo-links-results');
+            const outputPre = document.getElementById('demo-links-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing multiple demo links...';
+            
+            const demoLinks = [
+                document.getElementById('demoLink1').value,
+                document.getElementById('demoLink2').value,
+                document.getElementById('demoLink3').value,
+                document.getElementById('demoLink4').value
+            ].filter(link => link.trim() !== '');
+
+            const testData = {
+                agent_name: 'Demo Links Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Content Creator',
+                by_value: 'Engagement',
+                description: 'Test agent with multiple demo links',
+                features: 'Demo Feature 1, Demo Feature 2',
+                roi: 'Medium ROI',
+                tags: 'demo, links, test',
+                application_demo_url: 'https://demo-app.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1, capability2',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(demoLinks),
+                sdk_details: 'Demo SDK',
+                swagger_details: 'Demo Swagger',
+                sample_input: 'Demo input',
+                sample_output: 'Demo output',
+                security_details: 'Demo security',
+                related_files: 'Demo files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    testAgentId = result.agent_id;
+                    outputPre.textContent = `✅ SUCCESS: Agent with ${demoLinks.length} demo links created!\n\nAgent ID: ${result.agent_id}\nDemo Links: ${demoLinks.join(', ')}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testSingleDemoLink() {
+            const resultsDiv = document.getElementById('demo-links-results');
+            const outputPre = document.getElementById('demo-links-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing single demo link...';
+            
+            const testData = {
+                agent_name: 'Single Demo Link Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Developer',
+                by_value: 'Productivity',
+                description: 'Test agent with single demo link',
+                features: 'Single Feature',
+                roi: 'High ROI',
+                tags: 'single, demo, test',
+                application_demo_url: 'https://single-demo.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(['https://single-demo-link.example.com']),
+                sdk_details: 'Single SDK',
+                swagger_details: 'Single Swagger',
+                sample_input: 'Single input',
+                sample_output: 'Single output',
+                security_details: 'Single security',
+                related_files: 'Single files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    testAgentId = result.agent_id;
+                    outputPre.textContent = `✅ SUCCESS: Agent with single demo link created!\n\nAgent ID: ${result.agent_id}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testInvalidDemoLinks() {
+            const resultsDiv = document.getElementById('demo-links-results');
+            const outputPre = document.getElementById('demo-links-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing invalid demo links...';
+            
+            const testData = {
+                agent_name: 'Invalid Demo Links Test Agent ' + Date.now(),
+                asset_type: 'AI Assistant',
+                by_persona: 'Tester',
+                by_value: 'Validation',
+                description: 'Test agent with invalid demo links',
+                features: 'Invalid Feature',
+                roi: 'Low ROI',
+                tags: 'invalid, demo, test',
+                application_demo_url: 'https://invalid-demo.example.com',
+                isv_id: 'isv_001',
+                capabilities: 'capability1',
+                demo_assets: '[]',
+                demo_links: JSON.stringify(['invalid-url', 'not-a-url', 'ftp://invalid-protocol.com']),
+                sdk_details: 'Invalid SDK',
+                swagger_details: 'Invalid Swagger',
+                sample_input: 'Invalid input',
+                sample_output: 'Invalid output',
+                security_details: 'Invalid security',
+                related_files: 'Invalid files',
+                deployments: '[]'
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(testData).forEach(key => {
+                    formData.append(key, testData[key]);
+                });
+
+                const response = await fetch('/api/agent/onboard', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                // This test might pass or fail depending on URL validation
+                outputPre.textContent = `Test completed: Invalid demo links handling\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                outputPre.className = result.success ? 'success' : 'error';
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetDemoAssets() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get demo assets...';
+            
+            try {
+                const response = await fetch('/api/agents');
+                const result = await response.json();
+                
+                if (result.success && result.agents.length > 0) {
+                    const agent = result.agents[0];
+                    const agentResponse = await fetch(`/api/agents/${agent.agent_id}`);
+                    const agentData = await agentResponse.json();
+                    
+                    if (agentData.success) {
+                        const demoAssets = agentData.demo_assets || [];
+                        outputPre.textContent = `✅ SUCCESS: Retrieved demo assets!\n\nAgent: ${agent.agent_name}\nDemo Assets Count: ${demoAssets.length}\nDemo Assets: ${JSON.stringify(demoAssets, null, 2)}`;
+                        outputPre.className = 'success';
+                    } else {
+                        outputPre.textContent = `❌ FAILED: Could not get agent details\n\nError: ${agentData.detail}`;
+                        outputPre.className = 'error';
+                    }
+                } else {
+                    outputPre.textContent = `❌ FAILED: No agents found\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testGetSpecificAgentAssets() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing get specific agent assets...';
+            
+            if (!testAgentId) {
+                outputPre.textContent = '❌ ERROR: No test agent ID available. Please create an agent first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/agents/${testAgentId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const demoAssets = result.demo_assets || [];
+                    outputPre.textContent = `✅ SUCCESS: Retrieved specific agent assets!\n\nAgent ID: ${testAgentId}\nDemo Assets Count: ${demoAssets.length}\nDemo Assets: ${JSON.stringify(demoAssets, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testDemoAssetsStructure() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            const outputPre = document.getElementById('retrieval-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing demo assets structure...';
+            
+            try {
+                const response = await fetch('/api/agents');
+                const result = await response.json();
+                
+                if (result.success && result.agents.length > 0) {
+                    const agent = result.agents[0];
+                    const agentResponse = await fetch(`/api/agents/${agent.agent_id}`);
+                    const agentData = await agentResponse.json();
+                    
+                    if (agentData.success) {
+                        const demoAssets = agentData.demo_assets || [];
+                        const structure = {
+                            total_assets: demoAssets.length,
+                            asset_types: [...new Set(demoAssets.map(asset => asset.demo_asset_type))],
+                            has_urls: demoAssets.some(asset => asset.asset_url),
+                            has_file_paths: demoAssets.some(asset => asset.asset_file_path),
+                            sample_asset: demoAssets[0] || null
+                        };
+                        
+                        outputPre.textContent = `✅ SUCCESS: Demo assets structure analysis!\n\nStructure: ${JSON.stringify(structure, null, 2)}`;
+                        outputPre.className = 'success';
+                    } else {
+                        outputPre.textContent = `❌ FAILED: Could not get agent details\n\nError: ${agentData.detail}`;
+                        outputPre.className = 'error';
+                    }
+                } else {
+                    outputPre.textContent = `❌ FAILED: No agents found\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testEditAgentDemoAssets() {
+            const resultsDiv = document.getElementById('edit-results');
+            const outputPre = document.getElementById('edit-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing edit agent demo assets...';
+            
+            if (!testAgentId) {
+                outputPre.textContent = '❌ ERROR: No test agent ID available. Please create an agent first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            const additionalLinks = ['https://additional-demo1.example.com', 'https://additional-demo2.example.com'];
+            
+            const editData = {
+                agent_name: 'Updated Demo Assets Agent',
+                isv_id: 'isv_001',
+                demo_links: JSON.stringify(additionalLinks)
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(editData).forEach(key => {
+                    formData.append(key, editData[key]);
+                });
+
+                const response = await fetch(`/api/agents/${testAgentId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Agent demo assets updated!\n\nAgent ID: ${testAgentId}\nAdditional Links: ${additionalLinks.join(', ')}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testAddMoreDemoLinks() {
+            const resultsDiv = document.getElementById('edit-results');
+            const outputPre = document.getElementById('edit-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing add more demo links...';
+            
+            if (!testAgentId) {
+                outputPre.textContent = '❌ ERROR: No test agent ID available. Please create an agent first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            const moreLinks = ['https://more-demo1.example.com', 'https://more-demo2.example.com', 'https://more-demo3.example.com'];
+            
+            const editData = {
+                isv_id: 'isv_001',
+                demo_links: JSON.stringify(moreLinks)
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(editData).forEach(key => {
+                    formData.append(key, editData[key]);
+                });
+
+                const response = await fetch(`/api/agents/${testAgentId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: More demo links added!\n\nAgent ID: ${testAgentId}\nAdditional Links: ${moreLinks.join(', ')}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+
+        async function testRemoveDemoAssets() {
+            const resultsDiv = document.getElementById('edit-results');
+            const outputPre = document.getElementById('edit-output');
+            
+            resultsDiv.classList.add('show');
+            outputPre.textContent = 'Testing remove demo assets...';
+            
+            if (!testAgentId) {
+                outputPre.textContent = '❌ ERROR: No test agent ID available. Please create an agent first.';
+                outputPre.className = 'error';
+                return;
+            }
+            
+            // Test with empty demo links to simulate removal
+            const editData = {
+                isv_id: 'isv_001',
+                demo_links: JSON.stringify([])
+            };
+
+            try {
+                const formData = new FormData();
+                Object.keys(editData).forEach(key => {
+                    formData.append(key, editData[key]);
+                });
+
+                const response = await fetch(`/api/agents/${testAgentId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputPre.textContent = `✅ SUCCESS: Demo assets cleared!\n\nAgent ID: ${testAgentId}\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'success';
+                } else {
+                    outputPre.textContent = `❌ FAILED: ${result.detail}\n\nResponse: ${JSON.stringify(result, null, 2)}`;
+                    outputPre.className = 'error';
+                }
+            } catch (error) {
+                outputPre.textContent = `❌ ERROR: ${error.message}`;
+                outputPre.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>
+
+

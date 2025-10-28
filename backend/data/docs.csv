@@ -2,7 +2,7 @@ agent_id,sdk_details,swagger_details,sample_input,sample_output,security_details
 agent_001,,,,,,,
 agent_002,,,,,,,
 agent_003,,,,,,,
-agent_004,,,,,,,
+agent_004,Updated SDK details for testing,Updated Swagger API documentation,Sample input for testing,Sample output for testing,Security configuration details,"README.md, API_DOCS.pdf",
 agent_005,,,,,,,
 agent_006,,,,,,,
 agent_007,,,,,,,
@@ -35,3 +35,11 @@ agent_033,,,,,,,
 agent_034,,,,,,,
 agent_035,,,,,,,
 agent_036,,,,,,,
+agent_037,Test SDK details,Test Swagger docs,Test input,Test output,Test security,README.md,doc_agent_037
+agent_038,Test SDK details,Test Swagger docs,Test input,Test output,Test security,README.md,doc_agent_038
+agent_039,Frontend SDK details,Frontend Swagger docs,Frontend input,Frontend output,Frontend security,README.md,doc_agent_039
+agent_040,Demo SDK details,Demo Swagger docs,Demo input,Demo output,Demo security,README.md,doc_agent_040
+agent_041,SDK details,Swagger details,Sample input,Sample output,Security details,Related files,doc_agent_041
+agent_042,Advanced SDK with comprehensive documentation,Complete Swagger API documentation,Complex input example,Detailed output example,Enterprise-grade security,Multiple related files,doc_agent_042
+agent_043,asdfdasf,https://agents-store.onrender.com/docs,sadfadsf,dsafasdfadsf,dasfasdfasd,https://agentsstore.s3.us-east-1.amazonaws.com/documents/agents/agent_043/20251023_233347_a6072d02.docx,doc_agent_043
+agent_044,Demo SDK,Demo Swagger,Demo input,Demo output,Demo security,Demo files,doc_agent_044

@@ -399,8 +399,9 @@
     <div class="container">
         <div class="header">
             <div class="nav-links">
-                <a href="/agents">Marketplace</a>
-                <a href="/isv/profile/{{isv_id}}">Back to Profile</a>
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/isv/login">👤 Login</a>
             </div>
             <h1>🤖 Agent Onboarding</h1>
             <p>Create your new AI agent for the marketplace</p>
@@ -491,8 +492,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="demo_link">Demo Link</label>
-                        <input type="url" id="demo_link" name="demo_link" placeholder="https://your-demo-link.com">
+                        <label for="application_demo_url">Application Demo URL</label>
+                        <input type="url" id="application_demo_url" name="application_demo_url" placeholder="https://your-demo-asset-link.com">
                     </div>
                 </div>
                 
@@ -518,19 +519,20 @@
                 <div id="demo-assets" class="tab-panel">
                     <h3>🎬 Demo Assets</h3>
                     
-                    <!-- Single Demo Link Input -->
+                    <!-- Multiple Demo Links Input -->
                     <div style="margin-bottom: 30px;">
-                        <h4 style="margin-bottom: 15px; color: #333;">Single Demo Link</h4>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="url" id="single_demo_link" placeholder="https://example.com/demo" 
+                        <h4 style="margin-bottom: 15px; color: #333;">Demo Links</h4>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <input type="url" id="demo_link_input" placeholder="https://example.com/demo" 
                                    style="flex: 1; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
-                            <button type="button" onclick="addSingleDemoLink()" 
+                            <button type="button" onclick="addDemoLink()" 
                                     style="padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
                                 Add Link
                             </button>
                         </div>
+                        <div id="demo-links-list" style="margin-top: 10px;"></div>
                         <small style="color: #666; font-size: 0.9rem; display: block; margin-top: 8px;">
-                            Add a single demo link (YouTube, Vimeo, external demo, etc.)
+                            Add multiple demo links (YouTube, Vimeo, external demos, etc.)
                         </small>
                     </div>
                     
@@ -661,7 +663,7 @@
         const totalTabs = 4;
         let demoAssets = [];
         let deployments = [];
-        let singleDemoLink = '';
+        let demoLinks = []; // Changed from singleDemoLink to array
         let bulkDemoFiles = [];
         let readmeFile = null;
         
@@ -732,19 +734,60 @@
             }
         }
         
-        // Single Demo Link Management
-        function addSingleDemoLink() {
-            const linkInput = document.getElementById('single_demo_link');
+        // Multiple Demo Links Management
+        function addDemoLink() {
+            const linkInput = document.getElementById('demo_link_input');
             const link = linkInput.value.trim();
             
             if (link) {
-                singleDemoLink = link;
-                linkInput.value = '';
-                updateDemoAssetsPreview();
-                showSuccessMessage('Demo link added successfully!');
+                // Validate URL
+                try {
+                    new URL(link);
+                    demoLinks.push(link);
+                    linkInput.value = '';
+                    updateDemoLinksList();
+                    updateDemoAssetsPreview();
+                    showSuccessMessage('Demo link added successfully!');
+                } catch (e) {
+                    showErrorMessage('Please enter a valid URL');
+                }
             } else {
-                showErrorMessage('Please enter a valid demo link');
+                showErrorMessage('Please enter a demo link');
             }
+        }
+        
+        function removeDemoLink(index) {
+            demoLinks.splice(index, 1);
+            updateDemoLinksList();
+            updateDemoAssetsPreview();
+        }
+        
+        function updateDemoLinksList() {
+            const listContainer = document.getElementById('demo-links-list');
+            if (demoLinks.length === 0) {
+                listContainer.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #e1e5e9;">';
+            html += '<h5 style="margin: 0 0 10px 0; color: #333;">Added Demo Links:</h5>';
+            
+            demoLinks.forEach((link, index) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; margin: 5px 0; background: white; border-radius: 5px; border: 1px solid #dee2e6;">
+                        <div style="flex: 1;">
+                            <a href="${link}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 0.9rem;">${link}</a>
+                        </div>
+                        <button type="button" onclick="removeDemoLink(${index})" 
+                                style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            listContainer.innerHTML = html;
         }
         
         // Bulk File Upload Management
@@ -928,14 +971,16 @@
             const preview = document.getElementById('demo-assets-preview');
             let previewHTML = '';
             
-            // Show single demo link
-            if (singleDemoLink) {
-                previewHTML += `
-                    <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
-                        <strong>Single Demo Link</strong> (External Link)
-                        <br><a href="${singleDemoLink}" target="_blank" style="color: #007bff;">${singleDemoLink}</a>
-                    </div>
-                `;
+            // Show multiple demo links
+            if (demoLinks.length > 0) {
+                demoLinks.forEach((link, index) => {
+                    previewHTML += `
+                        <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #e1e5e9;">
+                            <strong>Demo Link ${index + 1}</strong> (External Link)
+                            <br><a href="${link}" target="_blank" style="color: #007bff;">${link}</a>
+                        </div>
+                    `;
+                });
             }
             
             // Show bulk uploaded files
@@ -1098,14 +1143,15 @@
                 formData.append('features', document.getElementById('features').value);
                 formData.append('roi', document.getElementById('roi').value);
                 formData.append('tags', document.getElementById('tags').value);
-                formData.append('demo_link', document.getElementById('demo_link').value);
+                formData.append('application_demo_url', document.getElementById('application_demo_url').value);
                 formData.append('isv_id', document.getElementById('isv_id').value);
                 
                 formData.append('capabilities', document.getElementById('capabilities_input').value);
                 
-                // Handle single demo link
-                if (singleDemoLink) {
-                    formData.append('demo_link', singleDemoLink);
+                // Handle multiple demo links
+                if (demoLinks.length > 0) {
+                    formData.append('demo_links', JSON.stringify(demoLinks));
+                    console.log(`Added ${demoLinks.length} demo links:`, demoLinks);
                 }
                 
             // Handle bulk file uploads

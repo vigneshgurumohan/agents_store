@@ -1,4 +1,4 @@
-demo_asset_link,agent_id,demo_link,demo_asset_id,demo_asset_type,demo_asset_name
+asset_file_path,agent_id,asset_url,demo_asset_id,demo_asset_type,demo_asset_name
 demo_asset_00001,agent_001,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear1.jpeg,,,
 demo_asset_00002,agent_001,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear2.jpeg,,,
 demo_asset_00003,agent_001,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/ear3.jpeg,,,
@@ -32,7 +32,8 @@ demo_asset_00030,agent_008,https://raw.githubusercontent.com/vigneshgurumohan/de
 demo_asset_00031,agent_008,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea2.JPG,,,
 demo_asset_00032,agent_008,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea3.JPG,,,
 demo_asset_00033,agent_008,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/wea4.JPG,,,
-demo_asset_00034,agent_009,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/RFPvid.mp4,,,
+demo_asset_00034,agent_009,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp1.JPG,,,
+demo_asset_00035,agent_009,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/rfp2.JPG,,,
 demo_asset_00036,agent_010,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa1.png,,,
 demo_asset_00037,agent_010,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa2.png,,,
 demo_asset_00038,agent_010,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/apa3.png,,,
@@ -110,7 +111,7 @@ demo_asset_00109,agent_028,https://raw.githubusercontent.com/vigneshgurumohan/de
 demo_asset_00110,agent_028,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/campaign5.png,,,
 demo_asset_00111,agent_028,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/campaign6.png,,,
 demo_asset_00112,agent_028,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/campaign7.png,,,
-demo_asset_00113,agent_029,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/esg1.mp4,,,
+demo_asset_00113,agent_029,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/static.png,,,
 demo_asset_00114,agent_030,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/Workflow1.png,,,
 demo_asset_00115,agent_030,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/workflow2.png,,,
 demo_asset_00116,agent_030,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/Workflowvid.mp4,,,
@@ -132,3 +133,26 @@ demo_asset_00131,agent_033,https://raw.githubusercontent.com/vigneshgurumohan/de
 demo_asset_00132,agent_034,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/static.png,,,
 demo_asset_00133,agent_035,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/static.png,,,
 demo_asset_00134,agent_036,https://raw.githubusercontent.com/vigneshgurumohan/demo_images/main/static.png,,,
+,agent_038,https://testapp.example.com/demo,demo_agent_038_001,External Link,Application Demo Link
+,agent_039,https://frontend-test.example.com/demo,demo_agent_039_001,External Link,Application Demo Link
+,agent_040,https://demo-test.example.com/demo,demo_agent_040_001,External Link,Application Demo Link
+,agent_041,https://app.example.com,demo_agent_041_001,External Link,Application Demo Link
+,agent_041,https://youtube.com/watch?v=demo1,demo_agent_041_002,External Link,Demo Link
+,agent_041,https://vimeo.com/demo2,demo_agent_041_003,External Link,Demo Link
+,agent_041,https://example.com/demo3,demo_agent_041_004,External Link,Demo Link
+,agent_042,https://advanced-test.example.com,demo_agent_042_001,External Link,Application Demo Link
+,agent_042,https://demo1.example.com,demo_agent_042_002,External Link,Demo Link
+,agent_042,https://demo2.example.com,demo_agent_042_003,External Link,Demo Link
+,agent_043,http://localhost:8000/isv/profile/isv_002/onboard-agent,demo_agent_043_001,External Link,Application Demo Link
+https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233341_29762d91.jpg,agent_043,https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233341_29762d91.jpg,demo_agent_043_002,Uploaded File,2.JPG
+https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233343_42ed0318.jpg,agent_043,https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233343_42ed0318.jpg,demo_agent_043_003,Uploaded File,3.JPG
+https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233344_954b84cd.jpg,agent_043,https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233344_954b84cd.jpg,demo_agent_043_004,Uploaded File,4.JPG
+https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233345_37c8993a.jpg,agent_043,https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233345_37c8993a.jpg,demo_agent_043_005,Uploaded File,5.JPG
+https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233346_6cb88b5e.jpg,agent_043,https://agentsstore.s3.us-east-1.amazonaws.com/assets/demo/agent_043/20251023_233346_6cb88b5e.jpg,demo_agent_043_006,Uploaded File,6.JPG
+,agent_043,http://localhost:8000/isv/profile/isv_002/onboard-agent,demo_agent_043_007,External Link,Demo Link
+,agent_043,http://localhost:8000/isv/profile/isv_002/onboard-agent,demo_agent_043_008,External Link,Demo Link
+,agent_044,https://demo-app.example.com,demo_agent_044_001,External Link,Application Demo Link
+,agent_044,https://youtube.com/watch?v=demo1,demo_agent_044_002,External Link,Demo Link
+,agent_044,https://vimeo.com/demo2,demo_agent_044_003,External Link,Demo Link
+,agent_044,https://example.com/demo3,demo_agent_044_004,External Link,Demo Link
+,agent_044,https://demo4.example.com,demo_agent_044_005,External Link,Demo Link

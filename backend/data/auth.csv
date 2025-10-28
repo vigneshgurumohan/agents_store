@@ -3,3 +3,4 @@ auth_001,isv_001,isv@crayondata.ai,isv123,isv,yes,16-10-2025
 auth_002,admin_001,admin@redington.com,admin123,admin,yes,16-10-2025
 auth_003,reseller_001,reseller@redington.com,reseller123,reseller,yes,16-10-2025
 auth_004,client_001,user@redington.com,user123,client,yes,16-10-2025
+auth_005,isv_002,test@gmail.com,test@gmail.com,isv,yes,2025-10-23

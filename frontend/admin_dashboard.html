@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Agents Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .dashboard-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .dashboard-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .dashboard-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card a {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="/dashboard">🏠 Dashboard</a>
+                <a href="/unified-chat">💬 Chat</a>
+                <a href="/agent/onboard">➕ Create Agent</a>
+                <a href="/admin/login">👨‍💼 Admin Login</a>
+            </div>
+            <h1>📊 Admin Dashboard</h1>
+            <p>System overview and management</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>🤖 Agent Management</h3>
+                <p>Manage all AI agents in the marketplace</p>
+                <a href="/admin/agents">Manage Agents</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>👥 User Management</h3>
+                <p>Manage ISVs, resellers, and clients</p>
+                <a href="/admin/users">Manage Users</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📈 Analytics</h3>
+                <p>View system analytics and reports</p>
+                <a href="/api/agents">View Analytics</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>⚙️ System Settings</h3>
+                <p>Configure system parameters</p>
+                <a href="/api/health">System Health</a>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">System Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAgents">-</div>
+                    <div class="stat-label">Total Agents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">-</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeChats">-</div>
+                    <div class="stat-label">Active Chats</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="systemHealth">-</div>
+                    <div class="stat-label">System Health</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load system statistics
+        async function loadStats() {
+            try {
+                // Load agents count
+                const agentsResponse = await fetch('/api/agents');
+                if (agentsResponse.ok) {
+                    const agentsData = await agentsResponse.json();
+                    document.getElementById('totalAgents').textContent = agentsData.total || 0;
+                }
+
+                // Load system health
+                const healthResponse = await fetch('/api/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    document.getElementById('systemHealth').textContent = '✅';
+                } else {
+                    document.getElementById('systemHealth').textContent = '❌';
+                }
+
+                // Load chat history count
+                const chatResponse = await fetch('/api/chat/history/anonymous');
+                if (chatResponse.ok) {
+                    const chatData = await chatResponse.json();
+                    document.getElementById('activeChats').textContent = chatData.total_chats || 0;
+                }
+
+                // Set users count (placeholder)
+                document.getElementById('totalUsers').textContent = '3';
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('totalAgents').textContent = 'Error';
+                document.getElementById('systemHealth').textContent = '❌';
+            }
+        }
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>
