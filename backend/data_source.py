@@ -49,18 +49,56 @@ class DataSource:
                 
                 # Add SSL parameters for Render/cloud databases
                 if "render.com" in db_url or "heroku.com" in db_url or "neon.tech" in db_url:
-                    if "?" in db_url:
-                        db_url += "&sslmode=prefer"
-                    else:
-                        db_url += "?sslmode=prefer"
-                    logger.info("Added SSL mode for cloud database")
+                    # Check if sslmode is already in the URL
+                    if "sslmode=" not in db_url:
+                        if "?" in db_url:
+                            db_url += "&sslmode=require"
+                        else:
+                            db_url += "?sslmode=require"
+                        logger.info("Added SSL mode (require) for cloud database")
+                    elif "sslmode=prefer" in db_url:
+                        # Replace prefer with require for Render
+                        db_url = db_url.replace("sslmode=prefer", "sslmode=require")
+                        logger.info("Changed SSL mode from prefer to require for Render database")
                 
                 # Create connection pool with URL
-                self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
-                    minconn=1,
-                    maxconn=10,
-                    dsn=db_url
-                )
+                # For Render, we need sslmode=require with proper connection settings
+                # Add connection timeout and keepalive settings if not present
+                if "connect_timeout=" not in db_url:
+                    db_url += "&connect_timeout=10" if "?" in db_url else "?connect_timeout=10"
+                if "keepalives=" not in db_url:
+                    db_url += "&keepalives=1"
+                if "keepalives_idle=" not in db_url:
+                    db_url += "&keepalives_idle=30"
+                
+                try:
+                    self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
+                        minconn=1,
+                        maxconn=10,
+                        dsn=db_url
+                    )
+                except Exception as ssl_error:
+                    # If SSL connection fails, try with sslmode=require without certificate verification
+                    if "SSL" in str(ssl_error) or "ssl" in str(ssl_error).lower():
+                        logger.warning(f"SSL connection failed with sslmode=require, trying sslmode=require with no verification: {str(ssl_error)}")
+                        # Replace or add sslmode=require
+                        if "sslmode=" in db_url:
+                            db_url = db_url.split("?")[0] + "?sslmode=require&sslcert=&sslkey=&sslrootcert=&sslcrl="
+                        else:
+                            db_url = db_url + "?sslmode=require&sslcert=&sslkey=&sslrootcert=&sslcrl="
+                        
+                        try:
+                            self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
+                                minconn=1,
+                                maxconn=10,
+                                dsn=db_url
+                            )
+                            logger.info("Connection pool initialized with SSL (no cert verification)")
+                        except Exception as retry_error:
+                            logger.error(f"SSL connection retry also failed: {str(retry_error)}")
+                            raise retry_error
+                    else:
+                        raise ssl_error
             else:
                 # Create connection pool with individual parameters
                 self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
