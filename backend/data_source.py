@@ -76,19 +76,46 @@ class DataSource:
             logger.info("PostgreSQL connection pool initialized successfully")
             
         except Exception as e:
-            logger.error(f"Error initializing connection pool: {e}")
+            logger.error(f"Error initializing connection pool: {str(e)}")
+            logger.error(f"Database config data_source: {self.data_source}")
+            logger.error(f"Database config has DATABASE_URL: {'DATABASE_URL' in self.db_config}")
+            if 'DATABASE_URL' in self.db_config:
+                db_url_preview = self.db_config['DATABASE_URL'][:50] + "..." if len(str(self.db_config.get('DATABASE_URL', ''))) > 50 else self.db_config.get('DATABASE_URL', '')
+                logger.error(f"DATABASE_URL preview: {db_url_preview}")
+            else:
+                logger.error(f"Using individual parameters - host: {self.db_config.get('host', 'N/A')}, database: {self.db_config.get('database', 'N/A')}")
             self._connection_pool = None
+            # Don't raise here - let the app start, but pool will be None
     
     def _get_connection(self):
         """Get PostgreSQL database connection from pool"""
+        # If pool is not initialized, try to initialize it
         if not self._connection_pool:
-            raise Exception("Connection pool not initialized")
+            logger.warning("Connection pool not initialized, attempting to initialize...")
+            self._init_connection_pool()
+            
+            # If still not initialized after retry, raise error
+            if not self._connection_pool:
+                raise Exception("Connection pool not initialized and initialization failed")
         
         try:
             return self._connection_pool.getconn()
         except Exception as e:
             logger.error(f"Error getting connection from pool: {e}")
-            raise
+            # Try to re-initialize pool if connection fails
+            logger.info("Attempting to re-initialize connection pool...")
+            self._connection_pool = None
+            self._init_connection_pool()
+            
+            if not self._connection_pool:
+                raise Exception(f"Failed to get connection and re-initialization failed: {str(e)}")
+            
+            # Retry getting connection after re-initialization
+            try:
+                return self._connection_pool.getconn()
+            except Exception as retry_e:
+                logger.error(f"Error getting connection after re-initialization: {retry_e}")
+                raise
     
     def _return_connection(self, conn):
         """Return connection to pool"""
