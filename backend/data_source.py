@@ -4,12 +4,14 @@ Supports both CSV files and PostgreSQL database
 """
 import pandas as pd
 import psycopg2
+from psycopg2 import pool
 from typing import Dict, List, Optional, Union
 from pathlib import Path
 import logging
 import os
 from datetime import datetime
 from config import CSV_PATHS, DATABASE_CONFIG
+import threading
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +24,79 @@ class DataSource:
         self.data_source = DATABASE_CONFIG["data_source"]
         self.csv_paths = CSV_PATHS
         self.db_config = DATABASE_CONFIG
+        self._connection_pool = None
+        self._lock = threading.Lock()
+        
+        # Initialize connection pool if using PostgreSQL
+        if self.data_source == "postgres":
+            self._init_connection_pool()
+    
+    def _init_connection_pool(self):
+        """Initialize PostgreSQL connection pool"""
+        try:
+            # Get connection parameters
+            if "DATABASE_URL" in self.db_config and self.db_config["DATABASE_URL"]:
+                db_url = self.db_config["DATABASE_URL"]
+                
+                # Handle JDBC format URLs (jdbc:postgresql://...)
+                if db_url.startswith("jdbc:postgresql://"):
+                    db_url = self._convert_jdbc_to_postgresql_url(db_url)
+                    logger.info("Converted JDBC URL to PostgreSQL format")
+                
+                # Handle postgres:// URLs (convert to postgresql://)
+                elif db_url.startswith("postgres://"):
+                    db_url = db_url.replace("postgres://", "postgresql://", 1)
+                
+                # Add SSL parameters for Render/cloud databases
+                if "render.com" in db_url or "heroku.com" in db_url or "neon.tech" in db_url:
+                    if "?" in db_url:
+                        db_url += "&sslmode=prefer"
+                    else:
+                        db_url += "?sslmode=prefer"
+                    logger.info("Added SSL mode for cloud database")
+                
+                # Create connection pool with URL
+                self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
+                    minconn=1,
+                    maxconn=10,
+                    dsn=db_url
+                )
+            else:
+                # Create connection pool with individual parameters
+                self._connection_pool = psycopg2.pool.ThreadedConnectionPool(
+                    minconn=1,
+                    maxconn=10,
+                    host=self.db_config["host"],
+                    port=self.db_config["port"],
+                    database=self.db_config["database"],
+                    user=self.db_config["username"],
+                    password=self.db_config["password"]
+                )
+            
+            logger.info("PostgreSQL connection pool initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Error initializing connection pool: {e}")
+            self._connection_pool = None
+    
+    def _get_connection(self):
+        """Get PostgreSQL database connection from pool"""
+        if not self._connection_pool:
+            raise Exception("Connection pool not initialized")
+        
+        try:
+            return self._connection_pool.getconn()
+        except Exception as e:
+            logger.error(f"Error getting connection from pool: {e}")
+            raise
+    
+    def _return_connection(self, conn):
+        """Return connection to pool"""
+        if self._connection_pool and conn:
+            try:
+                self._connection_pool.putconn(conn)
+            except Exception as e:
+                logger.error(f"Error returning connection to pool: {e}")
         
     def get_table_data(self, table_name: str) -> pd.DataFrame:
         """
@@ -67,28 +142,223 @@ class DataSource:
         return pd.DataFrame()
     
     def _get_postgres_data(self, table_name: str) -> pd.DataFrame:
-        """Read data from PostgreSQL database"""
+        """Read data from PostgreSQL database using connection pool"""
+        conn = None
         try:
-            # Create connection
-            conn = psycopg2.connect(
-                host=self.db_config["host"],
-                port=self.db_config["port"],
-                database=self.db_config["database"],
-                user=self.db_config["username"],
-                password=self.db_config["password"]
-            )
+            # Get connection from pool
+            conn = self._get_connection()
             
-            # Read data
-            query = f"SELECT * FROM {table_name}"
-            df = pd.read_sql(query, conn)
+            # Read data (suppress pandas warning about psycopg2 connection)
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                query = f"SELECT * FROM {table_name}"
+                df = pd.read_sql(query, conn)
             
-            conn.close()
             logger.info(f"Loaded {len(df)} rows from PostgreSQL table {table_name}")
             return df
             
         except Exception as e:
             logger.error(f"Error reading from PostgreSQL {table_name}: {e}")
             return pd.DataFrame()
+        finally:
+            # Always return connection to pool
+            if conn:
+                self._return_connection(conn)
+    
+    def _convert_jdbc_to_postgresql_url(self, jdbc_url: str) -> str:
+        """Convert JDBC URL to PostgreSQL connection string format"""
+        try:
+            import re
+            from urllib.parse import urlparse, parse_qs
+            
+            # Remove jdbc: prefix
+            url_without_jdbc = jdbc_url.replace("jdbc:", "")
+            
+            # Parse the URL
+            parsed = urlparse(url_without_jdbc)
+            
+            # Get components
+            host = parsed.hostname
+            port = parsed.port or 5432
+            
+            # Remove leading / from path to get database name
+            database = parsed.path.lstrip('/')
+            
+            # Parse query parameters
+            params = parse_qs(parsed.query)
+            username = params.get('user', [''])[0] or params.get('username', [''])[0]
+            password = params.get('password', [''])[0]
+            
+            # Build PostgreSQL URL
+            postgresql_url = f"postgresql://{username}:{password}@{host}:{port}/{database}"
+            
+            logger.info(f"Converted JDBC URL successfully")
+            return postgresql_url
+              
+        except Exception as e:
+            logger.error(f"Error converting JDBC URL: {e}")
+            raise
+    
+    def _save_postgres_data(self, table_name: str, data: Dict) -> bool:
+        """Save data to PostgreSQL database using connection pool"""
+        conn = None
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+            
+            # Get existing data to get column names
+            df = self._get_postgres_data(table_name)
+            if not df.empty:
+                columns = list(df.columns)
+            else:
+                # If table is empty, use the keys from data
+                columns = list(data.keys())
+            
+            # Build INSERT query
+            valid_columns = [col for col in columns if col in data]
+            placeholders = ', '.join(['%s'] * len(valid_columns))
+            column_names = ', '.join([f'"{col}"' for col in valid_columns])
+            
+            query = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"
+            values = [data[col] for col in valid_columns]
+            
+            cursor.execute(query, values)
+            conn.commit()
+            cursor.close()
+            
+            logger.info(f"Saved data to PostgreSQL table {table_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving data to PostgreSQL {table_name}: {e}")
+            return False
+        finally:
+            # Always return connection to pool
+            if conn:
+                self._return_connection(conn)
+    
+    def _update_postgres_data(self, table_name: str, key_column: str, key_value: str, data: Dict) -> bool:
+        """Update data in PostgreSQL database using connection pool"""
+        conn = None
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+            
+            # Build UPDATE query
+            set_clauses = []
+            values = []
+            for key, value in data.items():
+                if key != key_column:  # Don't update the key column itself
+                    set_clauses.append(f'"{key}" = %s')
+                    values.append(value)
+            
+            if not set_clauses:
+                logger.warning("No fields to update")
+                return False
+            
+            query = f'UPDATE {table_name} SET {", ".join(set_clauses)} WHERE "{key_column}" = %s'
+            values.append(key_value)
+            
+            cursor.execute(query, values)
+            conn.commit()
+            cursor.close()
+            
+            logger.info(f"Updated data in PostgreSQL table {table_name} where {key_column}={key_value}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating data in PostgreSQL {table_name}: {e}")
+            return False
+        finally:
+            # Always return connection to pool
+            if conn:
+                self._return_connection(conn)
+    
+    def _delete_postgres_data(self, table_name: str, key_column: str, key_value: str) -> bool:
+        """Delete data from PostgreSQL database using connection pool"""
+        conn = None
+        try:
+            conn = self._get_connection()
+            cursor = conn.cursor()
+            
+            query = f'DELETE FROM {table_name} WHERE "{key_column}" = %s'
+            cursor.execute(query, (key_value,))
+            conn.commit()
+            cursor.close()
+            
+            logger.info(f"Deleted data from PostgreSQL table {table_name} where {key_column}={key_value}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error deleting data from PostgreSQL {table_name}: {e}")
+            return False
+        finally:
+            # Always return connection to pool
+            if conn:
+                self._return_connection(conn)
+    
+    def _save_csv_data(self, table_name: str, data: Union[Dict, List[Dict]]) -> bool:
+        """Save data to CSV file"""
+        try:
+            if table_name not in self.csv_paths:
+                logger.error(f"Unknown table: {table_name}")
+                return False
+            
+            csv_path = self.csv_paths[table_name]
+            
+            # Get existing data
+            df = self._get_csv_data(table_name)
+            
+            # Convert to DataFrame
+            if isinstance(data, list):
+                new_df = pd.DataFrame(data)
+            else:
+                new_df = pd.DataFrame([data])
+            
+            # Append
+            updated_df = pd.concat([df, new_df], ignore_index=True)
+            
+            # Save
+            updated_df.to_csv(csv_path, index=False)
+            logger.info(f"Saved data to CSV {table_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving CSV data {table_name}: {e}")
+            return False
+    
+    def _update_csv_data(self, table_name: str, key_column: str, key_value: str, data: Dict) -> bool:
+        """Update data in CSV file"""
+        try:
+            if table_name not in self.csv_paths:
+                logger.error(f"Unknown table: {table_name}")
+                return False
+            
+            csv_path = self.csv_paths[table_name]
+            
+            # Get existing data
+            df = self._get_csv_data(table_name)
+            
+            # Find the row to update
+            mask = df[key_column] == key_value
+            if not mask.any():
+                logger.error(f"Row not found in {table_name} where {key_column}={key_value}")
+                return False
+            
+            # Update the row
+            for key, value in data.items():
+                if key in df.columns:
+                    df.loc[mask, key] = value
+            
+            # Save
+            df.to_csv(csv_path, index=False)
+            logger.info(f"Updated CSV {table_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating CSV data {table_name}: {e}")
+            return False
     
     def get_agents(self) -> pd.DataFrame:
         """Get all agents"""
@@ -185,39 +455,29 @@ class DataSource:
         return agents_df[agents_df['isv_id'] == isv_id]
     
     def save_isv_data(self, isv_data: Dict) -> bool:
-        """Save new ISV data to CSV file"""
+        """Save new ISV data to CSV file or PostgreSQL"""
         try:
-            isv_df = self.get_isvs()
-            
-            # Convert to DataFrame and append
-            new_row = pd.DataFrame([isv_data])
-            updated_df = pd.concat([isv_df, new_row], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["isv"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved new ISV: {isv_data['isv_id']}")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("isv", isv_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("isv", isv_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving ISV data: {e}")
             return False
     
     def save_auth_data(self, auth_data: Dict) -> bool:
-        """Save new auth data to CSV file"""
+        """Save new auth data to CSV file or PostgreSQL"""
         try:
-            auth_df = self.get_auth()
-            
-            # Convert to DataFrame and append
-            new_row = pd.DataFrame([auth_data])
-            updated_df = pd.concat([auth_df, new_row], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["auth"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved new auth record: {auth_data['auth_id']}")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("auth", auth_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("auth", auth_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving auth data: {e}")
             return False
@@ -255,27 +515,15 @@ class DataSource:
             return f"auth_{len(auth_df) + 1:03d}"
     
     def update_isv_data(self, isv_id: str, updated_data: Dict) -> bool:
-        """Update existing ISV data in CSV file"""
+        """Update existing ISV data in CSV file or PostgreSQL"""
         try:
-            isv_df = self.get_isvs()
-            
-            # Find the row to update
-            mask = isv_df['isv_id'] == isv_id
-            if not mask.any():
-                logger.error(f"ISV not found: {isv_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("isv", "isv_id", isv_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("isv", "isv_id", isv_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in isv_df.columns:
-                    isv_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["isv"]
-            isv_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated ISV: {isv_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating ISV data: {e}")
             return False
@@ -291,46 +539,29 @@ class DataSource:
         return reseller.iloc[0].to_dict()
     
     def save_reseller_data(self, reseller_data: Dict) -> bool:
-        """Save new reseller data to CSV file"""
+        """Save new reseller data to CSV file or PostgreSQL"""
         try:
-            resellers_df = self.get_resellers()
-            
-            # Convert to DataFrame and append
-            new_row = pd.DataFrame([reseller_data])
-            updated_df = pd.concat([resellers_df, new_row], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["reseller"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved new reseller: {reseller_data['reseller_id']}")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("reseller", reseller_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("reseller", reseller_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving reseller data: {e}")
             return False
     
     def update_reseller_data(self, reseller_id: str, updated_data: Dict) -> bool:
-        """Update existing reseller data in CSV file"""
+        """Update existing reseller data in CSV file or PostgreSQL"""
         try:
-            resellers_df = self.get_resellers()
-            
-            # Find the row to update
-            mask = resellers_df['reseller_id'] == reseller_id
-            if not mask.any():
-                logger.error(f"Reseller not found: {reseller_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("reseller", "reseller_id", reseller_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("reseller", "reseller_id", reseller_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in resellers_df.columns:
-                    resellers_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["reseller"]
-            resellers_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated reseller: {reseller_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating reseller data: {e}")
             return False
@@ -373,327 +604,217 @@ class DataSource:
             return f"agent_{len(agents_df) + 1:03d}"
     
     def save_agent_data(self, agent_data: Dict) -> bool:
-        """Save new agent data to CSV file"""
+        """Save new agent data to CSV file or PostgreSQL"""
         try:
-            agents_df = self.get_agents()
-            
-            # Convert to DataFrame and append
-            new_row = pd.DataFrame([agent_data])
-            updated_df = pd.concat([agents_df, new_row], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["agents"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved new agent: {agent_data['agent_id']}")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("agents", agent_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("agents", agent_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving agent data: {e}")
             return False
     
     def save_capabilities_mapping_data(self, capabilities_data: List[Dict]) -> bool:
-        """Save capabilities mapping data to CSV file"""
+        """Save capabilities mapping data to CSV file or PostgreSQL"""
         try:
-            capabilities_df = self.get_capabilities_mapping()
-            
-            # Convert to DataFrame and append
-            new_rows = pd.DataFrame(capabilities_data)
-            updated_df = pd.concat([capabilities_df, new_rows], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["capabilities_mapping"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved {len(capabilities_data)} capability mappings")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("capabilities_mapping", capabilities_data)
+            elif self.data_source == "postgres":
+                # For list data, save each item individually
+                for item in capabilities_data:
+                    if not self._save_postgres_data("capabilities_mapping", item):
+                        return False
+                logger.info(f"Saved {len(capabilities_data)} capability mappings")
+                return True
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving capabilities mapping data: {e}")
             return False
     
     def save_demo_assets_data(self, demo_assets_data: List[Dict]) -> bool:
-        """Save demo assets data to CSV file"""
+        """Save demo assets data to CSV file or PostgreSQL"""
         try:
-            demo_assets_df = self.get_demo_assets()
-            
-            # Convert to DataFrame and append
-            new_rows = pd.DataFrame(demo_assets_data)
-            updated_df = pd.concat([demo_assets_df, new_rows], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["demo_assets"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved {len(demo_assets_data)} demo assets")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("demo_assets", demo_assets_data)
+            elif self.data_source == "postgres":
+                # For list data, save each item individually
+                for item in demo_assets_data:
+                    if not self._save_postgres_data("demo_assets", item):
+                        return False
+                logger.info(f"Saved {len(demo_assets_data)} demo assets")
+                return True
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving demo assets data: {e}")
             return False
     
     def save_docs_data(self, docs_data: Dict) -> bool:
-        """Save documentation data to CSV file"""
+        """Save documentation data to CSV file or PostgreSQL"""
         try:
-            docs_df = self.get_docs()
-            
-            # Convert to DataFrame and append
-            new_row = pd.DataFrame([docs_data])
-            updated_df = pd.concat([docs_df, new_row], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["docs"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved documentation for agent: {docs_data['agent_id']}")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("docs", docs_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("docs", docs_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving docs data: {e}")
             return False
     
     def save_deployments_data(self, deployments_data: List[Dict]) -> bool:
-        """Save deployments data to CSV file"""
+        """Save deployments data to CSV file or PostgreSQL"""
         try:
-            deployments_df = self.get_deployments()
-            
-            # Convert to DataFrame and append
-            new_rows = pd.DataFrame(deployments_data)
-            updated_df = pd.concat([deployments_df, new_rows], ignore_index=True)
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["deployments"]
-            updated_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Saved {len(deployments_data)} deployments")
-            return True
+            if self.data_source == "csv":
+                return self._save_csv_data("deployments", deployments_data)
+            elif self.data_source == "postgres":
+                # For list data, save each item individually
+                for item in deployments_data:
+                    if not self._save_postgres_data("deployments", item):
+                        return False
+                logger.info(f"Saved {len(deployments_data)} deployments")
+                return True
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving deployments data: {e}")
             return False
     
     def update_agent_data(self, agent_id: str, updated_data: Dict) -> bool:
-        """Update existing agent data in CSV file"""
+        """Update existing agent data in CSV file or PostgreSQL"""
         try:
-            agents_df = self.get_agents()
-            
-            # Find the row to update
-            mask = agents_df['agent_id'] == agent_id
-            if not mask.any():
-                logger.error(f"Agent not found: {agent_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("agents", "agent_id", agent_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("agents", "agent_id", agent_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in agents_df.columns:
-                    agents_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["agents"]
-            agents_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated agent: {agent_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating agent data: {e}")
             return False
     
     def update_docs_data(self, agent_id: str, updated_data: Dict) -> bool:
-        """Update existing docs data in CSV file"""
+        """Update existing docs data in CSV file or PostgreSQL"""
         try:
-            docs_df = self.get_docs()
-            
-            # Find the row to update
-            mask = docs_df['agent_id'] == agent_id
-            if not mask.any():
-                logger.error(f"Docs not found for agent: {agent_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("docs", "agent_id", agent_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("docs", "agent_id", agent_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in docs_df.columns:
-                    docs_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["docs"]
-            docs_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated docs for agent: {agent_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating docs data: {e}")
             return False
     
     def update_deployments_data(self, by_capability_id: str, updated_data: Dict) -> bool:
-        """Update existing deployments data in CSV file"""
+        """Update existing deployments data in CSV file or PostgreSQL"""
         try:
-            deployments_df = self.get_deployments()
-            
-            # Find the row to update
-            mask = deployments_df['by_capability_id'] == by_capability_id
-            if not mask.any():
-                logger.error(f"Deployment not found for capability: {by_capability_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("deployments", "by_capability_id", by_capability_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("deployments", "by_capability_id", by_capability_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in deployments_df.columns:
-                    deployments_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["deployments"]
-            deployments_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated deployment for capability: {by_capability_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating deployments data: {e}")
             return False
     
     def update_demo_assets_data(self, demo_asset_id: str, updated_data: Dict) -> bool:
-        """Update existing demo assets data in CSV file"""
+        """Update existing demo assets data in CSV file or PostgreSQL"""
         try:
-            demo_assets_df = self.get_demo_assets()
-            
-            # Find the row to update
-            mask = demo_assets_df['demo_asset_id'] == demo_asset_id
-            if not mask.any():
-                logger.error(f"Demo asset not found: {demo_asset_id}")
+            if self.data_source == "csv":
+                return self._update_csv_data("demo_assets", "demo_asset_id", demo_asset_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("demo_assets", "demo_asset_id", demo_asset_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the row
-            for key, value in updated_data.items():
-                if key in demo_assets_df.columns:
-                    demo_assets_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["demo_assets"]
-            demo_assets_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated demo asset: {demo_asset_id}")
-            return True
         except Exception as e:
             logger.error(f"Error updating demo assets data: {e}")
             return False
     
     def get_chat_history(self) -> pd.DataFrame:
-        """Load chat history data from CSV file"""
-        try:
-            csv_path = self.csv_paths["chat_history"]
-            if not csv_path.exists():
-                # Create empty DataFrame with correct columns
-                return pd.DataFrame(columns=[
-                    'session_id', 'user_id', 'user_type', 'chat_mode', 'title', 
-                    'conversation_summary', 'total_messages', 'last_message_at', 
-                    'created_at', 'updated_at', 'status'
-                ])
-            
-            df = pd.read_csv(csv_path, encoding='utf-8')
-            logger.info(f"Loaded {len(df)} rows from chat_history using utf-8 encoding")
-            return df
-        except Exception as e:
-            logger.error(f"Error loading chat history: {e}")
-            return pd.DataFrame()
+        """Load chat history data from CSV file or PostgreSQL"""
+        return self.get_table_data("chat_history")
     
     def save_chat_history_data(self, chat_data: Dict) -> bool:
-        """Save new chat history data to CSV file"""
+        """Save new chat history data to CSV file or PostgreSQL"""
         try:
-            chat_history_df = self.get_chat_history()
-            
             # Add timestamps
             chat_data['created_at'] = datetime.now().isoformat()
             chat_data['updated_at'] = datetime.now().isoformat()
             chat_data['status'] = 'active'
             
-            # Convert to DataFrame and append
-            new_chat_df = pd.DataFrame([chat_data])
-            
-            if chat_history_df.empty:
-                # First chat history entry
-                new_chat_df.to_csv(self.csv_paths["chat_history"], index=False)
+            if self.data_source == "csv":
+                return self._save_csv_data("chat_history", chat_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("chat_history", chat_data)
             else:
-                # Append to existing
-                combined_df = pd.concat([chat_history_df, new_chat_df], ignore_index=True)
-                combined_df.to_csv(self.csv_paths["chat_history"], index=False)
-            
-            logger.info(f"Chat history saved for session: {chat_data['session_id']}")
-            return True
-            
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving chat history: {str(e)}")
             return False
     
     def update_chat_history_data(self, session_id: str, updated_data: Dict) -> bool:
-        """Update existing chat history data in CSV file"""
+        """Update existing chat history data in CSV file or PostgreSQL"""
         try:
-            chat_history_df = self.get_chat_history()
-            
-            # Find the row to update
-            mask = chat_history_df['session_id'] == session_id
-            if not mask.any():
-                logger.error(f"Chat history not found for session: {session_id}")
-                return False
-            
-            # Update the row
             updated_data['updated_at'] = datetime.now().isoformat()
-            for key, value in updated_data.items():
-                if key in chat_history_df.columns:
-                    chat_history_df.loc[mask, key] = value
             
-            # Save back to CSV
-            csv_path = self.csv_paths["chat_history"]
-            chat_history_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Updated chat history for session: {session_id}")
-            return True
+            if self.data_source == "csv":
+                return self._update_csv_data("chat_history", "session_id", session_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("chat_history", "session_id", session_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error updating chat history: {e}")
             return False
     
     def delete_chat_history_data(self, session_id: str) -> bool:
-        """Delete chat history data from CSV file"""
+        """Delete chat history data from CSV file or PostgreSQL"""
         try:
-            chat_history_df = self.get_chat_history()
-            
-            # Find the row to delete
-            mask = chat_history_df['session_id'] == session_id
-            if not mask.any():
-                logger.error(f"Chat history not found for session: {session_id}")
+            if self.data_source == "csv":
+                chat_history_df = self.get_chat_history()
+                mask = chat_history_df['session_id'] == session_id
+                if not mask.any():
+                    logger.error(f"Chat history not found for session: {session_id}")
+                    return False
+                chat_history_df = chat_history_df[~mask]
+                csv_path = self.csv_paths["chat_history"]
+                chat_history_df.to_csv(csv_path, index=False)
+                logger.info(f"Deleted chat history for session: {session_id}")
+                return True
+            elif self.data_source == "postgres":
+                return self._delete_postgres_data("chat_history", "session_id", session_id)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Remove the row
-            chat_history_df = chat_history_df[~mask]
-            
-            # Save back to CSV
-            csv_path = self.csv_paths["chat_history"]
-            chat_history_df.to_csv(csv_path, index=False)
-            
-            logger.info(f"Deleted chat history for session: {session_id}")
-            return True
         except Exception as e:
             logger.error(f"Error deleting chat history: {e}")
             return False
     
     def get_enquiries(self) -> pd.DataFrame:
         """Get all enquiries"""
-        try:
-            csv_path = self.csv_paths["enquiries"]
-            if not os.path.exists(csv_path):
-                # Create empty DataFrame with correct columns
-                return pd.DataFrame(columns=[
-                    'enquiry_id', 'full_name', 'email', 'phone', 'company_name', 
-                    'message', 'user_id', 'user_type', 'session_id', 
-                    'created_at', 'status', 'type'
-                ])
-            
-            df = pd.read_csv(csv_path, encoding='utf-8')
-            logger.info(f"Loaded {len(df)} rows from enquiries")
-            return df
-        except Exception as e:
-            logger.error(f"Error loading enquiries: {e}")
-            return pd.DataFrame()
+        return self.get_table_data("enquiries")
     
     def save_enquiries_data(self, enquiry_data: Dict) -> bool:
-        """Save new enquiry data to CSV file"""
+        """Save new enquiry data to CSV file or PostgreSQL"""
         try:
-            enquiries_df = self.get_enquiries()
-            
             # Generate enquiry ID
+            enquiries_df = self.get_enquiries()
             if enquiries_df.empty:
                 enquiry_id = "enquiry_001"
             else:
@@ -705,20 +826,13 @@ class DataSource:
             enquiry_data['created_at'] = datetime.now().isoformat()
             enquiry_data['status'] = 'new'
             
-            # Convert to DataFrame and append
-            new_enquiry_df = pd.DataFrame([enquiry_data])
-            
-            if enquiries_df.empty:
-                # First enquiry
-                new_enquiry_df.to_csv(self.csv_paths["enquiries"], index=False)
+            if self.data_source == "csv":
+                return self._save_csv_data("enquiries", enquiry_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("enquiries", enquiry_data)
             else:
-                # Append to existing
-                combined_df = pd.concat([enquiries_df, new_enquiry_df], ignore_index=True)
-                combined_df.to_csv(self.csv_paths["enquiries"], index=False)
-            
-            logger.info(f"Enquiry saved successfully with ID: {enquiry_id}")
-            return True
-            
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving enquiry: {str(e)}")
             return False
@@ -740,15 +854,9 @@ class DataSource:
                 }
             
             elif self.data_source == "postgres":
-                # Test database connection
-                conn = psycopg2.connect(
-                    host=self.db_config["host"],
-                    port=self.db_config["port"],
-                    database=self.db_config["database"],
-                    user=self.db_config["username"],
-                    password=self.db_config["password"]
-                )
-                conn.close()
+                # Test database connection using pool
+                conn = self._get_connection()
+                self._return_connection(conn)
                 
                 return {
                     "status": "healthy",
@@ -761,6 +869,15 @@ class DataSource:
                 "data_source": self.data_source,
                 "error": str(e)
             }
+    
+    def close_connection_pool(self):
+        """Close the connection pool"""
+        if self._connection_pool:
+            try:
+                self._connection_pool.closeall()
+                logger.info("Connection pool closed successfully")
+            except Exception as e:
+                logger.error(f"Error closing connection pool: {e}")
 
     def get_agent_requirements(self) -> pd.DataFrame:
         """Get all agent requirements"""
@@ -783,63 +900,37 @@ class DataSource:
             return f"req_{len(requirements_df) + 1:03d}"
     
     def save_agent_requirements_data(self, requirements_data: Dict) -> bool:
-        """Save new agent requirements data to CSV file"""
+        """Save new agent requirements data to CSV file or PostgreSQL"""
         try:
-            requirements_df = self.get_agent_requirements()
-            
             # Add requirement ID and timestamps
             requirements_data['requirement_id'] = self.get_next_requirement_id()
             requirements_data['created_at'] = datetime.now().isoformat()
             requirements_data['updated_at'] = datetime.now().isoformat()
             requirements_data['status'] = 'discovered'
             
-            # Convert to DataFrame and append
-            new_requirement_df = pd.DataFrame([requirements_data])
-            
-            if requirements_df.empty:
-                # First requirement
-                new_requirement_df.to_csv(self.csv_paths["agent_requirements"], index=False)
+            if self.data_source == "csv":
+                return self._save_csv_data("agent_requirements", requirements_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("agent_requirements", requirements_data)
             else:
-                # Append to existing
-                combined_df = pd.concat([requirements_df, new_requirement_df], ignore_index=True)
-                combined_df.to_csv(self.csv_paths["agent_requirements"], index=False)
-            
-            logger.info(f"Agent requirements saved with ID: {requirements_data['requirement_id']}")
-            return True
-            
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving agent requirements: {str(e)}")
             return False
     
     def update_agent_requirements_data(self, requirement_id: str, updated_data: Dict) -> bool:
-        """Update existing agent requirements data"""
+        """Update existing agent requirements data in CSV file or PostgreSQL"""
         try:
-            requirements_df = self.get_agent_requirements()
+            updated_data['updated_at'] = datetime.now().isoformat()
             
-            if requirements_df.empty:
-                logger.warning("No agent requirements found to update")
+            if self.data_source == "csv":
+                return self._update_csv_data("agent_requirements", "requirement_id", requirement_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("agent_requirements", "requirement_id", requirement_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Find and update the requirement
-            mask = requirements_df['requirement_id'] == requirement_id
-            if not mask.any():
-                logger.warning(f"Agent requirement {requirement_id} not found")
-                return False
-            
-            # Update the data
-            for key, value in updated_data.items():
-                if key in requirements_df.columns:
-                    requirements_df.loc[mask, key] = value
-            
-            # Update timestamp
-            requirements_df.loc[mask, 'updated_at'] = datetime.now().isoformat()
-            
-            # Save back to CSV
-            requirements_df.to_csv(self.csv_paths["agent_requirements"], index=False)
-            
-            logger.info(f"Agent requirements {requirement_id} updated successfully")
-            return True
-            
         except Exception as e:
             logger.error(f"Error updating agent requirements: {str(e)}")
             return False
@@ -876,48 +967,29 @@ class DataSource:
             return "client_001"
     
     def save_client_data(self, client_data: Dict) -> bool:
-        """Save new client data to CSV file"""
+        """Save new client data to CSV file or PostgreSQL"""
         try:
-            clients_df = self.get_clients()
-            
-            # Create new row
-            new_row = pd.DataFrame([client_data])
-            
-            # Append to existing data
-            updated_df = pd.concat([clients_df, new_row], ignore_index=True)
-            
-            # Save to CSV
-            updated_df.to_csv(self.csv_paths["client"], index=False)
-            
-            logger.info(f"Client data saved with ID: {client_data.get('client_id')}")
-            return True
-            
+            if self.data_source == "csv":
+                return self._save_csv_data("client", client_data)
+            elif self.data_source == "postgres":
+                return self._save_postgres_data("client", client_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
+                return False
         except Exception as e:
             logger.error(f"Error saving client data: {str(e)}")
             return False
     
     def update_client_data(self, client_id: str, updated_data: Dict) -> bool:
-        """Update existing client data"""
+        """Update existing client data in CSV file or PostgreSQL"""
         try:
-            clients_df = self.get_clients()
-            
-            # Find and update the client
-            mask = clients_df['client_id'] == client_id
-            if not mask.any():
-                logger.warning(f"Client {client_id} not found")
+            if self.data_source == "csv":
+                return self._update_csv_data("client", "client_id", client_id, updated_data)
+            elif self.data_source == "postgres":
+                return self._update_postgres_data("client", "client_id", client_id, updated_data)
+            else:
+                logger.error(f"Unknown data source: {self.data_source}")
                 return False
-            
-            # Update the data
-            for key, value in updated_data.items():
-                if key in clients_df.columns:
-                    clients_df.loc[mask, key] = value
-            
-            # Save back to CSV
-            clients_df.to_csv(self.csv_paths["client"], index=False)
-            
-            logger.info(f"Client {client_id} updated successfully")
-            return True
-            
         except Exception as e:
             logger.error(f"Error updating client data: {str(e)}")
             return False

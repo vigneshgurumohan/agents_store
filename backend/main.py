@@ -1076,6 +1076,8 @@ async def edit_agent(
     demo_links: str = Form(None),
     # Demo asset files (multiple files)
     demo_files: List[UploadFile] = File([]),
+    # README file upload
+    readme_file: UploadFile = File(None),
     # Authentication (you can add proper auth later)
     isv_id: str = Form(...)
 ):
@@ -1138,6 +1140,36 @@ async def edit_agent(
         if related_files is not None:
             docs_data['related_files'] = related_files
         
+        # Handle README file upload
+        readme_file_url = ""
+        if readme_file and readme_file.filename:
+            try:
+                logger.info(f"Processing README file upload for agent {agent_id}: {readme_file.filename}")
+                file_content = await readme_file.read()
+                logger.info(f"README file content size: {len(file_content)} bytes")
+                
+                success, message, s3_url = s3_manager.upload_file(
+                    file_content, 
+                    readme_file.filename, 
+                    "agent_docs", 
+                    agent_id
+                )
+                
+                if success:
+                    readme_file_url = s3_url
+                    logger.info(f"README file uploaded successfully for agent {agent_id}: {s3_url}")
+                    
+                    # Add README file URL to related_files
+                    if related_files:
+                        docs_data['related_files'] = f"{related_files}, {readme_file_url}"
+                    else:
+                        docs_data['related_files'] = readme_file_url
+                else:
+                    logger.warning(f"README file upload failed for agent {agent_id}: {message}")
+                    
+            except Exception as e:
+                logger.error(f"Error uploading README file {readme_file.filename} for agent {agent_id}: {str(e)}")
+        
         if docs_data:
             docs_success = data_source.update_docs_data(agent_id, docs_data)
             if docs_success:
@@ -1190,8 +1222,7 @@ async def edit_agent(
         # Handle new demo asset file uploads
         if demo_files:
             try:
-                from s3_manager import S3Manager
-                s3_manager = S3Manager()
+                # Use global s3_manager instance
                 
                 # Get existing demo assets to find next counter
                 existing_demo_assets_df = data_source.get_demo_assets()
@@ -1319,7 +1350,9 @@ async def admin_edit_agent(
     # Demo links (JSON string for multiple demo links)
     demo_links: str = Form(None),
     # Demo asset files (multiple files)
-    demo_files: List[UploadFile] = File([])
+    demo_files: List[UploadFile] = File([]),
+    # README file upload
+    readme_file: UploadFile = File(None)
 ):
     """Admin: Edit any agent details"""
     try:
@@ -1380,6 +1413,36 @@ async def admin_edit_agent(
         if related_files is not None:
             docs_data['related_files'] = related_files
         
+        # Handle README file upload
+        readme_file_url = ""
+        if readme_file and readme_file.filename:
+            try:
+                logger.info(f"Processing README file upload for agent {agent_id}: {readme_file.filename}")
+                file_content = await readme_file.read()
+                logger.info(f"README file content size: {len(file_content)} bytes")
+                
+                success, message, s3_url = s3_manager.upload_file(
+                    file_content, 
+                    readme_file.filename, 
+                    "agent_docs", 
+                    agent_id
+                )
+                
+                if success:
+                    readme_file_url = s3_url
+                    logger.info(f"README file uploaded successfully for agent {agent_id}: {s3_url}")
+                    
+                    # Add README file URL to related_files
+                    if related_files:
+                        docs_data['related_files'] = f"{related_files}, {readme_file_url}"
+                    else:
+                        docs_data['related_files'] = readme_file_url
+                else:
+                    logger.warning(f"README file upload failed for agent {agent_id}: {message}")
+                    
+            except Exception as e:
+                logger.error(f"Error uploading README file {readme_file.filename} for agent {agent_id}: {str(e)}")
+        
         if docs_data:
             docs_success = data_source.update_docs_data(agent_id, docs_data)
             if docs_success:
@@ -1432,8 +1495,7 @@ async def admin_edit_agent(
         # Handle new demo asset file uploads
         if demo_files:
             try:
-                from s3_manager import S3Manager
-                s3_manager = S3Manager()
+                # Use global s3_manager instance
                 
                 # Get existing demo assets to find next counter
                 existing_demo_assets_df = data_source.get_demo_assets()

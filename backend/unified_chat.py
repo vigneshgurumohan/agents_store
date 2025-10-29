@@ -441,6 +441,81 @@ After your conversational response, you MUST include this exact JSON structure:
         
         return gathered_info
     
+    def _add_formatted_paragraph(self, doc, text: str):
+        """Add a paragraph with proper markdown formatting"""
+        try:
+            p = doc.add_paragraph()
+            self._add_formatted_text(p, text)
+        except Exception as e:
+            logger.error(f"Error adding formatted paragraph: {str(e)}")
+            doc.add_paragraph(text)
+    
+    def _add_formatted_bullet(self, doc, text: str):
+        """Add a bullet point with proper markdown formatting"""
+        try:
+            p = doc.add_paragraph(style='List Bullet')
+            self._add_formatted_text(p, text)
+        except Exception as e:
+            logger.error(f"Error adding formatted bullet: {str(e)}")
+            doc.add_paragraph(text, style='List Bullet')
+    
+    def _add_formatted_numbered(self, doc, text: str):
+        """Add a numbered item with proper markdown formatting"""
+        try:
+            p = doc.add_paragraph(style='List Number')
+            self._add_formatted_text(p, text)
+        except Exception as e:
+            logger.error(f"Error adding formatted numbered: {str(e)}")
+            doc.add_paragraph(text, style='List Number')
+    
+    def _add_formatted_text(self, paragraph, text: str):
+        """Add text to paragraph with proper markdown formatting (bold, italic, etc.)"""
+        try:
+            # Split text by markdown formatting
+            parts = text.split('**')
+            
+            for i, part in enumerate(parts):
+                if not part:
+                    continue
+                
+                # Check if this part should be bold (odd indices after splitting by **)
+                if i % 2 == 1:
+                    # This part should be bold
+                    run = paragraph.add_run(part)
+                    run.bold = True
+                    run.font.color.rgb = RGBColor(44, 62, 80)  # Professional dark blue
+                else:
+                    # Regular text - check for other formatting
+                    self._add_text_with_formatting(paragraph, part)
+                    
+        except Exception as e:
+            logger.error(f"Error adding formatted text: {str(e)}")
+            paragraph.add_run(text)
+    
+    def _add_text_with_formatting(self, paragraph, text: str):
+        """Add text with various formatting (italic, etc.)"""
+        try:
+            # Handle italic formatting (*text*)
+            parts = text.split('*')
+            
+            for i, part in enumerate(parts):
+                if not part:
+                    continue
+                
+                if i % 2 == 1:
+                    # This part should be italic
+                    run = paragraph.add_run(part)
+                    run.italic = True
+                    run.font.color.rgb = RGBColor(52, 73, 94)  # Professional gray
+                else:
+                    # Regular text
+                    run = paragraph.add_run(part)
+                    run.font.color.rgb = RGBColor(44, 62, 80)  # Professional dark blue
+                    
+        except Exception as e:
+            logger.error(f"Error adding text with formatting: {str(e)}")
+            paragraph.add_run(text)
+    
     def generate_brd_document_async(self, gathered_info: Dict, session_id: str, user_id: str, user_type: str):
         """Generate BRD document asynchronously without blocking chat response"""
         try:
@@ -452,19 +527,19 @@ After your conversational response, you MUST include this exact JSON structure:
                     # Create Word document
                     doc = Document()
                     
-                    # Add title
+                    # Add title with improved styling
                     title = doc.add_heading('Business Requirements Document', 0)
                     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     title_run = title.runs[0]
                     title_run.bold = True
                     title_run.font.size = Pt(24)
-                    title_run.font.color.rgb = RGBColor(102, 126, 234)
+                    title_run.font.color.rgb = RGBColor(44, 62, 80)  # Professional dark blue
                     
                     # Add subtitle
                     subtitle = doc.add_paragraph()
                     subtitle_run = subtitle.add_run('AI Agent Development Project')
                     subtitle_run.font.size = Pt(14)
-                    subtitle_run.font.color.rgb = RGBColor(118, 75, 162)
+                    subtitle_run.font.color.rgb = RGBColor(52, 73, 94)  # Professional gray
                     subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     
                     # Add date
@@ -472,13 +547,15 @@ After your conversational response, you MUST include this exact JSON structure:
                     date_run = date_para.add_run(f'Generated: {datetime.now().strftime("%B %d, %Y")}')
                     date_run.font.size = Pt(10)
                     date_run.font.italic = True
+                    date_run.font.color.rgb = RGBColor(127, 140, 141)  # Light gray
                     date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     
                     # Add line break
                     doc.add_paragraph()
                     
-                    # Add project information section
-                    doc.add_heading('Project Information', 1)
+                    # Add project information section with better formatting
+                    project_heading = doc.add_heading('Project Information', 1)
+                    project_heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
                     
                     project_info = [
                         ('Agent Name', gathered_info.get('agent_name', 'N/A')),
@@ -490,8 +567,11 @@ After your conversational response, you MUST include this exact JSON structure:
                     
                     for label, value in project_info:
                         p = doc.add_paragraph()
-                        p.add_run(f'{label}: ').bold = True
-                        p.add_run(value)
+                        label_run = p.add_run(f'{label}: ')
+                        label_run.bold = True
+                        label_run.font.color.rgb = RGBColor(52, 73, 94)
+                        value_run = p.add_run(value)
+                        value_run.font.color.rgb = RGBColor(44, 62, 80)
                     
                     doc.add_paragraph()
                     
@@ -523,6 +603,13 @@ Create content for ALL sections. Format each section as:
 ## SECTION_NAME
 [Content with bullet points where appropriate]
 
+IMPORTANT FORMATTING RULES:
+- Use **bold** only for key terms and section titles within content
+- Use bullet points (-) for lists
+- Use numbered lists (1., 2., 3.) for sequential steps
+- Keep formatting minimal and professional
+- Avoid excessive bold formatting
+
 Sections to create:
 1. Executive Summary
 2. Business Context & Objectives
@@ -542,7 +629,7 @@ Return the complete document with all sections."""
                             response = self.client.chat.completions.create(
                                 model="gpt-4o-mini",
                                 messages=[
-                                    {"role": "system", "content": "You are a professional business analyst who creates comprehensive BRD documents."},
+                                    {"role": "system", "content": "You are a professional business analyst who creates comprehensive BRD documents. Use minimal markdown formatting - only use **bold** for key terms and section titles within content. Avoid excessive formatting. Focus on clear, professional content structure."},
                                     {"role": "user", "content": all_sections_prompt}
                                 ],
                                 max_tokens=4000,
@@ -551,7 +638,7 @@ Return the complete document with all sections."""
                             
                             content = response.choices[0].message.content
                             
-                            # Parse the content and add to document
+                            # Parse the content and add to document with proper formatting
                             current_section = None
                             lines = content.split('\n')
                             current_paragraph = []
@@ -560,8 +647,8 @@ Return the complete document with all sections."""
                                 line = line.strip()
                                 if not line:
                                     if current_paragraph:
-                                        # Add accumulated paragraph
-                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        # Add accumulated paragraph with formatting
+                                        self._add_formatted_paragraph(doc, ' '.join(current_paragraph))
                                         current_paragraph = []
                                     continue
                                 
@@ -569,32 +656,35 @@ Return the complete document with all sections."""
                                 if line.startswith('##'):
                                     # Save previous section
                                     if current_paragraph:
-                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        self._add_formatted_paragraph(doc, ' '.join(current_paragraph))
                                         current_paragraph = []
                                     
-                                    # Add new section heading
+                                    # Add new section heading with styling
                                     section_name = line.replace('##', '').strip()
                                     current_section = section_name
-                                    doc.add_heading(section_name, 1)
+                                    heading = doc.add_heading(section_name, 1)
+                                    heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
                                 elif line.startswith('-') or line.startswith('•'):
                                     # Bullet point
                                     if current_paragraph:
-                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        self._add_formatted_paragraph(doc, ' '.join(current_paragraph))
                                         current_paragraph = []
-                                    doc.add_paragraph(line[1:].strip(), style='List Bullet')
+                                    bullet_text = line[1:].strip()
+                                    self._add_formatted_bullet(doc, bullet_text)
                                 elif line.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.', '10.')):
                                     # Numbered list
                                     if current_paragraph:
-                                        p = doc.add_paragraph(' '.join(current_paragraph))
+                                        self._add_formatted_paragraph(doc, ' '.join(current_paragraph))
                                         current_paragraph = []
-                                    doc.add_paragraph(line[line.find('.')+1:].strip(), style='List Number')
+                                    numbered_text = line[line.find('.')+1:].strip()
+                                    self._add_formatted_numbered(doc, numbered_text)
                                 else:
                                     # Regular text - accumulate into paragraph
                                     current_paragraph.append(line)
                             
                             # Add any remaining paragraph
                             if current_paragraph:
-                                doc.add_paragraph(' '.join(current_paragraph))
+                                self._add_formatted_paragraph(doc, ' '.join(current_paragraph))
                             
                         except Exception as e:
                             logger.error(f"Error generating BRD content: {str(e)}")
@@ -690,6 +780,12 @@ Return the complete document with all sections."""
             if not existing_session.empty:
                 # Update existing session
                 current_messages = existing_session.iloc[0]['total_messages']
+                # Ensure current_messages is an integer (may be string from database)
+                try:
+                    current_messages = int(current_messages) if current_messages is not None else 0
+                except (ValueError, TypeError):
+                    current_messages = 0
+                
                 updated_data = {
                     'total_messages': current_messages + 1,
                     'last_message_at': datetime.now().isoformat(),
