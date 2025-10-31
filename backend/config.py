@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 # Log API key status for debugging
 import logging
 logger = logging.getLogger(__name__)
@@ -33,24 +34,28 @@ CSV_PATHS = {
     "isv": DATA_DIR / "isv.csv",
     "reseller": DATA_DIR / "reseller.csv",
     "client": DATA_DIR / "client.csv",
-    "agent_requirements": DATA_DIR / "agent_requirements.csv"
+    "agent_requirements": DATA_DIR / "agent_requirements.csv",
+    "chat_history": DATA_DIR / "chat_history.csv",
+    "enquiries": DATA_DIR / "enquiries.csv"
 }
 
 # Database configuration
 DATABASE_CONFIG = {
-    # PostgreSQL settings
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": os.getenv("DB_PORT", "5432"),
-    "database": os.getenv("DB_NAME", "agents_marketplace"),
-    "username": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "password"),
+    # PostgreSQL connection URL (preferred - takes precedence over individual parameters)
+    "DATABASE_URL": os.getenv("DATABASE_URL"),  # Format: postgresql://user:pass@host:port/dbname
+    # PostgreSQL settings (used if DATABASE_URL is not provided)
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT"),
+    "database": os.getenv("DB_NAME"),
+    "username": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
     
     # Connection pool settings
     "min_connections": 1,
     "max_connections": 10,
     
     # Data source preference (csv or postgres)
-    "data_source": os.getenv("DATA_SOURCE", "csv")  # "csv" or "postgres"
+    "data_source": os.getenv("DATA_SOURCE", "postgres")  # "csv" or "postgres"
 }
 
 # API settings
