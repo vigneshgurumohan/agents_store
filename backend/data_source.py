@@ -768,12 +768,22 @@ class DataSource:
             return False
     
     def update_docs_data(self, agent_id: str, updated_data: Dict) -> bool:
-        """Update existing docs data in CSV file or PostgreSQL"""
+        """Update existing docs data in CSV file or PostgreSQL. Creates record if it doesn't exist."""
         try:
             if self.data_source == "csv":
                 return self._update_csv_data("docs", "agent_id", agent_id, updated_data)
             elif self.data_source == "postgres":
-                return self._update_postgres_data("docs", "agent_id", agent_id, updated_data)
+                # Check if docs record exists for this agent
+                docs_df = self.get_docs_by_agent(agent_id)
+                if docs_df.empty:
+                    # Create new record if it doesn't exist
+                    logger.info(f"Creating new docs record for agent {agent_id}")
+                    new_docs_data = {"agent_id": agent_id}
+                    new_docs_data.update(updated_data)
+                    return self._save_postgres_data("docs", new_docs_data)
+                else:
+                    # Update existing record
+                    return self._update_postgres_data("docs", "agent_id", agent_id, updated_data)
             else:
                 logger.error(f"Unknown data source: {self.data_source}")
                 return False

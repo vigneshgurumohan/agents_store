@@ -1137,7 +1137,7 @@ async def edit_agent(
             docs_data['sample_output'] = sample_output
         if security_details is not None:
             docs_data['security_details'] = security_details
-        if related_files is not None:
+        if related_files is not None and related_files != "":
             docs_data['related_files'] = related_files
         
         # Handle README file upload
@@ -1410,7 +1410,7 @@ async def admin_edit_agent(
             docs_data['sample_output'] = sample_output
         if security_details is not None:
             docs_data['security_details'] = security_details
-        if related_files is not None:
+        if related_files is not None and related_files != "":
             docs_data['related_files'] = related_files
         
         # Handle README file upload

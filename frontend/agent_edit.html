@@ -314,7 +314,7 @@
                 
                 <div class="form-group">
                     <label for="related_files_links">Additional Related Files (Links)</label>
-                    <input type="text" id="related_files" name="related_files" placeholder="Links to additional documentation, guides, or resources (separate from uploaded files)">
+                    <input type="text" id="related_files_links" name="related_files_links" placeholder="Links to additional documentation, guides, or resources (separate from uploaded files)">
                 </div>
                 
                 <!-- Demo Assets Section -->
@@ -423,19 +423,26 @@
                 document.getElementById('agents_ordering').value = agent.agents_ordering || '';
                 
                 // Load documentation data
-                const docsResponse = await fetch(`/api/agents/${agentId}`);
-                if (docsResponse.ok) {
-                    const docsData = await docsResponse.json();
-                    const docs = docsData.docs || [];
+                if (data.documentation && data.documentation.length > 0) {
+                    const doc = data.documentation[0];
+                    document.getElementById('sdk_details').value = doc.sdk_details || '';
+                    document.getElementById('swagger_details').value = doc.swagger_details || '';
+                    document.getElementById('sample_input').value = doc.sample_input || '';
+                    document.getElementById('sample_output').value = doc.sample_output || '';
+                    document.getElementById('security_details').value = doc.security_details || '';
+                    document.getElementById('related_files_links').value = doc.related_files || '';
                     
-                    if (docs.length > 0) {
-                        const doc = docs[0];
-                        document.getElementById('sdk_details').value = doc.sdk_details || '';
-                        document.getElementById('swagger_details').value = doc.swagger_details || '';
-                        document.getElementById('sample_input').value = doc.sample_input || '';
-                        document.getElementById('sample_output').value = doc.sample_output || '';
-                        document.getElementById('security_details').value = doc.security_details || '';
-                        document.getElementById('related_files').value = doc.related_files || '';
+                    // Display existing related files if any
+                    if (doc.related_files && doc.related_files !== 'na') {
+                        // Show existing files in the preview
+                        const previewDiv = document.getElementById('readme-file-preview');
+                        if (previewDiv) {
+                            const filesList = doc.related_files.split(',').map(f => f.trim()).filter(f => f);
+                            if (filesList.length > 0) {
+                                previewDiv.innerHTML = '<p><strong>Existing files:</strong></p>' + 
+                                    filesList.map(f => `<p style="color: #666;">${f}</p>`).join('');
+                            }
+                        }
                     }
                 }
                 
@@ -456,7 +463,7 @@
                 'agent_name', 'asset_type', 'by_persona', 'by_value', 'description',
                 'features', 'roi', 'tags', 'application_demo_url', 'agents_ordering',
                 'sdk_details', 'swagger_details', 'sample_input', 'sample_output',
-                'security_details', 'related_files', 'isv_id'
+                'security_details', 'isv_id'
             ];
             
             fields.forEach(field => {
@@ -465,6 +472,12 @@
                     formData.append(field, value);
                 }
             });
+            
+            // Handle related_files_links (send as related_files to backend)
+            const relatedFilesLinks = document.getElementById('related_files_links').value;
+            if (relatedFilesLinks) {
+                formData.append('related_files', relatedFilesLinks);
+            }
             
             // Add demo assets data
             if (existingDemoAssets.length > 0) {
